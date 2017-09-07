@@ -43,3 +43,50 @@ variable force_destroy_bucket {
   description = "Set to true to force deletion of backend bucket on terraform destroy"
   default     = false
 }
+
+variable kms_keyring_name {
+  description = "The name of the Cloud KMS KeyRing for asset encryption"
+}
+
+variable kms_key_name {
+  description = "The name of the Cloud KMS Key used for asset encryption/decryption"
+  default     = "vault-init"
+}
+
+variable tls_ca_subject {
+  description = "The `subject` block for the root CA certificate."
+  type = "map"
+
+  default = {
+    common_name         = "Example Inc. Root"
+    organization        = "Example, Inc"
+    organizational_unit = "Department of Certificate Authority"
+    street_address      = ["123 Example Street"]
+    locality            = "The Intranet"
+    province            = "CA"
+    country             = "US"
+    postal_code         = "95559-1227"
+  }
+}
+
+variable tls_dns_names {
+  description = "List of DNS names added to the Vault server self-signed certificate"
+  type    = "list"
+  default = ["vault.example.net"]
+}
+
+variable tls_ips {
+  description = "List of IP addresses added to the Vault server self-signed certificate"
+  type    = "list"
+  default = ["127.0.0.1"]
+}
+
+variable tls_cn {
+  description = "The TLS Common Name for the TLS certificates"
+  default = "vault.example.net"
+}
+
+variable tls_ou {
+  description = "The TLS Organizational Unit for the TLS certificate"
+  default = "IT Security Operations"
+}
