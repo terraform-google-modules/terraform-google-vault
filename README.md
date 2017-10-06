@@ -24,6 +24,7 @@ module "vault" {
 - `project_id` (required): The project ID to add the IAM bindings for the service account to.
 - `region` (required): The region to create the instance in.
 - `zone` (required): The zone to create the instance in.
+- `storage_bucket` (required): The name prefix of the Cloud Storage buckets to create.
 - `kms_keyring_name` (required): The name of the Cloud KMS KeyRing for asset encryption.
 - `kms_key_name`: (optional): The name of the Cloud KMS Key used for asset encryption/decryption. Default is `vault-init`.
 - `network` (optional): The network to deploy to. Default is `default`.
