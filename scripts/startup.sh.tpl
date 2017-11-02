@@ -1,7 +1,7 @@
 #!/bin/bash -xe
 
 apt-get update
-apt-get install -y unzip jq netcat
+apt-get install -y unzip jq netcat nginx
 
 # Download and install Vault
 cd /tmp && \
@@ -20,10 +20,14 @@ ${config}
 EOF
 chmod 0600 /etc/vault/config.hcl
 
-# Service account key JSON credentials
+# Service account key JSON credentials encrypted in GCS.
 if [[ ! -f /etc/vault/gcp_credentials.json ]]; then
-  gcloud iam service-accounts keys create /etc/vault/gcp_credentials.json \
-    --iam-account ${service_account_email}
+  gcloud kms decrypt \
+    --location global \
+    --keyring=${kms_keyring_name} \
+    --key=${kms_key_name} \
+    --plaintext-file /etc/vault/gcp_credentials.json \
+    --ciphertext-file=<(gsutil cat gs://${assets_bucket}/vault_sa_key.json.encrypted.base64 | base64 -d)
   chmod 0600 /etc/vault/gcp_credentials.json
 fi
 
@@ -62,6 +66,18 @@ export VAULT_ADDR=https://127.0.0.1:8200
 export VAULT_CACERT=/etc/vault/vault-server.ca.crt.pem
 export VAULT_CLIENT_CERT=/etc/vault/vault-server.crt.pem
 export VAULT_CLIENT_KEY=/etc/vault/vault-server.key.pem
+
+# Add health-check proxy, GCE doesn't support https health checks.
+cat - > /etc/nginx/sites-available/default <<EOF
+server {
+    listen 80;
+    location / {
+        proxy_pass $${VAULT_ADDR}/v1/sys/health?standbyok=true&sealedcode=200;
+    }
+}
+EOF
+systemctl enable nginx
+systemctl restart nginx
 
 # Wait 30s for Vault to start
 (while [[ $count -lt 15 && "$(vault status 2>&1)" =~ "connection refused" ]]; do ((count=count+1)) ; echo "$(date) $count: Waiting for Vault to start..." ; sleep 2; done && [[ $count -lt 15 ]])
