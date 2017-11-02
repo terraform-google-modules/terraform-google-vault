@@ -61,6 +61,15 @@ gcloud compute ssh $(gcloud compute instances list --limit=1 --filter=name~vault
 
 > Note: the remainder of the commands will be run from within this SSH session.
 
+Export the Vault environment variables:
+
+```shell
+export VAULT_ADDR=https://127.0.0.1:8200
+export VAULT_CACERT=/etc/vault/vault-server.ca.crt.pem
+export VAULT_CLIENT_CERT=/etc/vault/vault-server.crt.pem
+export VAULT_CLIENT_KEY=/etc/vault/vault-server.key.pem
+```
+
 ## Initialize Vault
 
 Obtain the unseal keys from Cloud Storage and decrypt them using Cloud KMS:
@@ -133,6 +142,8 @@ vault write auth/gcp/role/dev-role \
   service_accounts="vault-admin@${GOOGLE_PROJECT}.iam.gserviceaccount.com"
 ```
 
+> To add another service account run this: `vault write auth/gcp/role/dev-role/service-accounts add="SA_NAME@PROJECT_ID.iam.gserviceaccount.com"`
+
 Get a signed JWT for the `dev-role`:
 
 ```
@@ -154,7 +165,7 @@ JWT_TOKEN=$(gcloud beta iam service-accounts sign-jwt login_request.json signed_
 Login to Vault with the signed JWT:
 
 ```
-curl -s ${VAULT_ADDR}/v1/auth/gcp/login -d '{"role": "dev-role", "jwt": "'${JWT_TOKEN}'"}' | jq -r '.auth.client_token' > ~/.vault-token
+vault write -field=token auth/gcp/login role=dev-role jwt=${JWT_TOKEN} > ~/.vault-token
 ```
 
 Test access by writing and reading a value to the cubbyhole
@@ -170,4 +181,17 @@ Expected output:
 Key     Value
 ---     -----
 value   world
+```
+
+## Cleaning up
+
+```
+terraform destroy
+```
+
+Clean up the locally generated artifacts:
+
+```
+rm -rf certs/
+rm vault_sa_key.json*
 ```

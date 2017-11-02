@@ -37,7 +37,8 @@ data "template_file" "vault-config" {
 }
 
 module "vault-server" {
-  source                = "github.com/GoogleCloudPlatform/terraform-google-managed-instance-group?ref=1.0.2"
+  source                = "github.com/GoogleCloudPlatform/terraform-google-managed-instance-group"
+  http_health_check     = false
   region                = "${var.region}"
   zone                  = "${var.zone}"
   name                  = "vault-${var.region}"
@@ -54,8 +55,8 @@ module "vault-server" {
   ]
 
   size              = 1
-  service_port      = "8200"
-  service_port_name = "tcp"
+  service_port      = "80"
+  service_port_name = "hc"
   startup_script    = "${data.template_file.vault-startup-script.rendered}"
 }
 
@@ -78,6 +79,37 @@ resource "google_storage_bucket" "vault-assets" {
 resource "google_service_account" "vault-admin" {
   account_id   = "vault-admin"
   display_name = "Vault Admin"
+}
+
+// Generate a JSON key for the service account.
+data "external" "sa-key" {
+  program = ["${path.module}/get_sa_key.sh"]
+
+  query = {
+    dest    = "vault_sa_key.json"
+    email   = "${google_service_account.vault-admin.email}"
+    id      = "${google_service_account.vault-admin.unique_id}"
+  }
+}
+
+// Encrypt the SA key with KMS.
+data "external" "sa-key-encrypted" {
+  program = ["${path.module}/encrypt_file.sh"]
+
+  query = {
+    dest    = "vault_sa_key.json.encrypted.base64"
+    data    = "${data.external.sa-key.result["file"]}"
+    keyring = "${var.kms_keyring_name}"
+    key     = "${var.kms_key_name}"
+  }
+}
+
+// Upload the service account key to the assets bucket.
+resource "google_storage_bucket_object" "vault-sa-key" {
+  name         = "vault_sa_key.json.encrypted.base64"
+  content      = "${file(data.external.sa-key-encrypted.result["file"])}"
+  content_type = "application/octet-stream"
+  bucket       = "${google_storage_bucket.vault-assets.name}"
 }
 
 resource "google_project_iam_policy" "vault" {

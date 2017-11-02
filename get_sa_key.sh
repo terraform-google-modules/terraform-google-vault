@@ -19,29 +19,17 @@
 # The output format is JSON.
 
 # Extract JSON args into shell variables
-eval "$(jq -r '@sh "DEST=\(.dest) DATA=\(.data) KEYRING=\(.keyring) KEY=\(.key)"')"
+eval "$(jq -r '@sh "DEST=\(.dest) EMAIL=\(.email) ID=\(.id)"')"
 
 mkdir -p $(dirname "${DEST}")
 
-# if DATA is a path to a file, read the file.
-[[ -f "${DATA}" ]] && DATA=$(cat "${DATA}")
-
 # Calculate the signature of the input data.
-SIG=$(echo -n "${DATA}" | shasum | cut -d ' ' -f1)
+SIG=$(echo -n "@sh" | shasum | cut -d ' ' -f1)
 
 # Break if dest file with same signature already exists
 [[ -f "${DEST}" && -f "${DEST}.sig" && -z $(diff <(echo -n "$SIG") "${DEST}.sig") ]] && jq -n --arg file "${DEST}" '{"file":$file}' && exit 0
 
-TEMP_FILE="${DEST}.tmp"
-echo -n "${DATA}" > ${TEMP_FILE}
-
-gcloud kms encrypt \
-  --location=global \
-  --keyring=${KEYRING} \
-  --key=${KEY} \
-  --plaintext-file=${TEMP_FILE} \
-  --ciphertext-file=/dev/stdout | base64 > ${DEST}
-rm -f ${TEMP_FILE}
+gcloud iam service-accounts keys create ${DEST} --iam-account ${EMAIL}
 
 echo -n "$SIG" > "${DEST}.sig"
 
