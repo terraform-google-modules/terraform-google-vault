@@ -20,7 +20,7 @@
 
 # Extract JSON args into shell variables
 JQ=$(command -v jq)
-[[ -z "${JQ}" ]] && echo "ERROR: Missing command: 'jq'" && exit 1
+[[ -z "${JQ}" ]] && echo "ERROR: Missing command: 'jq'" >&2 && exit 1
 
 eval "$(${JQ} -r '@sh "DEST=\(.dest) DATA=\(.data) KEYRING=\(.keyring) KEY=\(.key)"')"
 
@@ -31,7 +31,7 @@ mkdir -p $(dirname "${DEST}")
 
 SHASUM=$(command -v shasum)
 [[ -z "${SHASUM}" ]] && SHASUM=$(command -v sha1sum)
-[[ -z "${SHASUM}" ]] && echo "ERROR: Missing command: 'shasum' or 'sha1sum'" && exit 1
+[[ -z "${SHASUM}" ]] && echo "ERROR: Missing command: 'shasum' or 'sha1sum'" >&2 && exit 1
 
 # Calculate the signature of the input data.
 SIG=$(echo -n "${DATA}" | ${SHASUM} | cut -d ' ' -f1)
