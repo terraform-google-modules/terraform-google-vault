@@ -19,12 +19,19 @@
 # The output format is JSON.
 
 # Extract JSON args into shell variables
+JQ=$(command -v jq || true)
+[[ -z "${JQ}" ]] && echo "ERROR: Missing command: 'jq'" >&2 && exit 1
+
 eval "$(jq -r '@sh "DEST=\(.dest) EMAIL=\(.email) ID=\(.id)"')"
 
 mkdir -p $(dirname "${DEST}")
 
+SHASUM=$(command -v shasum || true)
+[[ -z "${SHASUM}" ]] && SHASUM=$(command -v sha1sum || true)
+[[ -z "${SHASUM}" ]] && echo "ERROR: Missing command: 'shasum' or 'sha1sum'" >&2 && exit 1
+
 # Calculate the signature of the input data.
-SIG=$(echo -n "@sh" | shasum | cut -d ' ' -f1)
+SIG=$(echo -n "@sh" | ${SHASUM} | cut -d ' ' -f1)
 
 # Break if dest file with same signature already exists
 [[ -f "${DEST}" && -f "${DEST}.sig" && -z $(diff <(echo -n "$SIG") "${DEST}.sig") ]] && jq -n --arg file "${DEST}" '{"file":$file}' && exit 0
