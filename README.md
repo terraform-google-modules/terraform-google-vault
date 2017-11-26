@@ -29,7 +29,8 @@ module "vault" {
 - `network` (optional): The network to deploy to. Default is `default`.
 - `subnetwork` (optional): The subnetwork to deploy to. Default is `default`.
 - `machine_type` (optional): The machine type for the instance. Default is `n1-standard-1`
-- `vault_args` (optional): Additional command line arguments passed to vault server. 
+- `target_tags` (optional): The tags to assign to the instance. Default is `["allow-service"]`.
+- `vault_args` (optional): Additional command line arguments passed to vault server.
 - `force_destroy_bucket` (optional): Set to true to force deletion of backend bucket on terraform destroy. Default is `false`.
 - `tls_ca_subject` (optional): The `subject` block for the root CA certificate.
 - `tls_dns_names` (optional): List of DNS names added to the Vault server self-signed certificate. Default is `["vault.example.net"]`.
