@@ -54,6 +54,8 @@ module "vault-server" {
     "https://www.googleapis.com/auth/devstorage.full_control",
   ]
 
+  target_tags = ["${var.target_tags}"]
+
   size              = 1
   service_port      = "80"
   service_port_name = "hc"
@@ -86,9 +88,9 @@ data "external" "sa-key" {
   program = ["${path.module}/get_sa_key.sh"]
 
   query = {
-    dest    = "vault_sa_key.json"
-    email   = "${google_service_account.vault-admin.email}"
-    id      = "${google_service_account.vault-admin.unique_id}"
+    dest  = "vault_sa_key.json"
+    email = "${google_service_account.vault-admin.email}"
+    id    = "${google_service_account.vault-admin.unique_id}"
   }
 }
 

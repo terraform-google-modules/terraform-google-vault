@@ -45,6 +45,12 @@ variable machine_type {
   default     = "n1-standard-1"
 }
 
+variable target_tags {
+  description = "The tags to assign to the instance."
+  type        = "list"
+  default     = ["allow-service"]
+}
+
 variable vault_version {
   description = "The version of vault to install."
   default     = "0.8.1"
