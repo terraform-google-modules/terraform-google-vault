@@ -44,6 +44,8 @@ module "vault-server" {
   name                  = "vault-${var.region}"
   machine_type          = "${var.machine_type}"
   compute_image         = "debian-cloud/debian-9"
+  network               = "${var.network}"
+  subnetwork            = "${var.subnetwork}"
   service_account_email = "${google_service_account.vault-admin.email}"
 
   service_account_scopes = [
