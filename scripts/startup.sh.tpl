@@ -27,7 +27,7 @@ if [[ ! -f /etc/vault/gcp_credentials.json ]]; then
     --keyring=${kms_keyring_name} \
     --key=${kms_key_name} \
     --plaintext-file /etc/vault/gcp_credentials.json \
-    --ciphertext-file=<(gsutil cat gs://${assets_bucket}/vault_sa_key.json.encrypted.base64 | base64 -d)
+    --ciphertext-file=<(gsutil cat gs://${assets_bucket}/${vault_sa_key} | base64 -d)
   chmod 0600 /etc/vault/gcp_credentials.json
 fi
 
@@ -38,14 +38,14 @@ EOF
 chmod 0600 /etc/vault/vault.env
 
 # TLS key and certs
-for tls_file in vault-server.ca.crt.pem vault-server.crt.pem vault-server.key.pem; do
+for tls_file in ${vault_ca_cert} ${vault_tls_key} ${vault_tls_cert}; do 
   gcloud kms decrypt \
     --location global \
     --keyring=${kms_keyring_name} \
     --key=${kms_key_name} \
-    --plaintext-file /etc/vault/$${tls_file} \
-    --ciphertext-file=<(gsutil cat gs://${assets_bucket}/$${tls_file}.encrypted.base64 | base64 -d)
-  chmod 0600 /etc/vault/$${tls_file}
+    --plaintext-file /etc/vault/$${tls_file//.encrypted.base64/} \
+    --ciphertext-file=<(gsutil cat gs://${assets_bucket}/$${tls_file} | base64 -d)
+  chmod 0600 /etc/vault/$${tls_file//.encrypted.base64/}
 done
 
 # Systemd service

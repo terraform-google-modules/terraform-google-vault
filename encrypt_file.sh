@@ -22,12 +22,15 @@
 JQ=$(command -v jq || true)
 [[ -z "${JQ}" ]] && echo "ERROR: Missing command: 'jq'" >&2 && exit 1
 
-eval "$(${JQ} -r '@sh "DEST=\(.dest) DATA=\(.data) KEYRING=\(.keyring) KEY=\(.key)"')"
+eval "$(${JQ} -r '@sh "DEST=\(.dest) DATA=\(.data) KEYRING=\(.keyring) KEY=\(.key) B64IN=\(.b64in)"')"
 
 mkdir -p $(dirname "${DEST}")
 
 # if DATA is a path to a file, read the file.
 [[ -f "${DATA}" ]] && DATA=$(cat "${DATA}")
+
+# if DATA is b64 encoded, decode it before encrypting.
+[[ "${B64IN}" == "true" ]] && DATA=$(base64 --decode <<< ${DATA})
 
 SHASUM=$(command -v shasum || true)
 [[ -z "${SHASUM}" ]] && SHASUM=$(command -v sha1sum || true)

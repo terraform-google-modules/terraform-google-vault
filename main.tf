@@ -25,6 +25,10 @@ data "template_file" "vault-startup-script" {
     assets_bucket         = "${google_storage_bucket.vault-assets.name}"
     kms_keyring_name      = "${var.kms_keyring_name}"
     kms_key_name          = "${var.kms_key_name}"
+    vault_sa_key          = "${google_storage_bucket_object.vault-sa-key.name}"
+    vault_ca_cert         = "${google_storage_bucket_object.vault-ca-cert.name}"
+    vault_tls_key         = "${google_storage_bucket_object.vault-tls-key.name}"
+    vault_tls_cert        = "${google_storage_bucket_object.vault-tls-cert.name}"
   }
 }
 
@@ -81,15 +85,10 @@ resource "google_service_account" "vault-admin" {
   display_name = "Vault Admin"
 }
 
-// Generate a JSON key for the service account.
-data "external" "sa-key" {
-  program = ["${path.module}/get_sa_key.sh"]
-
-  query = {
-    dest    = "vault_sa_key.json"
-    email   = "${google_service_account.vault-admin.email}"
-    id      = "${google_service_account.vault-admin.unique_id}"
-  }
+resource "google_service_account_key" "vault-admin" {
+  service_account_id = "${google_service_account.vault-admin.id}"
+  public_key_type = "TYPE_X509_PEM_FILE"
+  private_key_type = "TYPE_GOOGLE_CREDENTIALS_FILE"
 }
 
 // Encrypt the SA key with KMS.
@@ -98,9 +97,10 @@ data "external" "sa-key-encrypted" {
 
   query = {
     dest    = "vault_sa_key.json.encrypted.base64"
-    data    = "${data.external.sa-key.result["file"]}"
+    data    = "${google_service_account_key.vault-admin.private_key}"
     keyring = "${var.kms_keyring_name}"
     key     = "${var.kms_key_name}"
+    b64in   = "true"
   }
 }
 
@@ -110,6 +110,12 @@ resource "google_storage_bucket_object" "vault-sa-key" {
   content      = "${file(data.external.sa-key-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
+  
+  provisioner "local-exec" {
+    when    = "destroy"
+    command = "rm -f vault_sa_key.json*"
+    interpreter = ["sh", "-c"]
+  }
 }
 
 resource "google_project_iam_policy" "vault" {
@@ -235,6 +241,12 @@ resource "google_storage_bucket_object" "vault-ca-cert" {
   content      = "${file(data.external.vault-ca-cert-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
+  
+  provisioner "local-exec" {
+    when    = "destroy"
+    command = "rm -f certs/vault-server.ca.crt.pem*"
+    interpreter = ["sh", "-c"]
+  }
 }
 
 // Encrypt the server key.
@@ -255,6 +267,12 @@ resource "google_storage_bucket_object" "vault-tls-key" {
   content      = "${file(data.external.vault-tls-key-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
+  
+  provisioner "local-exec" {
+    when    = "destroy"
+    command = "rm -f certs/vault-server.key.pem*"
+    interpreter = ["sh", "-c"]
+  }
 }
 
 // Encrypt the server cert.
@@ -275,4 +293,10 @@ resource "google_storage_bucket_object" "vault-tls-cert" {
   content      = "${file(data.external.vault-tls-cert-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
+  
+  provisioner "local-exec" {
+    when    = "destroy"
+    command = "rm -f certs/vault-server.crt.pem*"
+    interpreter = ["sh", "-c"]
+  }
 }

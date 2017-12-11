@@ -47,7 +47,7 @@ variable machine_type {
 
 variable vault_version {
   description = "The version of vault to install."
-  default     = "0.8.1"
+  default     = "0.9.0"
 }
 
 variable vault_args {
