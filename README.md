@@ -10,7 +10,7 @@ This module also creates a TLS CA and certificates for the Vault server. The gen
 
 ```ruby
 module "vault" {
-  source = "github.com/GoogleCloudPlatform/terrform-google-vault"
+  source = "github.com/GoogleCloudPlatform/terraform-google-vault"
   project_id           = "${var.project_id}"
   region               = "${var.region}"
   zone                 = "${var.zone}"
