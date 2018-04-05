@@ -45,6 +45,8 @@ module "vault-server" {
   http_health_check     = false
   region                = "${var.region}"
   zone                  = "${var.zone}"
+  network               = "${var.network}"
+  subnetwork            = "${var.subnetwork}"
   name                  = "vault-${var.region}"
   machine_type          = "${var.machine_type}"
   compute_image         = "debian-cloud/debian-9"
@@ -110,7 +112,7 @@ resource "google_storage_bucket_object" "vault-sa-key" {
   content      = "${file(data.external.sa-key-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
-  
+
   provisioner "local-exec" {
     when    = "destroy"
     command = "rm -f vault_sa_key.json*"
@@ -241,7 +243,7 @@ resource "google_storage_bucket_object" "vault-ca-cert" {
   content      = "${file(data.external.vault-ca-cert-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
-  
+
   provisioner "local-exec" {
     when    = "destroy"
     command = "rm -f certs/vault-server.ca.crt.pem*"
@@ -267,7 +269,7 @@ resource "google_storage_bucket_object" "vault-tls-key" {
   content      = "${file(data.external.vault-tls-key-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
-  
+
   provisioner "local-exec" {
     when    = "destroy"
     command = "rm -f certs/vault-server.key.pem*"
@@ -293,7 +295,7 @@ resource "google_storage_bucket_object" "vault-tls-cert" {
   content      = "${file(data.external.vault-tls-cert-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
-  
+
   provisioner "local-exec" {
     when    = "destroy"
     command = "rm -f certs/vault-server.crt.pem*"
