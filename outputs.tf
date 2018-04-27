@@ -33,3 +33,8 @@ output ca_cert_pem {
   description = "The root CA cert pem for generating client certs."
   value       = "${tls_self_signed_cert.root.cert_pem}"
 }
+
+output vault_admin_sa_key {
+  description = "The Vault Admin user service account private key. base64 encoded"
+  value       = "${google_service_account_key.vault-admin.private_key}"
+}
