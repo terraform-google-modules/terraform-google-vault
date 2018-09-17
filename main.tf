@@ -288,7 +288,7 @@ data "external" "vault-tls-cert-encrypted" {
   }
 }
 
-// Upload the server key to the assets bucket.
+// Upload the server cert to the assets bucket.
 resource "google_storage_bucket_object" "vault-tls-cert" {
   name         = "vault-server.crt.pem.encrypted.base64"
   content      = "${file(data.external.vault-tls-cert-encrypted.result["file"])}"
