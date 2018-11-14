@@ -14,6 +14,21 @@
  * limitations under the License.
  */
 
+variable environment {
+  description = "Environment"
+  default="qa"
+}
+
+variable service_account_name {
+  description = "The service Account name"
+  default = "vault-admin"
+}
+ 
+variable service_account_description {
+  description = "The service Account description"
+  default = "Vault admin"
+}
+
 variable project_id {
   description = "The project ID to add the IAM bindings for the service account to"
 }

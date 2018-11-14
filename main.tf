@@ -18,6 +18,7 @@ data "template_file" "vault-startup-script" {
   template = "${file("${format("%s/scripts/startup.sh.tpl", path.module)}")}"
 
   vars {
+    environment           = "${var.environment}"
     config                = "${data.template_file.vault-config.rendered}"
     service_account_email = "${google_service_account.vault-admin.email}"
     vault_version         = "${var.vault_version}"
@@ -37,6 +38,7 @@ data "template_file" "vault-config" {
 
   vars {
     storage_bucket = "${google_storage_bucket.vault.name}"
+    environment    = "${var.environment}"
   }
 }
 
@@ -46,7 +48,7 @@ module "vault-server" {
   http_health_check     = false
   region                = "${var.region}"
   zone                  = "${var.zone}"
-  name                  = "vault-${var.region}"
+  name                  = "vault-${var.environment}-${var.region}"
   machine_type          = "${var.machine_type}"
   compute_image         = "debian-cloud/debian-9"
   service_account_email = "${google_service_account.vault-admin.email}"
@@ -82,8 +84,8 @@ resource "google_storage_bucket" "vault-assets" {
 }
 
 resource "google_service_account" "vault-admin" {
-  account_id   = "vault-admin"
-  display_name = "Vault Admin"
+  account_id   = "${var.service_account_name}"
+  display_name = "${var.service_account_description}"
 }
 
 resource "google_service_account_key" "vault-admin" {
@@ -97,7 +99,7 @@ data "external" "sa-key-encrypted" {
   program = ["${path.module}/encrypt_file.sh"]
 
   query = {
-    dest    = "vault_sa_key.json.encrypted.base64"
+    dest    = "vault_sa_key-${var.environment}.json.encrypted.base64"
     data    = "${google_service_account_key.vault-admin.private_key}"
     keyring = "${var.kms_keyring_name}"
     key     = "${var.kms_key_name}"
@@ -107,14 +109,14 @@ data "external" "sa-key-encrypted" {
 
 // Upload the service account key to the assets bucket.
 resource "google_storage_bucket_object" "vault-sa-key" {
-  name         = "vault_sa_key.json.encrypted.base64"
+  name         = "vault_sa_key-${var.environment}.json.encrypted.base64"
   content      = "${file(data.external.sa-key-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
   
   provisioner "local-exec" {
     when    = "destroy"
-    command = "rm -f vault_sa_key.json*"
+    command = "rm -f vault_sa_key-${var.environment}.json*"
     interpreter = ["sh", "-c"]
   }
 }
@@ -229,7 +231,7 @@ data "external" "vault-ca-cert-encrypted" {
   program = ["${path.module}/encrypt_file.sh"]
 
   query = {
-    dest    = "certs/vault-server.ca.crt.pem.encrypted.base64"
+    dest    = "certs/${var.environment}/vault-server-${var.environment}.ca.crt.pem.encrypted.base64"
     data    = "${tls_self_signed_cert.root.cert_pem}"
     keyring = "${var.kms_keyring_name}"
     key     = "${var.kms_key_name}"
@@ -238,14 +240,14 @@ data "external" "vault-ca-cert-encrypted" {
 
 // Upload the CA cert to the assets bucket.
 resource "google_storage_bucket_object" "vault-ca-cert" {
-  name         = "vault-server.ca.crt.pem.encrypted.base64"
+  name         = "vault-server-${var.environment}.ca.crt.pem.encrypted.base64"
   content      = "${file(data.external.vault-ca-cert-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
   
   provisioner "local-exec" {
     when    = "destroy"
-    command = "rm -f certs/vault-server.ca.crt.pem*"
+    command = "rm -f certs/${var.environment}/vault-server-${var.environment}.ca.crt.pem*"
     interpreter = ["sh", "-c"]
   }
 }
@@ -255,7 +257,7 @@ data "external" "vault-tls-key-encrypted" {
   program = ["${path.module}/encrypt_file.sh"]
 
   query = {
-    dest    = "certs/vault-server.key.pem.encrypted.base64"
+    dest    = "certs/${var.environment}/vault-server-${var.environment}.key.pem.encrypted.base64"
     data    = "${tls_private_key.vault-server.private_key_pem}"
     keyring = "${var.kms_keyring_name}"
     key     = "${var.kms_key_name}"
@@ -264,14 +266,14 @@ data "external" "vault-tls-key-encrypted" {
 
 // Upload the server key to the assets bucket.
 resource "google_storage_bucket_object" "vault-tls-key" {
-  name         = "vault-server.key.pem.encrypted.base64"
+  name         = "vault-server-${var.environment}.key.pem.encrypted.base64"
   content      = "${file(data.external.vault-tls-key-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
   
   provisioner "local-exec" {
     when    = "destroy"
-    command = "rm -f certs/vault-server.key.pem*"
+    command = "rm -f certs/${var.environment}/vault-server-${var.environment}.key.pem*"
     interpreter = ["sh", "-c"]
   }
 }
@@ -281,7 +283,7 @@ data "external" "vault-tls-cert-encrypted" {
   program = ["${path.module}/encrypt_file.sh"]
 
   query = {
-    dest    = "certs/vault-server.crt.pem.encrypted.base64"
+    dest    = "certs/${var.environment}/vault-server-${var.environment}.crt.pem.encrypted.base64"
     data    = "${tls_locally_signed_cert.vault-server.cert_pem}"
     keyring = "${var.kms_keyring_name}"
     key     = "${var.kms_key_name}"
@@ -290,14 +292,14 @@ data "external" "vault-tls-cert-encrypted" {
 
 // Upload the server key to the assets bucket.
 resource "google_storage_bucket_object" "vault-tls-cert" {
-  name         = "vault-server.crt.pem.encrypted.base64"
+  name         = "vault-server-${var.environment}.crt.pem.encrypted.base64"
   content      = "${file(data.external.vault-tls-cert-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
   
   provisioner "local-exec" {
     when    = "destroy"
-    command = "rm -f certs/vault-server.crt.pem*"
+    command = "rm -f certs/${var.environment}/vault-server-${var.environment}.crt.pem*"
     interpreter = ["sh", "-c"]
   }
 }
