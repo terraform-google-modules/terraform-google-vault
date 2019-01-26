@@ -4,7 +4,7 @@ Modular deployment of Vault on Compute Engine.
 
 Unseal keys are generated when the instance first starts and stored encrypted using Cloud KMS in a separate Cloud Storage bucket for later retrival and Vault unsealing. 
 
-This module also creates a TLS CA and certificates for the Vault server. The generated certificates are encrypyed using Cloud KMS and stored in a separate Cloud Storage bucket.
+This module also creates a TLS CA and certificates for the Vault server. The generated certificates are encrypted using Cloud KMS and stored in a separate Cloud Storage bucket.
 
 ## Usage
 
