@@ -38,7 +38,7 @@ EOF
 chmod 0600 /etc/vault/vault.env
 
 # TLS key and certs
-for tls_file in ${vault_ca_cert} ${vault_tls_key} ${vault_tls_cert}; do 
+for tls_file in ${vault_ca_cert} ${vault_tls_key} ${vault_tls_cert}; do
   gcloud kms decrypt \
     --location global \
     --keyring=${kms_keyring_name} \
@@ -99,3 +99,17 @@ else
   gsutil cp /tmp/vault_unseal_keys.txt.encrypted gs://${assets_bucket}
   rm -f /tmp/vault_unseal_keys.txt*
 fi
+
+# TODO use variables here
+echo "export VAULT_ADDR=https://127.0.0.1:8200
+export VAULT_CACERT=/etc/vault/vault-server.ca.crt.pem
+export VAULT_CLIENT_CERT=/etc/vault/vault-server.crt.pem
+export VAULT_CLIENT_KEY=/etc/vault/vault-server.key.pem" >> /root/.bashrc
+
+
+
+# Todo add an IF statement to make monitring install optional
+# Installing StatsD Monitroing for Vault
+(cd /tmp/ && curl -sSO https://dl.google.com/cloudagents/install-monitoring-agent.sh && bash install-monitoring-agent.sh)
+(cd /opt/stackdriver/collectd/etc/collectd.d/ && sudo curl -O https://raw.githubusercontent.com/Stackdriver/stackdriver-agent-service-configs/master/etc/collectd.d/statsd.conf)
+service stackdriver-agent restart

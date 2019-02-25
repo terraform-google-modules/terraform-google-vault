@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+variable name {
+  description = "name for vault server"
+}
 variable project_id {
   description = "The project ID to add the IAM bindings for the service account to"
 }

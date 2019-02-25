@@ -9,3 +9,8 @@ storage "gcs" {
   bucket           = "${storage_bucket}"
   credentials_file = "/etc/vault/gcp_credentials.json"
 }
+
+telemetry {
+  statsd_address = "127.0.0.1:8125"
+  disable_hostname = true
+}

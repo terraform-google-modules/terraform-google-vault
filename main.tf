@@ -41,6 +41,7 @@ data "template_file" "vault-config" {
 }
 
 module "vault-server" {
+  name                  = "vault-${var.name}-${var.region}"
   source                = "GoogleCloudPlatform/managed-instance-group/google"
   version               = "1.1.13"
   http_health_check     = false
@@ -111,7 +112,7 @@ resource "google_storage_bucket_object" "vault-sa-key" {
   content      = "${file(data.external.sa-key-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
-  
+
   provisioner "local-exec" {
     when    = "destroy"
     command = "rm -f vault_sa_key.json*"
@@ -119,52 +120,46 @@ resource "google_storage_bucket_object" "vault-sa-key" {
   }
 }
 
-resource "google_project_iam_policy" "vault" {
-  project     = "${var.project_id}"
-  policy_data = "${data.google_iam_policy.vault.policy_data}"
+resource "google_project_iam_member" "monitoring_metric_writer" {
+  project = "${var.project_id}"
+  role    = "roles/monitoring.metricWriter"
+  member  = "serviceAccount:${google_service_account.vault-admin.email}"
 }
 
-data "google_iam_policy" "vault" {
-  binding {
-    role = "roles/storage.admin"
 
-    members = [
-      "serviceAccount:${google_service_account.vault-admin.email}",
-    ]
-  }
 
-  binding {
-    role = "roles/iam.serviceAccountActor"
-
-    members = [
-      "serviceAccount:${google_service_account.vault-admin.email}",
-    ]
-  }
-
-  binding {
-    role = "roles/iam.serviceAccountKeyAdmin"
-
-    members = [
-      "serviceAccount:${google_service_account.vault-admin.email}",
-    ]
-  }
-
-  binding {
-    role = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-
-    members = [
-      "serviceAccount:${google_service_account.vault-admin.email}",
-    ]
-  }
-
-  binding {
-    role = "roles/logging.logWriter"
-
-    members = [
-      "serviceAccount:${google_service_account.vault-admin.email}",
-    ]
-  }
+resource "google_project_iam_member" "storage_admin" {
+  project = "${var.project_id}"
+  role    = "roles/storage.admin"
+  member  = "serviceAccount:${google_service_account.vault-admin.email}"
 }
+
+
+resource "google_project_iam_member" "service_account_actor" {
+  project = "${var.project_id}"
+  role    = "roles/iam.serviceAccountActor"
+  member  = "serviceAccount:${google_service_account.vault-admin.email}"
+}
+
+resource "google_project_iam_member" "service_account_key_admin" {
+  project = "${var.project_id}"
+  role    = "roles/iam.serviceAccountKeyAdmin"
+  member  = "serviceAccount:${google_service_account.vault-admin.email}"
+}
+
+
+resource "google_project_iam_member" "kms_encrypter_decrypter" {
+  project = "${var.project_id}"
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:${google_service_account.vault-admin.email}"
+}
+
+resource "google_project_iam_member" "log_writer" {
+  project = "${var.project_id}"
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.vault-admin.email}"
+}
+
 
 // TLS resources
 
@@ -242,7 +237,7 @@ resource "google_storage_bucket_object" "vault-ca-cert" {
   content      = "${file(data.external.vault-ca-cert-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
-  
+
   provisioner "local-exec" {
     when    = "destroy"
     command = "rm -f certs/vault-server.ca.crt.pem*"
@@ -268,7 +263,7 @@ resource "google_storage_bucket_object" "vault-tls-key" {
   content      = "${file(data.external.vault-tls-key-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
-  
+
   provisioner "local-exec" {
     when    = "destroy"
     command = "rm -f certs/vault-server.key.pem*"
@@ -294,7 +289,7 @@ resource "google_storage_bucket_object" "vault-tls-cert" {
   content      = "${file(data.external.vault-tls-cert-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
-  
+
   provisioner "local-exec" {
     when    = "destroy"
     command = "rm -f certs/vault-server.crt.pem*"
