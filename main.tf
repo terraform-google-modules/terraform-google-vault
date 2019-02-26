@@ -14,6 +14,18 @@
  * limitations under the License.
  */
 
+provider "google" {
+  version = "= 2.0.0"
+  project = "${var.project_id}"
+  region  = "${var.region}"
+}
+
+provider "google-beta" {
+  version = "= 2.0.0"
+  project = "${var.project_id}"
+  region  = "${var.region}"
+}
+
 data "template_file" "vault-startup-script" {
   template = "${file("${format("%s/scripts/startup.sh.tpl", path.module)}")}"
 
@@ -41,9 +53,10 @@ data "template_file" "vault-config" {
 }
 
 module "vault-server" {
-  source                = "GoogleCloudPlatform/managed-instance-group/google"
-  version               = "1.1.13"
+  source                = "github.com/dcaba/terraform-google-managed-instance-group"
+  version               = "1.1.16"
   http_health_check     = false
+  project               = "${var.project_id}"
   region                = "${var.region}"
   zone                  = "${var.zone}"
   name                  = "vault-${var.region}"
@@ -88,8 +101,8 @@ resource "google_service_account" "vault-admin" {
 
 resource "google_service_account_key" "vault-admin" {
   service_account_id = "${google_service_account.vault-admin.id}"
-  public_key_type = "TYPE_X509_PEM_FILE"
-  private_key_type = "TYPE_GOOGLE_CREDENTIALS_FILE"
+  public_key_type    = "TYPE_X509_PEM_FILE"
+  private_key_type   = "TYPE_GOOGLE_CREDENTIALS_FILE"
 }
 
 // Encrypt the SA key with KMS.
@@ -111,10 +124,10 @@ resource "google_storage_bucket_object" "vault-sa-key" {
   content      = "${file(data.external.sa-key-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
-  
+
   provisioner "local-exec" {
-    when    = "destroy"
-    command = "rm -f vault_sa_key.json*"
+    when        = "destroy"
+    command     = "rm -f vault_sa_key.json*"
     interpreter = ["sh", "-c"]
   }
 }
@@ -242,10 +255,10 @@ resource "google_storage_bucket_object" "vault-ca-cert" {
   content      = "${file(data.external.vault-ca-cert-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
-  
+
   provisioner "local-exec" {
-    when    = "destroy"
-    command = "rm -f certs/vault-server.ca.crt.pem*"
+    when        = "destroy"
+    command     = "rm -f certs/vault-server.ca.crt.pem*"
     interpreter = ["sh", "-c"]
   }
 }
@@ -268,10 +281,10 @@ resource "google_storage_bucket_object" "vault-tls-key" {
   content      = "${file(data.external.vault-tls-key-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
-  
+
   provisioner "local-exec" {
-    when    = "destroy"
-    command = "rm -f certs/vault-server.key.pem*"
+    when        = "destroy"
+    command     = "rm -f certs/vault-server.key.pem*"
     interpreter = ["sh", "-c"]
   }
 }
@@ -294,10 +307,10 @@ resource "google_storage_bucket_object" "vault-tls-cert" {
   content      = "${file(data.external.vault-tls-cert-encrypted.result["file"])}"
   content_type = "application/octet-stream"
   bucket       = "${google_storage_bucket.vault-assets.name}"
-  
+
   provisioner "local-exec" {
-    when    = "destroy"
-    command = "rm -f certs/vault-server.crt.pem*"
+    when        = "destroy"
+    command     = "rm -f certs/vault-server.crt.pem*"
     interpreter = ["sh", "-c"]
   }
 }

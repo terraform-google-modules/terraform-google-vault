@@ -26,9 +26,6 @@ variable project_id {}
 variable storage_bucket {}
 variable kms_keyring_name {}
 
-provider google {
-  region = "${var.region}"
-}
 
 module "vault" {
   // source               = "github.com/GoogleCloudPlatform/terraform-google-vault"

@@ -2,9 +2,9 @@
 
 Modular deployment of Vault on Compute Engine.
 
-Unseal keys are generated when the instance first starts and stored encrypted using Cloud KMS in a separate Cloud Storage bucket for later retrival and Vault unsealing. 
+Unseal keys are generated when the instance first starts and stored encrypted using Cloud KMS in a separate Cloud Storage bucket for later retrieval and Vault unsealing. 
 
-This module also creates a TLS CA and certificates for the Vault server. The generated certificates are encrypyed using Cloud KMS and stored in a separate Cloud Storage bucket.
+This module also creates a TLS CA and certificates for the Vault server. The generated certificates are encrypted using Cloud KMS and stored in a separate Cloud Storage bucket.
 
 ## Usage
 
@@ -50,4 +50,5 @@ module "vault" {
 - [`google_storage_bucket.vault`](https://www.terraform.io/docs/providers/google/r/storage_bucket.html): The Cloud Storage bucket for Vault storage.
 - [`google_storage_bucket.vault-assets`](https://www.terraform.io/docs/providers/google/r/storage_bucket.html): The Cloud Storage bucket for Vault unseal key and TLS certificate storage.
 - [`google_service_account.vault-admin`](https://www.terraform.io/docs/providers/google/r/google_service_account.html): The service account for the Vault instance.
-- [`google_project_iam_policy.vault`](https://www.terraform.io/docs/providers/google/r/google_project_iam_policy.html): The IAM policy bindings for the Vault service account.  
+- [`google_project_iam_policy.vault`](https://www.terraform.io/docs/providers/google/r/google_project_iam_policy.html): The IAM policy bindings for the Vault service account. 
+*Note: This IAM policy may conflict/override any project level permission you may already have in your project; you may be locked out because of that. Read more about this [here](https://www.terraform.io/docs/providers/google/r/google_project_iam.html#google_project_iam_policy-1)*

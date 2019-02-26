@@ -43,6 +43,9 @@ EOF
 
 ## Deploy Vault
 
+*Warning: This will cause any existing IAM role mapping at project level to be lost, so you may be locked out from the project. 
+Read more about this [here](https://www.terraform.io/docs/providers/google/r/google_project_iam.html#google_project_iam_policy-1)*
+
 ```
 terraform init
 terraform plan
@@ -51,7 +54,7 @@ terraform apply
 
 After a few minutes, the Vault instance will be ready.
 
-## SSH Into Vault Instnace
+## SSH Into Vault Instance
 
 Use SSH to connect to the Vault instance:
 
