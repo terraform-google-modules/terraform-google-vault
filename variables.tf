@@ -1,73 +1,202 @@
-/*
- * Copyright 2017 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+#
+# Copyright 2019 Google Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
+#
+#
+# Project
+# --------------------
 variable project_id {
-  description = "The project ID to add the IAM bindings for the service account to"
+  type = "string"
+
+  description = <<EOF
+ID of the project in which to create resources and add IAM bindings.
+EOF
 }
 
-variable storage_bucket {
-  description = "Name of the GCS bucket for the Vault backend storage"
-}
+variable project_services {
+  type = "list"
 
-variable network {
-  description = "The network to deploy to"
-  default     = "default"
-}
+  default = [
+    "cloudkms.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "compute.googleapis.com",
+    "iam.googleapis.com",
+    "logging.googleapis.com",
+    "monitoring.googleapis.com",
+  ]
 
-variable subnetwork {
-  description = "The subnetwork to deploy to"
-  default     = "default"
+  description = <<EOF
+List of services to enable on the project where Vault will run. These services
+are required in order for this Vault setup to function.
+
+To disable, set to the empty list []. You may want to disable this if the
+services have already been enabled and the current user does not have permission
+to enable new services.
+EOF
 }
 
 variable region {
-  description = "The region to create the instance in."
+  type    = "string"
+  default = "us-east4"
+
+  description = <<EOF
+Region in which to create resources.
+EOF
 }
 
-variable zone {
-  description = "The zone to create the instance in."
+#
+#
+# GCS
+# --------------------
+
+variable storage_bucket_name {
+  type    = "string"
+  default = ""
+
+  description = <<EOF
+Name of the Google Cloud Storage bucket for the Vault backend storage. This must
+be globally unique across of of GCP. If left as the empty string, this will
+default to: "<project-id>-vault-data".
+EOF
 }
 
-variable machine_type {
-  description = "The machine type for the instance"
-  default     = "n1-standard-1"
+variable storage_bucket_location {
+  type    = "string"
+  default = "us"
+
+  description = <<EOF
+Location for the multi-regional Google Cloud Storage bucket in which Vault data
+will be stored. Valid values include:
+
+  - asia
+  - eu
+  - us
+EOF
 }
 
-variable vault_version {
-  description = "The version of vault to install."
-  default     = "0.9.0"
+variable storage_bucket_force_destroy {
+  type    = "string"
+  default = false
+
+  description = <<EOF
+Set to true to force deletion of backend bucket on `terraform destroy`.
+EOF
 }
 
-variable vault_args {
-  description = "Additional command line arguments passed to vault server"
-  default     = ""
+#
+#
+# IAM
+# --------------------
+
+variable service_account_project_iam_roles {
+  type = "list"
+
+  default = [
+    "roles/logging.logWriter",
+    "roles/monitoring.metricWriter",
+    "roles/monitoring.viewer",
+    "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+    "roles/iam.serviceAccountActor",
+    "roles/iam.serviceAccountKeyAdmin",
+  ]
+
+  description = <<EOF
+List of IAM roles for the Vault admin service account to function.
+EOF
 }
 
-variable force_destroy_bucket {
-  description = "Set to true to force deletion of backend bucket on terraform destroy"
-  default     = false
+variable service_account_storage_bucket_iam_roles {
+  type = "list"
+
+  default = [
+    "roles/storage.legacyBucketReader",
+    "roles/storage.objectAdmin",
+  ]
+
+  description = <<EOF
+List of IAM roles for the Vault admin service account to have on the storage
+bucket.
+EOF
 }
 
-variable kms_keyring_name {
-  description = "The name of the Cloud KMS KeyRing for asset encryption"
+#
+#
+# KMS
+# --------------------
+
+variable kms_keyring {
+  type = "string"
+
+  description = <<EOF
+Name of the Cloud KMS KeyRing for asset encryption.
+EOF
 }
 
-variable kms_key_name {
-  description = "The name of the Cloud KMS Key used for asset encryption/decryption"
-  default     = "vault-init"
+variable kms_crypto_key {
+  type    = "string"
+  default = "vault-init"
+
+  description = <<EOF
+The name of the Cloud KMS Key used for encrypting initial TLS certificates and
+for configuring Vault auto-unseal.
+EOF
 }
+
+variable kms_protection_level {
+  type    = "string"
+  default = "software"
+
+  description = <<EOF
+The protection level to use for the KMS crypto key.
+EOF
+}
+
+#
+#
+# Networking
+# --------------------
+
+variable network_subnet_cidr_range {
+  type    = "string"
+  default = "10.127.0.0/20"
+
+  description = <<EOF
+CIDR block range for the subnet.
+EOF
+}
+
+#
+#
+# SSH
+# --------------------
+
+variable ssh_allowed_cidrs {
+  type    = "list"
+  default = ["0.0.0.0/0"]
+
+  description = <<EOF
+List of CIDR blocks to allow access to SSH into nodes. To disable, set to the
+empty list [].
+EOF
+}
+
+#
+#
+# TLS
+# --------------------
 
 variable tls_ca_subject {
   description = "The `subject` block for the root CA certificate."
@@ -105,4 +234,151 @@ variable tls_cn {
 variable tls_ou {
   description = "The TLS Organizational Unit for the TLS certificate"
   default     = "IT Security Operations"
+}
+
+#
+#
+# Vault
+# --------------------
+
+variable vault_allowed_cidrs {
+  type    = "list"
+  default = ["0.0.0.0/0"]
+
+  description = <<EOF
+List of CIDR blocks to allow access to the Vault nodes. Since the load balancer
+is a pass-through load balancer, this must also include all IPs from which you
+will access Vault. The default is unrestricted (any IP address can access
+Vault). It is recommended that you reduce this to a smaller list.
+
+To disable, set to the empty list []. Even if disabled, internal rules will
+still allow the health checker to probe the nodes for health.
+EOF
+}
+
+variable vault_args {
+  type    = "string"
+  default = ""
+
+  description = <<EOF
+Additional command line arguments passed to Vault server/
+EOF
+}
+
+variable vault_instance_labels {
+  type    = "map"
+  default = {}
+
+  description = <<EOF
+Labels to apply to the Vault instances.
+EOF
+}
+
+variable vault_instance_metadata {
+  type    = "map"
+  default = {}
+
+  description = <<EOF
+Additional metadata to add to the Vault instances.
+EOF
+}
+
+variable vault_instance_tags {
+  type    = "list"
+  default = []
+
+  description = <<EOF
+Additional tags to apply to the instances. Note "allow-ssh" and "allow-vault"
+will be present on all instances.
+EOF
+}
+
+variable vault_log_level {
+  type    = "string"
+  default = "warn"
+
+  description = <<EOF
+Log level to run Vault in. See the Vault documentation for valid values.
+EOF
+}
+
+variable vault_min_num_servers {
+  type    = "string"
+  default = "1"
+
+  description = <<EOF
+Minimum number of Vault server nodes in the autoscaling group. The group will
+not have less than this number of nodes.
+EOF
+}
+
+variable vault_machine_type {
+  type    = "string"
+  default = "n1-standard-1"
+
+  description = <<EOF
+Machine type to use for Vault instances.
+EOF
+}
+
+variable vault_max_num_servers {
+  type    = "string"
+  default = "7"
+
+  description = <<EOF
+Maximum number of Vault server nodes to run at one time. The group will not
+autoscale beyond this number.
+EOF
+}
+
+variable vault_port {
+  type    = "string"
+  default = "8200"
+
+  description = <<EOF
+Numeric port on which to run and expose Vault. This should be a high-numbered
+port, since Vault does not run as a root user and therefore cannot bind to
+privledged ports like 80 or 443. The default is 8200, the standard Vault port.
+EOF
+}
+
+variable vault_proxy_port {
+  type    = "string"
+  default = "58200"
+
+  description = <<EOF
+Port to expose Vault's health status endpoint on over HTTP on /. This is
+required for the health checks to verify Vault's status. Only the health status
+endpoint is exposed, and it is only accessible from Google's load balancer
+addresses.
+EOF
+}
+
+variable vault_tls_disable_client_certs {
+  type    = "string"
+  default = false
+
+  description = <<EOF
+Use and expect client certificates. You may want to disable this if users will
+not be authenticating to Vault with client certificates.
+EOF
+}
+
+variable vault_ui_enabled {
+  type    = "string"
+  default = true
+
+  description = <<EOF
+Controls whether the Vault UI is enabled and accessible.
+EOF
+}
+
+variable vault_version {
+  type    = "string"
+  default = "1.0.3"
+
+  description = <<EOF
+Version of vault to install. This version must be 1.0+ and must be published on
+the HashiCorp releases service.
+EOF
 }
