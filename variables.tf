@@ -101,6 +101,15 @@ EOF
 # IAM
 # --------------------
 
+variable service_account_name {
+  type    = "string"
+  default = "vault-admin"
+
+  description = <<EOF
+Name of the Vault service account.
+EOF
+}
+
 variable service_account_project_iam_roles {
   type = "list"
 

@@ -53,7 +53,7 @@ resource "google_storage_bucket" "vault" {
 
 # Create the vault-admin service account.
 resource "google_service_account" "vault-admin" {
-  account_id   = "vault-admin"
+  account_id   = "${var.service_account_name}"
   display_name = "Vault Admin"
 
   depends_on = ["google_project_service.service"]
