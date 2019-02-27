@@ -1,197 +1,189 @@
-# Vault on GCE Example
+# HashiCorp Vault on Compute Engine
 
-**Figure 1.** *diagram of Google Cloud resources*
+This example shows how to run a highly-available HashiCorp Vault cluster on
+Google Compute Engine.
 
-![architecture diagram](./diagram.png)
 
-## Create the Cloud KMS KeyRing for asset encryption:
+## Setup environment
 
-Cloud KMS is used to encrypt assets like the Vault unseal keys and TLS certificates so they can be securely stored in a Cloud Storage bucket.
+1. [Install Vault][install-vault] locally or in [Cloud Shell][cloud-shell]. You
+only need to install the `vault` binary - you do not need to start a Vault
+server locally or configure anything.
 
-Create the key ring and encryption key:
+1. [Install `gcloud`][install-sdk] for your platform.
 
-```
-gcloud kms keyrings create vault --location global
+1. Authenticate the local SDK:
 
-gcloud kms keys create vault-init --location global --keyring vault --purpose encryption
-```
+    ```
+    $ gcloud auth login
+    ```
 
-## Set up the environment
+1. Create a new project or use an existing project. Save the ID for use
 
-Enable the following Google Cloud APIs before continuing:
+    ```
+    $ export GOOGLE_CLOUD_PROJECT="my-project-id"
+    ```
 
-- Google Compute Engine API
-- Google Cloud Storage
-- Google Cloud Key Management Service (KMS) API
-- Google Identity and Access Management (IAM) API
+1. Enable the Compute Engine API (Terraform will enable other required ones):
 
-```
-gcloud auth application-default login
-export GOOGLE_PROJECT=$(gcloud config get-value project)
-```
+    ```
+    $ gcloud services enable --project "${GOOGLE_CLOUD_PROJECT}" \
+        compute.googleapis.com
+    ```
 
-Add the project ID, bucket name and KeyRing name to the `terraform.tfvars` file:
+1. Create a `terraform.tfvars` file in the current working directory with your
+configuration data:
 
-```
-export GOOGLE_PROJECT=$(gcloud config get-value project)
-cat - > terraform.tfvars <<EOF
-project_id = "${GOOGLE_PROJECT}"
-storage_bucket = "${GOOGLE_PROJECT}-vault"
-kms_keyring_name = "vault"
-EOF
-```
+    ```
+    project_id = "..."
+    ```
 
 ## Deploy Vault
 
-```
-terraform init
-terraform plan
-terraform apply
-```
+1. Download required providers:
 
-After a few minutes, the Vault instance will be ready.
+    ```
+    $ terraform init
+    ```
 
-## SSH Into Vault Instnace
+1. Plan the changes:
 
-Use SSH to connect to the Vault instance:
+    ```
+    $ terraform plan
+    ```
 
-```
-gcloud compute ssh $(gcloud compute instances list --limit=1 --filter=name~vault- --uri) -- sudo bash
-```
+1. Assuming no errors, apply:
 
-> Note: the remainder of the commands will be run from within this SSH session.
+    ```
+    $ terraform apply
+    ```
 
-Export the Vault environment variables:
+After about 5 minutes, you will have a fully-provisioned Vault cluster. Note
+that Terraform will return _before_ the instances are finished provisioning.
+Vault is installed and configured via a startup script.
 
-```shell
-export VAULT_ADDR=https://127.0.0.1:8200
-export VAULT_CACERT=/etc/vault/vault-server.ca.crt.pem
-export VAULT_CLIENT_CERT=/etc/vault/vault-server.crt.pem
-export VAULT_CLIENT_KEY=/etc/vault/vault-server.key.pem
-```
+
+## Setup Vault communication
+
+1. Configure your local Vault binary to communicate with the Vault server:
+
+    ```
+    $ export VAULT_ADDR="$(terraform output vault_addr)"
+    $ export VAULT_CACERT="$(pwd)/ca.crt"
+    ```
+
+1. Verify Vault is available:
+
+    ```
+    $ vault status
+    ```
+
+    > If you see an error or "i/o timeout" or "connection refused", the Vault
+    servers may not have finished provisioning. Wait a few minutes and try
+    again.
+
 
 ## Initialize Vault
 
-Obtain the unseal keys from Cloud Storage and decrypt them using Cloud KMS:
+1. Initialize the Vault cluster, generating the initial root token and unseal
+keys:
 
-```shell
-export GOOGLE_PROJECT=$(gcloud config get-value project)
-gcloud kms decrypt \
-  --location=global  \
-  --keyring=vault \
-  --key=vault-init \
-  --plaintext-file=/dev/stdout \
-  --ciphertext-file=<(gsutil cat gs://${GOOGLE_PROJECT}-vault-assets/vault_unseal_keys.txt.encrypted)
-```
+    ```
+    $ vault operator init \
+        -recovery-shares 5 \
+        -recovery-threshold 3
+    ```
 
-The output will look like the following:
+    The Vault servers will automatically unseal using the Google Cloud KMS key
+    created earlier. The recovery shares are to be given to operators to unseal
+    the Vault nodes in case Cloud KMS is unavailable in a disaster recovery.
+    They can also be used to generate a new root token. Distribute these keys to
+    trusted people on your team (like people who will be on-call and responsible
+    for maintaining Vault).
 
-```
-Unseal Key 1: oO1UNH4TPVZRFuGWUa9D0eciJ2LMMgi2PYxm/bLL/lt0
-Unseal Key 2: +4q3O9LT46p22uTcDTYZyIVvVt+mxhB8OQ87vZFc3pkp
-Unseal Key 3: tFnuYrDD1Xgkec3wFXhk93wIjEfq3kCOD34i16MkE+pl
-Unseal Key 4: DFQhkl344Z+jpwr9L/looYjNYPAh8/UKGF5fXAO2Vj0W
-Unseal Key 5: XOQVAZCKt6njWcF6IAP19ER1WnRqhH5MllyvcywBLtaw
-Initial Root Token: 8d9b6907-0386-c422-cad8-624ceba2d0ae
-```
+    The output will look like this:
 
-Unseal Vault
+    ```
+    Recovery Key 1: 2EWrT/YVlYE54EwvKaH3JzOGmq8AVJJkVFQDni8MYC+T
+    Recovery Key 2: 6WCNGKN+dU43APJuGEVvIG6bAHA6tsth5ZR8/bJWi60/
+    Recovery Key 3: XC1vSb/GfH35zTK4UkAR7okJWaRjnGrP75aQX0xByKfV
+    Recovery Key 4: ZSvu2hWWmd4ECEIHj/FShxxCw7Wd2KbkLRsDm30f2tu3
+    Recovery Key 5: T4VBvwRv0pkQLeTC/98JJ+Rj/Zn75bLfmAaFLDQihL9Y
 
-```
-vault unseal
-```
+    Initial Root Token: s.kn11NdBhLig2VJ0botgrwq9u
+    ```
 
-> Run the command above at least 3 times, providing a different unseal key when prompted to unseal Vault.
+    **Save this initial root token and do not clear your history. You will need
+    this token to continue the tutorial.**
 
-Verify Vault is unsealed:
+1. Verify Vault is initialized:
 
-```
-vault status
-```
+    ```
+    $ vault operator init -status
+    ```
 
-Authenticate to Vault as root:
+    The command will exit successfully if Vault is initialized.
 
-```
-vault auth ROOT_TOKEN
-```
+1. Verify Vault is unsealed:
 
-## Configure GCP Auth Backend
+    ```
+    $ vault status
+    ```
 
-Enable GCP auth backend:
+    The command will include "Sealed: false".
 
-```
-vault auth-enable gcp
-```
+1. Login with that initial root token:
 
-Configure GCP backend:
+    ```
+    $ vault login
+    Token (will be hidden): (paste token here)
+    ```
 
-```
-vault write auth/gcp/config credentials=@/etc/vault/gcp_credentials.json
-```
 
-## Create a Vault role and login with signed JWT
+## Configure Stackdriver audit logs
 
-Create a Vault role named `dev-role`:
+1. Configure Vault to send its audit logs to [Stackdriver][stackdriver]
 
-```
-GOOGLE_PROJECT=$(gcloud config get-value project)
-vault write auth/gcp/role/dev-role \
-  type="iam" \
-  project_id="${GOOGLE_PROJECT}" \
-  policies="default" \
-  service_accounts="vault-admin@${GOOGLE_PROJECT}.iam.gserviceaccount.com"
-```
+    ```
+    $ vault audit enable file file_path=/var/log/vault/audit.log
+    ```
 
-> To add another service account run this: `vault write auth/gcp/role/dev-role/service-accounts add="SA_NAME@PROJECT_ID.iam.gserviceaccount.com"`
+    Audit logs will now appear in Stackdriver for all requests and responses to
+    Vault. Note the path `/var/log/vault/audit.log` refers to a path on the
+    _Vault node_ itself. This path is not configurable.
 
-Get a signed JWT for the `dev-role`:
 
-```
-GOOGLE_PROJECT=$(gcloud config get-value project)
-SERVICE_ACCOUNT=vault-admin@${GOOGLE_PROJECT}.iam.gserviceaccount.com
-cat - > login_request.json <<EOF
-{
-  "aud": "vault/dev-role",
-  "sub": "${SERVICE_ACCOUNT}",
-  "exp": $((EXP=$(date +%s)+600))
-}
-EOF
-```
+## Explore
 
-```
-JWT_TOKEN=$(gcloud beta iam service-accounts sign-jwt login_request.json signed_jwt.json --iam-account=${SERVICE_ACCOUNT} && cat signed_jwt.json)
-```
+- [Create GCP service accounts](https://www.vaultproject.io/docs/secrets/gcp/index.html)
+- [Use Cloud KMS in Vault](https://www.vaultproject.io/docs/secrets/gcpkms/index.html)
+- [Auth to Vault with service accounts](https://www.vaultproject.io/docs/auth/gcp.html)
+- [GCS storage backend](https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html)
+- [Spanner storage backend](https://www.vaultproject.io/docs/configuration/storage/google-cloud-spanner.html)
 
-Login to Vault with the signed JWT:
-
-```
-vault write -field=token auth/gcp/login role=dev-role jwt=${JWT_TOKEN} > ~/.vault-token
-```
-
-Test access by writing and reading a value to the cubbyhole
-
-```
-vault write /cubbyhole/hello value=world
-vault read /cubbyhole/hello
-```
-
-Expected output:
-
-```
-Key     Value
----     -----
-value   world
-```
 
 ## Cleaning up
 
-```
-terraform destroy
-```
+1. Destroy the infrastructure:
 
-Clean up the locally generated artifacts:
+    ```
+    $ terraform destroy
+    ```
 
-```
-rm -rf certs/
-rm vault_sa_key.json*
-```
+    Note: Cloud KMS keys cannot be destroyed. If you destroy and try to
+    re-create it, you will need to change the names of the Cloud KMS keys or the
+    subsequent `terraform apply` will fail with a "resource already exists"
+    error.
+
+1. Unset Vault configuration variables:
+
+    ```
+    $ unset VAULT_ADDR VAULT_CACERT
+    ```
+
+
+[cloud-kms]: https://cloud.google.com/kms/
+[cloud-shell]: https://cloud.google.com/shell/
+[install-sdk]: https://cloud.google.com/sdk/install
+[install-vault]: https://www.vaultproject.io/docs/install/
+[stackdriver]: https://cloud.google.com/stackdriver/
