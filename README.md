@@ -130,17 +130,29 @@ See the [inputs on the Terraform module registry][registry-inputs]. Be sure to
 choose the version that corresponds to the version of the module you are using
 locally.
 
+
 ## Outputs
 
 See the [outputs on the Terraform module registry][registry-outputs]. Be sure to
 choose the version that corresponds to the version of the module you are using
 locally.
 
+
 ## Resources
 
 See the [resources in the Terraform module registry][registry-resources]. Be
 sure to choose the version that corresponds to the version of the module you are
 using locally.
+
+
+## Logs
+
+The Vault server logs will automatically appear in Stackdriver under "GCE VM
+Instance" tagged as "vaultproject.io/server".
+
+The Vault audit logs, once enabled, will appear in Stackdriver under "GCE VM
+Instance" tagged as "vaultproject.io/audit".
+
 
 ## Local security
 

@@ -68,6 +68,12 @@ chmod 700 /etc/vault.d/tls
 # Make sure Vault owns everything
 chown -R vault:vault /etc/vault.d
 
+# Make audit files
+mkdir -p /var/log/vault
+touch /var/log/vault/{audit,server}.log
+chmod 0640 /var/log/vault/{audit,server}.log
+chown -R vault:adm /var/log/vault
+
 # Systemd service
 cat <<"EOF" > /etc/systemd/system/vault.service
 [Unit]
@@ -85,6 +91,9 @@ ProtectHome=read-only
 PrivateTmp=yes
 PrivateDevices=yes
 SecureBits=keep-caps
+StandardError=syslog
+StandardOutput=syslog
+SyslogIdentifier=vault
 AmbientCapabilities=CAP_IPC_LOCK
 CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
 NoNewPrivileges=yes
@@ -155,12 +164,24 @@ EOF
 systemctl enable nginx
 systemctl restart nginx
 
+# Pull Vault data from syslog into a file for fluentd
+cat <<"EOF" > /etc/rsyslog.d/vault.conf
+#
+# Extract Vault logs from syslog
+#
+
+# Only include the message (Vault has its own timestamps and data)
+template(name="OnlyMsg" type="string" string="%msg:2:$:drop-last-lf%\n")
+
+if ( $programname == "vault" ) then {
+  action(type="omfile" file="/var/log/vault/server.log" template="OnlyMsg")
+  stop
+}
+EOF
+systemctl restart rsyslog
+
 # Start Stackdriver logging agent and setup the filesystem to be ready to
 # receive audit logs
-mkdir -p /var/log/vault
-touch /var/log/vault/audit.log
-chmod 0640 /var/log/vault/audit.log
-chown -R vault:adm /var/log/vault
 cat <<"EOF" > /etc/google-fluentd/config.d/vaultproject.io.conf
 <source>
   @type tail
@@ -184,6 +205,30 @@ cat <<"EOF" > /etc/google-fluentd/config.d/vaultproject.io.conf
     host "#{Socket.gethostname}"
   </record>
 </filter>
+
+<source>
+  @type tail
+  format /^(?<time>[^ ]+) \[(?<severity>[^ ]+)\][ ]+(?<source>[^:]+): (?<message>.*)/
+
+  time_type "string"
+  time_format "%Y-%m-%dT%H:%M:%S.%N%z"
+  keep_time_key true
+
+  path /var/log/vault/server.log
+  pos_file /var/lib/google-fluentd/pos/vault.server.pos
+  read_from_head true
+  tag vaultproject.io/server
+</source>
+
+<filter vaultproject.io/server>
+  @type record_transformer
+  enable_ruby true
+  <record>
+    message "$${record['source']}: $${record['message']}"
+    severity "$${(record['severity'] || '').downcase}"
+    host "#{Socket.gethostname}"
+  </record>
+</filter>
 EOF
 systemctl enable google-fluentd
 systemctl restart google-fluentd
@@ -198,6 +243,10 @@ cat <<"EOF" > /etc/logrotate.d/vaultproject.io
   notifempty
   create 0640 vault adm
   sharedscripts
+  postrotate
+    test -s run/rsyslogd.pid && kill -HUP $(cat /run/rsyslogd.pid)
+    true
+  endscript
 }
 EOF
 
