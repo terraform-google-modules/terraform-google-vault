@@ -33,19 +33,10 @@ EOF
 }
 
 output service_account_email {
-  value = "${google_service_account_key.vault-admin.email}"
+  value = "${google_service_account.vault-admin.email}"
 
   description = <<EOF
 Email for the vault-admin service account.
-EOF
-}
-
-output service_account_key {
-  value     = "${google_service_account_key.vault-admin.private_key}"
-  sensitive = true
-
-  description = <<EOF
-Base64-encoded service account key for the vault-admin user.
 EOF
 }
 
