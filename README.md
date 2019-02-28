@@ -145,6 +145,35 @@ sure to choose the version that corresponds to the version of the module you are
 using locally.
 
 
+## Additional permissions
+
+The default installation includes the most minimal set of permissions to run
+Vault. Certain plugins may require more permissions, which you can grant to the
+service account using `service_account_project_additional_iam_roles`:
+
+### GCP auth method
+
+The GCP auth method requires the following additional permissions:
+
+```
+roles/iam.serviceAccountKeyAdmin
+```
+
+### GCP secrets engine
+
+The GCP secrets engine requires the following additional permissions:
+
+```
+roles/iam.serviceAccountKeyAdmin
+roles/iam.serviceAccountAdmin
+```
+
+### GCP KMS secrets engine
+
+The GCP secrets engine permissions vary. There are examples in the secrets
+engine documentation.
+
+
 ## Logs
 
 The Vault server logs will automatically appear in Stackdriver under "GCE VM
