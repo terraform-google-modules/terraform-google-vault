@@ -142,7 +142,7 @@ resource "google_compute_region_autoscaler" "vault" {
   autoscaling_policy {
     min_replicas    = "${var.vault_min_num_servers}"
     max_replicas    = "${var.vault_max_num_servers}"
-    cooldown_period = "120"
+    cooldown_period = 300
 
     cpu_utilization {
       target = 0.8
