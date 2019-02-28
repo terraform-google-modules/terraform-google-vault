@@ -114,7 +114,7 @@ resource "google_kms_crypto_key" "vault-init" {
   rotation_period = "604800s"
 
   version_template {
-    algorithm        = "google_symmetric_encryption"
+    algorithm        = "GOOGLE_SYMMETRIC_ENCRYPTION"
     protection_level = "${upper(var.kms_protection_level)}"
   }
 }
