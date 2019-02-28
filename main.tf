@@ -69,12 +69,31 @@ resource "google_project_iam_member" "project-iam" {
   depends_on = ["google_project_service.service"]
 }
 
+# Give additional project-level IAM permissions to the service account.
+resource "google_project_iam_member" "additional-project-iam" {
+  count   = "${length(var.service_account_project_additional_iam_roles)}"
+  project = "${var.project_id}"
+  role    = "${element(var.service_account_project_additional_iam_roles, count.index)}"
+  member  = "serviceAccount:${google_service_account.vault-admin.email}"
+
+  depends_on = ["google_project_service.service"]
+}
+
 # Give bucket-level permissions to the service account.
 resource "google_storage_bucket_iam_member" "vault" {
   count  = "${length(var.service_account_storage_bucket_iam_roles)}"
   bucket = "${google_storage_bucket.vault.name}"
   role   = "${element(var.service_account_storage_bucket_iam_roles, count.index)}"
   member = "serviceAccount:${google_service_account.vault-admin.email}"
+
+  depends_on = ["google_project_service.service"]
+}
+
+# Give kms cryptokey-level permissions to the service account.
+resource "google_kms_crypto_key_iam_member" "ck-iam" {
+  crypto_key_id = "${google_kms_crypto_key.vault-init.self_link}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:${google_service_account.vault-admin.email}"
 
   depends_on = ["google_project_service.service"]
 }

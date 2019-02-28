@@ -117,13 +117,21 @@ variable service_account_project_iam_roles {
     "roles/logging.logWriter",
     "roles/monitoring.metricWriter",
     "roles/monitoring.viewer",
-    "roles/cloudkms.cryptoKeyEncrypterDecrypter",
-    "roles/iam.serviceAccountActor",
-    "roles/iam.serviceAccountKeyAdmin",
   ]
 
   description = <<EOF
-List of IAM roles for the Vault admin service account to function.
+List of IAM roles for the Vault admin service account to function. If you need
+to add additional roles, update `service_account_project_additional_iam_roles`
+instead.
+EOF
+}
+
+variable service_account_project_additional_iam_roles {
+  type    = "list"
+  default = []
+
+  description = <<EOF
+List of custom IAM roles to add to the project.
 EOF
 }
 
