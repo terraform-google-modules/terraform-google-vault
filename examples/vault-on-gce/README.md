@@ -71,7 +71,7 @@ Vault is installed and configured via a startup script.
 1. Configure your local Vault binary to communicate with the Vault server:
 
     ```
-    $ export VAULT_ADDR="$(terraform output vault_addr)"
+    $ export VAULT_ADDR="$(terraform output -module=vault vault_addr)"
     $ export VAULT_CACERT="$(pwd)/ca.crt"
     ```
 
