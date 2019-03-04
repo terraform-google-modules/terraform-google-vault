@@ -32,7 +32,7 @@ eval "$(jq -r '@sh "ROOT=\(.root) DATA=\(.data) PROJECT=\(.project) LOCATION=\(.
 [[ "${DATA}" == "null" ]] && echo "Missing DATA!" && exit 1
 
 # Calculate the md5 of the data - used to lookup
-SIG=$(echo -n "${DATA}|${PROJECT}|${LOCATION}|${KEYRING}|${KEY}" | md5 | cut -d ' ' -f1)
+SIG=$(echo -n "${DATA}|${PROJECT}|${LOCATION}|${KEYRING}|${KEY}" | md5sum | cut -d ' ' -f1)
 
 # Create the kms/ directory
 KMS_DIR="${ROOT}/.terraform/kms"
