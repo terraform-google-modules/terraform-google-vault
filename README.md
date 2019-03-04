@@ -209,6 +209,6 @@ Instance" tagged as "vaultproject.io/audit".
 
 [vault-redirect-loop]: https://www.vaultproject.io/docs/concepts/ha.html#behind-load-balancers
 [vault-production-hardening]: https://www.vaultproject.io/guides/operations/production.html
-[registry-inputs]: https://registry.terraform.io/modules/GoogleCloudPlatform/vault/google?tab=inputs
-[registry-outputs]: https://registry.terraform.io/modules/GoogleCloudPlatform/vault/google?tab=outputs
-[registry-resources]: https://registry.terraform.io/modules/GoogleCloudPlatform/vault/google?tab=resources
+[registry-inputs]: https://registry.terraform.io/modules/terraform-google-modules/vault/google?tab=inputs
+[registry-outputs]: https://registry.terraform.io/modules/terraform-google-modules/vault/google?tab=outputs
+[registry-resources]: https://registry.terraform.io/modules/terraform-google-modules/vault/google?tab=resources
