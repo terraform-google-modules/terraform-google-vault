@@ -6,6 +6,9 @@ Google Compute Engine.
 
 ## Setup environment
 
+1. [Install Terraform][install-terraform] locally or in
+[Cloud Shell][cloud-shell].
+
 1. [Install Vault][install-vault] locally or in [Cloud Shell][cloud-shell]. You
 only need to install the `vault` binary - you do not need to start a Vault
 server locally or configure anything.
@@ -185,5 +188,6 @@ keys:
 [cloud-kms]: https://cloud.google.com/kms/
 [cloud-shell]: https://cloud.google.com/shell/
 [install-sdk]: https://cloud.google.com/sdk/install
-[install-vault]: https://www.vaultproject.io/docs/install/
+[install-vault]: https://learn.hashicorp.com/vault/getting-started/install
+[install-terraform]: https://learn.hashicorp.com/terraform/getting-started/install
 [stackdriver]: https://cloud.google.com/stackdriver/
