@@ -7,7 +7,7 @@ cluster_addr = "https://LOCAL_IP:8201"
 log_level = "${vault_log_level}"
 
 # Enable the UI
-ui = ${vault_ui_enabled == 1 ? true : false}
+ui = ${vault_ui_enabled == "1" ? true : false}
 
 # Enable auto-unsealing with Google Cloud KMS
 seal "gcpckms" {
