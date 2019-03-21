@@ -61,7 +61,7 @@ the tag that corresponds to your version for the correct documentation.
 
     ```hcl
     module "vault" {
-      source         = "GoogleCloudPlatform/vault/google"
+      source         = "terraform-google-modules/vault/google"
       project_id     = "${var.project_id}"
       region         = "${var.region}"
       kms_keyring    = "${var.kms_keyring}"
