@@ -44,7 +44,7 @@ variable kms_crypto_key {
 }
 
 module "vault" {
-  // source = "GoogleCloudPlatform/vault/google"
+  // source = "terraform-google-modules/vault/google"
 
   source     = "../../"
   project_id = "${var.project_id}"
