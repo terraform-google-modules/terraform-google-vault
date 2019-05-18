@@ -17,6 +17,7 @@
 locals {
   # Allow the user to specify a custom bucket name, default to project-id prefix
   storage_bucket_name = "${var.storage_bucket_name != "" ? var.storage_bucket_name : "${var.project_id}-vault-data"}"
+  vault_tls_bucket = "${var.vault_tls_bucket != "" ? var.vault_tls_bucket : local.storage_bucket_name}"
 }
 
 # Configure the Google provider, locking to the 2.0 series.
@@ -133,9 +134,10 @@ data "template_file" "vault-startup-script" {
     vault_proxy_port = "${var.vault_proxy_port}"
     vault_version    = "${var.vault_version}"
 
-    vault_ca_cert  = "ca.crt=${data.external.vault-ca-cert-encrypted.result["ciphertext"]}"
-    vault_tls_key  = "vault.key=${data.external.vault-tls-key-encrypted.result["ciphertext"]}"
-    vault_tls_cert = "vault.crt=${data.external.vault-tls-cert-encrypted.result["ciphertext"]}"
+    vault_tls_bucket = "${local.vault_tls_bucket}"
+    vault_ca_cert_filename  = "${var.vault_ca_cert_filename}"
+    vault_tls_key_filename  = "${var.vault_tls_key_filename}"
+    vault_tls_cert_filename = "${var.vault_tls_cert_filename}"
 
     kms_project    = "${var.project_id}"
     kms_location   = "${google_kms_key_ring.vault.location}"

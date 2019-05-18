@@ -49,23 +49,23 @@ VAULT_ARGS=${vault_args}
 EOF
 chmod 0600 /etc/vault.d/vault.env
 
-# TLS key and certs
+# Download TLS files from GCS
 mkdir -p /etc/vault.d/tls
-for data in "${vault_ca_cert}" "${vault_tls_key}" "${vault_tls_cert}"; do
-  tls_data=$${data#*=}
-  tls_file=$${data%"=$${tls_data}"}
-  echo "$${tls_data}" | base64 --decode | gcloud kms decrypt \
-    --project="${kms_project}" \
-    --location="${kms_location}" \
-    --keyring="${kms_keyring}" \
-    --key="${kms_crypto_key}" \
-    --plaintext-file=/etc/vault.d/tls/$${tls_file} \
-    --ciphertext-file=-
-  chmod 0600 /etc/vault.d/tls/$${tls_file}
-done
-chmod 700 /etc/vault.d/tls
+gsutil cp gs://${vault_tls_bucket}/${vault_ca_cert_filename} /etc/vault.d/tls/ca.crt
+gsutil cp gs://${vault_tls_bucket}/${vault_tls_cert_filename} /etc/vault.d/tls/vault.crt
+gsutil cp gs://${vault_tls_bucket}/${vault_tls_key_filename} /etc/vault.d/tls/vault.key.enc
+
+# Decrypt the Vault private key
+gcloud kms decrypt \
+  --project="${kms_project}" \
+  --location="${kms_location}" \
+  --keyring="${kms_keyring}" \
+  --key="${kms_crypto_key}" \
+  --plaintext-file=/etc/vault.d/tls/vault.key \
+  --ciphertext-file=/etc/vault.d/tls/vault.key.enc
 
 # Make sure Vault owns everything
+chmod 700 /etc/vault.d/tls
 chown -R vault:vault /etc/vault.d
 
 # Make audit files
