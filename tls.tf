@@ -13,42 +13,123 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-locals {
-  ips = [
-    "${var.tls_ips}",
-    "${google_compute_address.vault.address}",
-  ]
+
+#
+# This file contains the steps to create and sign TLS self-signed certs for
+# Vault.
+#
+
+# Generate a self-sign TLS certificate that will act as the root CA.
+resource "tls_private_key" "root" {
+  algorithm = "RSA"
+  rsa_bits  = "2048"
+  count = "${local.should_manage_tls}"
 }
 
-resource "null_resource" "vault-tls" {
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/create-tls-certs.sh"
-    environment = {
-      # Set to 0 for testing certificate creation locally without uploading
-      ENCRYPT_AND_UPLOAD   = "1"
-      PROJECT              = "${var.project_id}"
-      CN                   = "${var.tls_cn}"
-      OU                   = "${var.tls_ou}"
-      ORG                  = "${lookup(var.tls_ca_subject, "organization")}"
-      COUNTRY              = "${lookup(var.tls_ca_subject, "country")}"
-      STATE                = "${lookup(var.tls_ca_subject, "province")}"
-      LOCALITY             = "${lookup(var.tls_ca_subject, "locality")}"
-      BUCKET               = "${local.vault_tls_bucket}"
-      DOMAINS              = "${join(",", var.tls_dns_names)}"
-      IPS                  = "${join(",", local.ips)}"
-      KMS_KEYRING          = "${google_kms_key_ring.vault.name}"
-      KMS_LOCATION         = "${google_kms_key_ring.vault.location}"
-      KMS_KEY              = "${google_kms_crypto_key.vault-init.name}"
-    }
+# Sign ourselves
+resource "tls_self_signed_cert" "root" {
+  key_algorithm   = "${tls_private_key.root.algorithm}"
+  private_key_pem = "${tls_private_key.root.private_key_pem}"
+
+  subject = ["${var.tls_ca_subject}"]
+
+  validity_period_hours = 26280
+  early_renewal_hours   = 8760
+  is_ca_certificate     = true
+
+  allowed_uses = ["cert_signing"]
+  count = "${local.should_manage_tls}"
+}
+
+# Save the root CA locally for TLS verification
+resource "local_file" "root" {
+  filename = "ca.crt"
+  content  = "${tls_self_signed_cert.root.cert_pem}"
+  count = "${local.should_manage_tls}"
+}
+
+# Vault server key
+resource "tls_private_key" "vault-server" {
+  algorithm = "RSA"
+  rsa_bits  = "2048"
+  count = "${local.should_manage_tls}"
+}
+
+# Create the request to sign the cert with our CA
+resource "tls_cert_request" "vault-server" {
+  key_algorithm   = "${tls_private_key.vault-server.algorithm}"
+  private_key_pem = "${tls_private_key.vault-server.private_key_pem}"
+
+  dns_names = ["${var.tls_dns_names}"]
+
+  ip_addresses = [
+    "${google_compute_address.vault.address}",
+    "${var.tls_ips}",
+  ]
+
+  subject {
+    common_name         = "${var.tls_cn}"
+    organization        = "${lookup(var.tls_ca_subject, "organization")}"
+    organizational_unit = "${var.tls_ou}"
   }
+  count = "${local.should_manage_tls}"
+}
+
+# Sign the cert
+resource "tls_locally_signed_cert" "vault-server" {
+  cert_request_pem = "${tls_cert_request.vault-server.cert_request_pem}"
+
+  ca_key_algorithm   = "${tls_private_key.root.algorithm}"
+  ca_private_key_pem = "${tls_private_key.root.private_key_pem}"
+  ca_cert_pem        = "${tls_self_signed_cert.root.cert_pem}"
+
+  validity_period_hours = 17520
+  early_renewal_hours   = 8760
+
+  allowed_uses = ["server_auth"]
+  count = "${local.should_manage_tls}"
+}
+
+# Encrypt server key with GCP KMS
+data "external" "vault-tls-key-encrypted" {
+  program = ["${path.module}/scripts/gcpkms-encrypt.sh"]
+
+  query = {
+    root     = "${path.module}"
+    data     = "${tls_private_key.vault-server.private_key_pem}"
+    project  = "${var.project_id}"
+    location = "${google_kms_key_ring.vault.location}"
+    keyring  = "${google_kms_key_ring.vault.name}"
+    key      = "${google_kms_crypto_key.vault-init.name}"
+  }
+
+  depends_on = ["google_kms_crypto_key.vault-init"]
+  count = "${local.should_manage_tls}"
+}
+
+resource "google_storage_bucket_object" "vault-private-key" {
+  name   = "${var.vault_tls_key_filename}"
+  content = "${data.external.vault-tls-key-encrypted.result["ciphertext"]}"
+  bucket = "${local.vault_tls_bucket}"
+  count = "${local.should_manage_tls}"
+
   depends_on = ["google_storage_bucket.vault"]
 }
 
-resource "null_resource" "pull-ca-cert" {
-  provisioner "local-exec" {
-    # For backwards compatibility, if users already have a ca.crt in their directory,
-    # we want to make sure to keep it since it's not tracked by VCS
-    command = "gsutil cp gs://${local.vault_tls_bucket}/${var.vault_ca_cert_filename} vault-ca.crt"
-  }
-  depends_on = ["null_resource.vault-tls"]
+resource "google_storage_bucket_object" "vault-server-cert" {
+  name   = "${var.vault_tls_cert_filename}"
+  content = "${tls_locally_signed_cert.vault-server.cert_pem}"
+  bucket = "${local.vault_tls_bucket}"
+  count = "${local.should_manage_tls}"
+
+  depends_on = ["google_storage_bucket.vault"]
+}
+
+resource "google_storage_bucket_object" "vault-ca-cert" {
+  name   = "${var.vault_ca_cert_filename}"
+  content = "${tls_self_signed_cert.root.cert_pem}"
+  bucket = "${local.vault_tls_bucket}"
+  count = "${local.should_manage_tls}"
+
+  depends_on = ["google_storage_bucket.vault"]
 }

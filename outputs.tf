@@ -14,6 +14,24 @@
 # limitations under the License.
 #
 
+output ca_cert_pem {
+  value     = "${tls_self_signed_cert.root.cert_pem}"
+  sensitive = true
+
+  description = <<EOF
+CA certificate used to verify Vault TLS client connections.
+EOF
+}
+
+output ca_key_pem {
+  value     = "${tls_private_key.root.private_key_pem}"
+  sensitive = true
+
+  description = <<EOF
+Private key for the CA.
+EOF
+}
+
 output service_account_email {
   value = "${google_service_account.vault-admin.email}"
 

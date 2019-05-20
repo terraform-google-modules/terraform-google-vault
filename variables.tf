@@ -215,16 +215,24 @@ EOF
 # TLS
 # --------------------
 
+variable user_managed_tls {
+  type = "string"
+  default = false
+  description = <<EOF
+Set to true if you'd like to manage and upload your own TLS files, if you do not want this module
+to generate them. By default this module expects the following files at the root of the bucket, but these
+can be overriden:
+- `ca.crt`: Root CA public certificate
+- `vault.crt`: Vault server public certificate, signed by the ca.crt
+- `vault.key.enc` Vault server certificate private key, encrypted with the kms key provided and base64 encoded.
+EOF
+}
+
 variable vault_tls_bucket {
   type = "string"
   default = ""
   description = <<EOF
-Use this bucket to store your own TLS files, if you do not want this to generate them.
-By default this module expects the following files at the root of the bucket, but these
-can be overriden:
-- `ca.crt`: Root CA public certificate
-- `vault.crt`: Vault server public certificate, signed by the ca.crt
-- `vault.key.enc` Vault server certificate private key, encrypted with the kms key provided.
+GCS Bucket override where Vault will expect TLS certificates are stored.
 EOF
 }
 
@@ -241,7 +249,7 @@ variable vault_tls_key_filename {
   type = "string"
   default = "vault.key.enc"
   description = <<EOF
-Encrypted GCS object path within the vault_tls_bucket. This is the Vault TLS private key.
+Encrypted and base64 encoded GCS object path within the vault_tls_bucket. This is the Vault TLS private key.
 Default: vault.key.enc
 EOF
 }

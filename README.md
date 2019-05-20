@@ -54,12 +54,6 @@ the tag that corresponds to your version for the correct documentation.
     single configuration command. Vault audit logs are not enabled by default
     because you have to initialize the system first.
 
-  - **TLS** - TLS certificates are generated using `scripts/create-tls-certs.sh`
-    where keys are encrypted and all values are uploaded to a bucket. The user can
-    pass in their own TLS certificates and keys by overriding the `vault_tls_bucket`
-    variable. Note that if the bucket value is overridden, permissions will need to
-    be added to the `vault-admin` service account.
-
 
 ## Usage
 
@@ -88,7 +82,7 @@ the tag that corresponds to your version for the correct documentation.
 
     ```
     $ export VAULT_ADDR="$(terraform output vault_addr)"
-    $ export VAULT_CACERT="$(pwd)/vault-ca.crt"
+    $ export VAULT_CACERT="$(pwd)/ca.crt"
     ```
 
 1. Wait for Vault to start. Here's a script or you can wait ~2 minutes.
@@ -189,6 +183,15 @@ The Vault audit logs, once enabled, will appear in Stackdriver under "GCE VM
 Instance" tagged as "vaultproject.io/audit".
 
 
+## Local security
+
+- **Encrypted TLS data is stored locally.** This Terraform module generates
+  self-signed TLS certificates. The certificates are encrypted with Google Cloud
+  KMS and the encrypted text is cached locally on disk in the `kms/` folder.
+  Even though the data is encrypted, you should secure this folder (it is
+  automatically ignored from source control).
+
+
 ## FAQ
 
 - **I see unhealthy Vault nodes in my load balancer pool!**
@@ -203,12 +206,6 @@ Instance" tagged as "vaultproject.io/audit".
     Connecting to the vault nodes directly is not recommended, even if on the
     same network. Always connect through the load balance. You can alter the
     load balancer to be an internal-only load balancer if needed.
-
-- **I updated this module and a new Vault node spun up, now TLS is failing with an X509 error**
-
-    This is part of a new security enhancement to not store TLS private keys from Terraform state
-    by default. You can either run `./scripts/migrate.sh` to put your old certs where they should be
-    or distribute the newly created `vault-ca.crt` to clients that are having issues.
 
 [vault-redirect-loop]: https://www.vaultproject.io/docs/concepts/ha.html#behind-load-balancers
 [vault-production-hardening]: https://www.vaultproject.io/guides/operations/production.html

@@ -18,6 +18,8 @@ locals {
   # Allow the user to specify a custom bucket name, default to project-id prefix
   storage_bucket_name = "${var.storage_bucket_name != "" ? var.storage_bucket_name : "${var.project_id}-vault-data"}"
   vault_tls_bucket = "${var.vault_tls_bucket != "" ? var.vault_tls_bucket : local.storage_bucket_name}"
+  # Inverts logic from user perspective to terraform perspective for use in count
+  should_manage_tls = "${var.user_managed_tls == true ? 0 : 1}"
 }
 
 # Configure the Google provider, locking to the 2.0 series.

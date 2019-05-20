@@ -2,5 +2,3 @@
 terraform.tfstate*
 terraform.tfvars*
 ca.crt
-vault-ca.crt
-migration
