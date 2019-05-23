@@ -17,9 +17,10 @@
 locals {
   # Allow the user to specify a custom bucket name, default to project-id prefix
   storage_bucket_name = "${var.storage_bucket_name != "" ? var.storage_bucket_name : "${var.project_id}-vault-data"}"
-  vault_tls_bucket = "${var.vault_tls_bucket != "" ? var.vault_tls_bucket : local.storage_bucket_name}"
+  vault_tls_bucket    = "${var.vault_tls_bucket != "" ? var.vault_tls_bucket : local.storage_bucket_name}"
+
   # Inverts logic from user perspective to terraform perspective for use in count
-  should_manage_tls = "${var.user_managed_tls == true ? 0 : 1}"
+  manage_tls = "${var.manage_tls == "true" ? 1 : 0}"
 }
 
 # Configure the Google provider, locking to the 2.0 series.
@@ -136,7 +137,7 @@ data "template_file" "vault-startup-script" {
     vault_proxy_port = "${var.vault_proxy_port}"
     vault_version    = "${var.vault_version}"
 
-    vault_tls_bucket = "${local.vault_tls_bucket}"
+    vault_tls_bucket        = "${local.vault_tls_bucket}"
     vault_ca_cert_filename  = "${var.vault_ca_cert_filename}"
     vault_tls_key_filename  = "${var.vault_tls_key_filename}"
     vault_tls_cert_filename = "${var.vault_tls_cert_filename}"

@@ -21,13 +21,16 @@
 
 # Generate a self-sign TLS certificate that will act as the root CA.
 resource "tls_private_key" "root" {
+  count = "${local.manage_tls}"
+
   algorithm = "RSA"
   rsa_bits  = "2048"
-  count = "${local.should_manage_tls}"
 }
 
 # Sign ourselves
 resource "tls_self_signed_cert" "root" {
+  count = "${local.manage_tls}"
+
   key_algorithm   = "${tls_private_key.root.algorithm}"
   private_key_pem = "${tls_private_key.root.private_key_pem}"
 
@@ -38,25 +41,28 @@ resource "tls_self_signed_cert" "root" {
   is_ca_certificate     = true
 
   allowed_uses = ["cert_signing"]
-  count = "${local.should_manage_tls}"
 }
 
 # Save the root CA locally for TLS verification
 resource "local_file" "root" {
+  count = "${local.manage_tls}"
+
   filename = "ca.crt"
   content  = "${tls_self_signed_cert.root.cert_pem}"
-  count = "${local.should_manage_tls}"
 }
 
 # Vault server key
 resource "tls_private_key" "vault-server" {
+  count = "${local.manage_tls}"
+
   algorithm = "RSA"
   rsa_bits  = "2048"
-  count = "${local.should_manage_tls}"
 }
 
 # Create the request to sign the cert with our CA
 resource "tls_cert_request" "vault-server" {
+  count = "${local.manage_tls}"
+
   key_algorithm   = "${tls_private_key.vault-server.algorithm}"
   private_key_pem = "${tls_private_key.vault-server.private_key_pem}"
 
@@ -72,13 +78,13 @@ resource "tls_cert_request" "vault-server" {
     organization        = "${lookup(var.tls_ca_subject, "organization")}"
     organizational_unit = "${var.tls_ou}"
   }
-  count = "${local.should_manage_tls}"
 }
 
 # Sign the cert
 resource "tls_locally_signed_cert" "vault-server" {
-  cert_request_pem = "${tls_cert_request.vault-server.cert_request_pem}"
+  count = "${local.manage_tls}"
 
+  cert_request_pem   = "${tls_cert_request.vault-server.cert_request_pem}"
   ca_key_algorithm   = "${tls_private_key.root.algorithm}"
   ca_private_key_pem = "${tls_private_key.root.private_key_pem}"
   ca_cert_pem        = "${tls_self_signed_cert.root.cert_pem}"
@@ -87,11 +93,12 @@ resource "tls_locally_signed_cert" "vault-server" {
   early_renewal_hours   = 8760
 
   allowed_uses = ["server_auth"]
-  count = "${local.should_manage_tls}"
 }
 
 # Encrypt server key with GCP KMS
 data "external" "vault-tls-key-encrypted" {
+  count = "${local.manage_tls}"
+
   program = ["${path.module}/scripts/gcpkms-encrypt.sh"]
 
   query = {
@@ -104,32 +111,34 @@ data "external" "vault-tls-key-encrypted" {
   }
 
   depends_on = ["google_kms_crypto_key.vault-init"]
-  count = "${local.should_manage_tls}"
 }
 
 resource "google_storage_bucket_object" "vault-private-key" {
-  name   = "${var.vault_tls_key_filename}"
+  count = "${local.manage_tls}"
+
+  name    = "${var.vault_tls_key_filename}"
   content = "${data.external.vault-tls-key-encrypted.result["ciphertext"]}"
-  bucket = "${local.vault_tls_bucket}"
-  count = "${local.should_manage_tls}"
+  bucket  = "${local.vault_tls_bucket}"
 
   depends_on = ["google_storage_bucket.vault"]
 }
 
 resource "google_storage_bucket_object" "vault-server-cert" {
-  name   = "${var.vault_tls_cert_filename}"
+  count = "${local.manage_tls}"
+
+  name    = "${var.vault_tls_cert_filename}"
   content = "${tls_locally_signed_cert.vault-server.cert_pem}"
-  bucket = "${local.vault_tls_bucket}"
-  count = "${local.should_manage_tls}"
+  bucket  = "${local.vault_tls_bucket}"
 
   depends_on = ["google_storage_bucket.vault"]
 }
 
 resource "google_storage_bucket_object" "vault-ca-cert" {
-  name   = "${var.vault_ca_cert_filename}"
+  count = "${local.manage_tls}"
+
+  name    = "${var.vault_ca_cert_filename}"
   content = "${tls_self_signed_cert.root.cert_pem}"
-  bucket = "${local.vault_tls_bucket}"
-  count = "${local.should_manage_tls}"
+  bucket  = "${local.vault_tls_bucket}"
 
   depends_on = ["google_storage_bucket.vault"]
 }

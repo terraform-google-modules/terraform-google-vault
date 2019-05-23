@@ -66,7 +66,9 @@ cat /etc/vault.d/tls/vault.key.enc | base64 --decode | gcloud kms decrypt \
 
 # Make sure Vault owns everything
 chmod 700 /etc/vault.d/tls
+chmod 600 /etc/vault.d/tls/vault.key
 chown -R vault:vault /etc/vault.d
+rm /etc/vault.d/tls/vault.key.enc
 
 # Make audit files
 mkdir -p /var/log/vault
