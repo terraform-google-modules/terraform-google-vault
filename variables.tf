@@ -215,6 +215,20 @@ EOF
 # TLS
 # --------------------
 
+variable manage_tls {
+  type    = "string"
+  default = "true"
+
+  description = <<EOF
+Set to "false" if you'd like to manage and upload your own TLS files, if you do not want this module
+to generate them. By default this module expects the following files at the root of the bucket, but these
+can be overriden:
+- `ca.crt`: Root CA public certificate
+- `vault.crt`: Vault server public certificate, signed by the ca.crt
+- `vault.key.enc` Vault server certificate private key, encrypted with the kms key provided and base64 encoded.
+EOF
+}
+
 variable tls_ca_subject {
   description = "The `subject` block for the root CA certificate."
   type        = "map"
@@ -231,6 +245,11 @@ variable tls_ca_subject {
   }
 }
 
+variable tls_cn {
+  description = "The TLS Common Name for the TLS certificates"
+  default     = "vault.example.net"
+}
+
 variable tls_dns_names {
   description = "List of DNS names added to the Vault server self-signed certificate"
   type        = "list"
@@ -243,14 +262,45 @@ variable tls_ips {
   default     = ["127.0.0.1"]
 }
 
-variable tls_cn {
-  description = "The TLS Common Name for the TLS certificates"
-  default     = "vault.example.net"
-}
-
 variable tls_ou {
   description = "The TLS Organizational Unit for the TLS certificate"
   default     = "IT Security Operations"
+}
+
+variable vault_ca_cert_filename {
+  type    = "string"
+  default = "ca.crt"
+
+  description = <<EOF
+GCS object path within the vault_tls_bucket. This is the root CA certificate.
+EOF
+}
+
+variable vault_tls_bucket {
+  type    = "string"
+  default = ""
+
+  description = <<EOF
+GCS Bucket override where Vault will expect TLS certificates are stored.
+EOF
+}
+
+variable vault_tls_cert_filename {
+  type    = "string"
+  default = "vault.crt"
+
+  description = <<EOF
+GCS object path within the vault_tls_bucket. This is the vault server certificate.
+EOF
+}
+
+variable vault_tls_key_filename {
+  type    = "string"
+  default = "vault.key.enc"
+
+  description = <<EOF
+Encrypted and base64 encoded GCS object path within the vault_tls_bucket. This is the Vault TLS private key.
+EOF
 }
 
 #
