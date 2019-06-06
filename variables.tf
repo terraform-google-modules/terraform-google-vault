@@ -237,7 +237,7 @@ variable tls_ca_subject {
     common_name         = "Example Inc. Root"
     organization        = "Example, Inc"
     organizational_unit = "Department of Certificate Authority"
-    street_address      = ["123 Example Street"]
+    street_address      = "123 Example Street"
     locality            = "The Intranet"
     province            = "CA"
     country             = "US"
