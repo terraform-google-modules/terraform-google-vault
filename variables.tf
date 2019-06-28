@@ -87,6 +87,15 @@ will be stored. Valid values include:
 EOF
 }
 
+variable storage_versioning {
+  type    = "string"
+  default = false
+
+  description = <<EOF
+Set to true to enable versioning.
+EOF
+}
+
 variable storage_bucket_force_destroy {
   type    = "string"
   default = false

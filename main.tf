@@ -50,6 +50,11 @@ resource "google_storage_bucket" "vault" {
   name          = "${local.storage_bucket_name}"
   location      = "${upper(var.storage_bucket_location)}"
   storage_class = "MULTI_REGIONAL"
+
+  versioning {
+    enabled = "${var.storage_versioning}"
+  }
+
   force_destroy = "${var.storage_bucket_force_destroy}"
 
   depends_on = ["google_project_service.service"]
