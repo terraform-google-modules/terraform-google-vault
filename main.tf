@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+terraform {
+  required_version = "~> 0.11.10"
+}
+
 locals {
   vault_tls_bucket = "${var.vault_tls_bucket != "" ? var.vault_tls_bucket : local.storage_bucket_name}"
 
