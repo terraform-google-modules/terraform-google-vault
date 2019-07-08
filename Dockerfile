@@ -1,4 +1,5 @@
-FROM hashicorp/terraform:0.11.14
+ARG tf_version=0.11.14
+FROM hashicorp/terraform:${tf_version}
 RUN apk --no-cache add bash && rm -rf /var/cache/apk/*
 
 WORKDIR /project
