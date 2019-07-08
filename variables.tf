@@ -96,7 +96,7 @@ Set to true to enable versioning.
 EOF
 }
 
-variable storage_lifecycle_rule {
+variable storage_lifecycle_rules {
   type    = "list"
   default = []
 

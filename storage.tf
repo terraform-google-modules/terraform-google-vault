@@ -16,7 +16,7 @@ resource "google_storage_bucket" "vault" {
     enabled = "${var.storage_versioning}"
   }
 
-  lifecycle_rule = "${var.storage_lifecycle_rule}"
+  lifecycle_rule = "${var.storage_lifecycle_rules}"
 
   force_destroy = "${var.storage_bucket_force_destroy}"
 
