@@ -15,7 +15,7 @@
 #
 
 locals {
-  vault_tls_bucket    = "${var.vault_tls_bucket != "" ? var.vault_tls_bucket : local.storage_bucket_name}"
+  vault_tls_bucket = "${var.vault_tls_bucket != "" ? var.vault_tls_bucket : local.storage_bucket_name}"
 
   # Inverts logic from user perspective to terraform perspective for use in count
   manage_tls = "${var.manage_tls == "true" ? 1 : 0}"
@@ -39,7 +39,6 @@ resource "google_project_service" "service" {
   # we might not "own" the services we enable.
   disable_on_destroy = false
 }
-
 
 # Create the vault-admin service account.
 resource "google_service_account" "vault-admin" {
