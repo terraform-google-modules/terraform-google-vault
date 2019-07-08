@@ -96,6 +96,17 @@ Set to true to enable versioning.
 EOF
 }
 
+variable storage_lifecycle_rule {
+  type    = "list"
+  default = []
+
+  description = <<EOF
+If you enable versioning, you may want to expire old versions to configure
+a specific retention. Please, check the documentation for the map keys you
+should use.
+EOF
+}
+
 variable storage_bucket_force_destroy {
   type    = "string"
   default = false
