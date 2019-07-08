@@ -212,3 +212,11 @@ Instance" tagged as "vaultproject.io/audit".
 [registry-inputs]: https://registry.terraform.io/modules/terraform-google-modules/vault/google?tab=inputs
 [registry-outputs]: https://registry.terraform.io/modules/terraform-google-modules/vault/google?tab=outputs
 [registry-resources]: https://registry.terraform.io/modules/terraform-google-modules/vault/google?tab=resources
+
+## Terraform module development
+
+If you want to execute basic terraform validation/linting tests, you can just issue:
+
+```bash
+$ docker build .
+```
