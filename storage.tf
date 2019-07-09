@@ -10,13 +10,13 @@ resource "google_storage_bucket" "vault" {
 
   name          = "${local.storage_bucket_name}"
   location      = "${upper(var.storage_bucket_location)}"
-  storage_class = "MULTI_REGIONAL"
+  storage_class = "${upper(var.storage_bucket_class)}"
 
   versioning {
-    enabled = "${var.storage_versioning}"
+    enabled = "${var.storage_bucket_enable_versioning}"
   }
 
-  lifecycle_rule = "${var.storage_lifecycle_rules}"
+  lifecycle_rule = "${var.storage_bucket_lifecycle_rules}"
 
   force_destroy = "${var.storage_bucket_force_destroy}"
 

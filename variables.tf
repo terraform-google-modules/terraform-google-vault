@@ -78,25 +78,30 @@ variable storage_bucket_location {
   default = "us"
 
   description = <<EOF
-Location for the multi-regional Google Cloud Storage bucket in which Vault data
-will be stored. Valid values include:
-
-  - asia
-  - eu
-  - us
+Location for the Google Cloud Storage bucket in which Vault data will be stored.
 EOF
 }
 
-variable storage_versioning {
+variable storage_bucket_class {
+  type = "string"
+  default = "MULTI_REGIONAL"
+
+  description = <<EOF
+Type of data storage to use. If you change this value, you will also need to
+choose a storage_bucket_location which matches this parameter type.
+EOF
+}
+
+variable storage_bucket_enable_versioning {
   type    = "string"
   default = false
 
   description = <<EOF
-Set to true to enable versioning.
+Set to true to enable object versioning in the GCS bucket.
 EOF
 }
 
-variable storage_lifecycle_rules {
+variable storage_bucket_lifecycle_rules {
   type    = "list"
   default = []
 
@@ -104,6 +109,17 @@ variable storage_lifecycle_rules {
 If you enable versioning, you may want to expire old versions to configure
 a specific retention. Please, check the documentation for the map keys you
 should use.
+
+This is specified as a list of objects:
+
+    storage_lifecycle_rules = [{
+      action = [{
+        type = "Delete"
+      }]
+      condition = [{
+        num_newer_versions = 3
+      }]
+    }]
 EOF
 }
 
