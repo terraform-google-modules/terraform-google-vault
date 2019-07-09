@@ -20,23 +20,19 @@
 
 # Template for creating Vault nodes
 resource "google_compute_instance_template" "vault" {
-  project     = "${var.project_id}"
-  region      = "${var.region}"
+  project     = var.project_id
+  region      = var.region
   name_prefix = "vault-"
 
-  machine_type = "${var.vault_machine_type}"
+  machine_type = var.vault_machine_type
 
-  tags = [
-    "allow-ssh",
-    "allow-vault",
-    "${var.vault_instance_tags}",
-  ]
+  tags = var.vault_instance_tags
 
-  labels = "${var.vault_instance_labels}"
+  labels = var.vault_instance_labels
 
   network_interface {
-    subnetwork         = "${google_compute_subnetwork.vault-subnet.self_link}"
-    subnetwork_project = "${var.project_id}"
+    subnetwork         = google_compute_subnetwork.vault-subnet.self_link
+    subnetwork_project = var.project_id
   }
 
   disk {
@@ -48,100 +44,103 @@ resource "google_compute_instance_template" "vault" {
   }
 
   service_account {
-    email  = "${google_service_account.vault-admin.email}"
+    email  = google_service_account.vault-admin.email
     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
   }
 
-  metadata = "${merge(var.vault_instance_metadata, map(
-    "google-compute-enable-virtio-rng", "true",
-    "startup-script", data.template_file.vault-startup-script.rendered,
-  ))}"
+  metadata = merge(
+    var.vault_instance_metadata,
+    {
+      "google-compute-enable-virtio-rng" = "true"
+      "startup-script"                   = data.template_file.vault-startup-script.rendered
+    },
+  )
 
   lifecycle {
     create_before_destroy = true
   }
 
-  depends_on = ["google_project_service.service"]
+  depends_on = [google_project_service.service]
 }
 
 # This legacy health check is required because the target pool requires an HTTP
 # health check.
 resource "google_compute_http_health_check" "vault" {
-  project = "${var.project_id}"
+  project = var.project_id
 
   name         = "vault-health-legacy"
   request_path = "/"
-  port         = "${var.vault_proxy_port}"
+  port         = var.vault_proxy_port
 
   check_interval_sec  = 15
   timeout_sec         = 5
   healthy_threshold   = 2
   unhealthy_threshold = 2
 
-  depends_on = ["google_project_service.service"]
+  depends_on = [google_project_service.service]
 }
 
 # Target pool for vault nodes
 resource "google_compute_target_pool" "vault" {
-  project = "${var.project_id}"
+  project = var.project_id
 
   name   = "vault-tp"
-  region = "${var.region}"
+  region = var.region
 
-  health_checks = ["${google_compute_http_health_check.vault.name}"]
+  health_checks = [google_compute_http_health_check.vault.name]
 
-  depends_on = ["google_project_service.service"]
+  depends_on = [google_project_service.service]
 }
 
 # Forward external traffic to the target pool
 resource "google_compute_forwarding_rule" "vault" {
-  project = "${var.project_id}"
+  project = var.project_id
 
   name                  = "vault"
-  region                = "${var.region}"
-  ip_address            = "${google_compute_address.vault.address}"
+  region                = var.region
+  ip_address            = google_compute_address.vault.address
   ip_protocol           = "TCP"
   load_balancing_scheme = "EXTERNAL"
   network_tier          = "PREMIUM"
 
-  target     = "${google_compute_target_pool.vault.self_link}"
-  port_range = "${var.vault_port}"
+  target     = google_compute_target_pool.vault.self_link
+  port_range = var.vault_port
 
-  depends_on = ["google_project_service.service"]
+  depends_on = [google_project_service.service]
 }
 
 # Vault instance group manager
 resource "google_compute_region_instance_group_manager" "vault" {
-  project = "${var.project_id}"
+  project = var.project_id
 
   name   = "vault-igm"
-  region = "${var.region}"
+  region = var.region
 
   base_instance_name = "vault-${var.region}"
-  instance_template  = "${google_compute_instance_template.vault.self_link}"
+  instance_template  = google_compute_instance_template.vault.self_link
   wait_for_instances = false
 
-  target_pools = ["${google_compute_target_pool.vault.self_link}"]
+  target_pools = [google_compute_target_pool.vault.self_link]
 
   named_port {
     name = "vault-http"
-    port = "${var.vault_port}"
+    port = var.vault_port
   }
 
-  depends_on = ["google_project_service.service"]
+  depends_on = [google_project_service.service]
 }
 
 # Autoscaling policies for vault
 resource "google_compute_region_autoscaler" "vault" {
-  project = "${var.project_id}"
+  project = var.project_id
 
   name   = "vault-as"
-  region = "${var.region}"
-  target = "${google_compute_region_instance_group_manager.vault.self_link}"
+  region = var.region
+  target = google_compute_region_instance_group_manager.vault.self_link
 
   autoscaling_policy {
-    min_replicas    = "${var.vault_min_num_servers}"
-    max_replicas    = "${var.vault_max_num_servers}"
+    min_replicas    = var.vault_min_num_servers
+    max_replicas    = var.vault_max_num_servers
     cooldown_period = 300
 
     cpu_utilization {
@@ -149,5 +148,6 @@ resource "google_compute_region_autoscaler" "vault" {
     }
   }
 
-  depends_on = ["google_project_service.service"]
+  depends_on = [google_project_service.service]
 }
+
