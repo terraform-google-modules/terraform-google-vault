@@ -478,7 +478,7 @@ EOF
 
 variable vault_version {
   type    = "string"
-  default = "1.0.3"
+  default = "1.1.3"
 
   description = <<EOF
 Version of vault to install. This version must be 1.0+ and must be published on
