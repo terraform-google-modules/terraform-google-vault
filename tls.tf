@@ -31,10 +31,19 @@ resource "tls_private_key" "root" {
 resource "tls_self_signed_cert" "root" {
   count = "${local.manage_tls}"
 
-  key_algorithm   = "${tls_private_key.root.algorithm}"
-  private_key_pem = "${tls_private_key.root.private_key_pem}"
+  key_algorithm   = "${tls_private_key.root.0.algorithm}"
+  private_key_pem = "${tls_private_key.root.0.private_key_pem}"
 
-  subject = ["${var.tls_ca_subject}"]
+  subject {
+    common_name = var.tls_ca_subject.common_name
+    organization = var.tls_ca_subject.organization
+    organizational_unit = var.tls_ca_subject.organizational_unit
+    street_address = [var.tls_ca_subject.street_address]
+    locality = var.tls_ca_subject.locality
+    province = var.tls_ca_subject.province
+    country = var.tls_ca_subject.country
+    postal_code = var.tls_ca_subject.postal_code
+  }
 
   validity_period_hours = 26280
   early_renewal_hours   = 8760
@@ -48,7 +57,7 @@ resource "local_file" "root" {
   count = "${local.manage_tls}"
 
   filename = "ca.crt"
-  content  = "${tls_self_signed_cert.root.cert_pem}"
+  content  = "${tls_self_signed_cert.root.0.cert_pem}"
 }
 
 # Vault server key
@@ -63,15 +72,12 @@ resource "tls_private_key" "vault-server" {
 resource "tls_cert_request" "vault-server" {
   count = "${local.manage_tls}"
 
-  key_algorithm   = "${tls_private_key.vault-server.algorithm}"
-  private_key_pem = "${tls_private_key.vault-server.private_key_pem}"
+  key_algorithm   = "${tls_private_key.vault-server.0.algorithm}"
+  private_key_pem = "${tls_private_key.vault-server.0.private_key_pem}"
 
-  dns_names = ["${var.tls_dns_names}"]
+  dns_names = var.tls_dns_names
 
-  ip_addresses = [
-    "${google_compute_address.vault.address}",
-    "${var.tls_ips}",
-  ]
+  ip_addresses = concat([google_compute_address.vault.address], var.tls_ips)
 
   subject {
     common_name         = "${var.tls_cn}"
@@ -84,10 +90,10 @@ resource "tls_cert_request" "vault-server" {
 resource "tls_locally_signed_cert" "vault-server" {
   count = "${local.manage_tls}"
 
-  cert_request_pem   = "${tls_cert_request.vault-server.cert_request_pem}"
-  ca_key_algorithm   = "${tls_private_key.root.algorithm}"
-  ca_private_key_pem = "${tls_private_key.root.private_key_pem}"
-  ca_cert_pem        = "${tls_self_signed_cert.root.cert_pem}"
+  cert_request_pem   = "${tls_cert_request.vault-server.0.cert_request_pem}"
+  ca_key_algorithm   = "${tls_private_key.root.0.algorithm}"
+  ca_private_key_pem = "${tls_private_key.root.0.private_key_pem}"
+  ca_cert_pem        = "${tls_self_signed_cert.root.0.cert_pem}"
 
   validity_period_hours = 17520
   early_renewal_hours   = 8760
@@ -103,7 +109,7 @@ data "external" "vault-tls-key-encrypted" {
 
   query = {
     root     = "${path.module}"
-    data     = "${tls_private_key.vault-server.private_key_pem}"
+    data     = "${tls_private_key.vault-server.0.private_key_pem}"
     project  = "${var.project_id}"
     location = "${google_kms_key_ring.vault.location}"
     keyring  = "${google_kms_key_ring.vault.name}"
@@ -117,7 +123,7 @@ resource "google_storage_bucket_object" "vault-private-key" {
   count = "${local.manage_tls}"
 
   name    = "${var.vault_tls_key_filename}"
-  content = "${data.external.vault-tls-key-encrypted.result["ciphertext"]}"
+  content = "${data.external.vault-tls-key-encrypted.0.result["ciphertext"]}"
   bucket  = "${local.vault_tls_bucket}"
 
   depends_on = ["google_storage_bucket.vault"]
@@ -127,7 +133,7 @@ resource "google_storage_bucket_object" "vault-server-cert" {
   count = "${local.manage_tls}"
 
   name    = "${var.vault_tls_cert_filename}"
-  content = "${tls_locally_signed_cert.vault-server.cert_pem}"
+  content = "${tls_locally_signed_cert.vault-server.0.cert_pem}"
   bucket  = "${local.vault_tls_bucket}"
 
   depends_on = ["google_storage_bucket.vault"]
@@ -137,7 +143,7 @@ resource "google_storage_bucket_object" "vault-ca-cert" {
   count = "${local.manage_tls}"
 
   name    = "${var.vault_ca_cert_filename}"
-  content = "${tls_self_signed_cert.root.cert_pem}"
+  content = "${tls_self_signed_cert.root.0.cert_pem}"
   bucket  = "${local.vault_tls_bucket}"
 
   depends_on = ["google_storage_bucket.vault"]

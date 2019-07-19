@@ -50,7 +50,7 @@ resource "google_compute_router_nat" "vault-nat" {
   region  = "${var.region}"
 
   nat_ip_allocate_option = "MANUAL_ONLY"
-  nat_ips                = ["${google_compute_address.vault-nat.*.self_link}"]
+  nat_ips                = google_compute_address.vault-nat.*.self_link
 
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
 
@@ -110,10 +110,7 @@ resource "google_compute_firewall" "allow-lb-healthcheck" {
     ports    = ["${var.vault_proxy_port}"]
   }
 
-  source_ranges = [
-    "${data.google_compute_lb_ip_ranges.ranges.network}",
-    "${data.google_compute_lb_ip_ranges.ranges.http_ssl_tcp_internal}",
-  ]
+  source_ranges = concat(data.google_compute_lb_ip_ranges.ranges.network, data.google_compute_lb_ip_ranges.ranges.http_ssl_tcp_internal)
 
   target_tags = ["allow-vault"]
 
@@ -131,9 +128,7 @@ resource "google_compute_firewall" "allow-external" {
     ports    = ["${var.vault_port}"]
   }
 
-  source_ranges = [
-    "${var.vault_allowed_cidrs}",
-  ]
+  source_ranges = var.vault_allowed_cidrs
 
   target_tags = ["allow-vault"]
 
@@ -151,7 +146,7 @@ resource "google_compute_firewall" "allow-internal" {
     ports    = ["${var.vault_port}-${var.vault_port + 1}"]
   }
 
-  source_ranges = ["${google_compute_subnetwork.vault-subnet.ip_cidr_range}"]
+  source_ranges = [google_compute_subnetwork.vault-subnet.ip_cidr_range]
 
   depends_on = ["google_project_service.service"]
 }
@@ -167,7 +162,7 @@ resource "google_compute_firewall" "allow-ssh" {
     ports    = ["22"]
   }
 
-  source_ranges = ["${var.ssh_allowed_cidrs}"]
+  source_ranges = var.ssh_allowed_cidrs
   target_tags   = ["allow-ssh"]
 
   depends_on = ["google_project_service.service"]

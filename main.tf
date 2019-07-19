@@ -15,7 +15,7 @@
 #
 
 terraform {
-  required_version = "~> 0.11.0"
+  required_version = "~> 0.12.0"
 }
 
 locals {
@@ -117,7 +117,7 @@ resource "google_kms_crypto_key" "vault-init" {
 data "template_file" "vault-startup-script" {
   template = "${file("${path.module}/scripts/startup.sh.tpl")}"
 
-  vars {
+  vars = {
     config                = "${data.template_file.vault-config.rendered}"
     service_account_email = "${google_service_account.vault-admin.email}"
 
@@ -142,7 +142,7 @@ data "template_file" "vault-startup-script" {
 data "template_file" "vault-config" {
   template = "${file("${format("%s/scripts/config.hcl.tpl", path.module)}")}"
 
-  vars {
+  vars = {
     kms_project    = "${var.project_id}"
     kms_location   = "${google_kms_key_ring.vault.location}"
     kms_keyring    = "${google_kms_key_ring.vault.name}"
