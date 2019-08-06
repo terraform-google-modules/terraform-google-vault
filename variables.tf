@@ -109,10 +109,6 @@ EOF
 }
 
 variable "storage_bucket_lifecycle_rules" {
-type = list(object({
-  action=map(string),
-  condition=map(string)
-}))
 default = []
 
 description = <<EOF
@@ -122,14 +118,18 @@ should use.
 
 This is specified as a list of objects:
 
-    storage_lifecycle_rules = [{
-      action = [{
+    storage_lifecycle_rules = [
+      {
         type = "Delete"
-      }]
-      condition = [{
-        num_newer_versions = 3
-      }]
-    }]
+        conditions = {
+          age = 60,
+          is_live = false
+          matches_storage_class = ["REGIONAL"]
+          num_newer_versions = 10
+          created_before = "2017-06-13"
+        }
+      }
+    ]
 EOF
 
 }

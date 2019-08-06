@@ -17,10 +17,23 @@ resource "google_storage_bucket" "vault" {
   }
 
   dynamic "lifecycle_rule" {
-    for_each = var.storage_bucket_lifecycle_rules
+    for_each = [for g in var.storage_bucket_lifecycle_rules : {
+      type       = g.type
+      conditions = g.conditions
+    }]
+
     content {
-      action = lifecycle_rule.action
-      condition = lifecycle_rule.condition
+      action {
+        type = lifecycle_rule.value.type
+      }
+
+      condition {
+        age                   = contains(keys(lifecycle_rule.value.conditions), "age") ? lifecycle_rule.value.conditions.age : ""
+        is_live               = contains(keys(lifecycle_rule.value.conditions), "is_live") ? lifecycle_rule.value.conditions.is_live : ""
+        matches_storage_class = contains(keys(lifecycle_rule.value.conditions), "matches_storage_class") ? lifecycle_rule.value.conditions.matches_storage_class : []
+        num_newer_versions    = contains(keys(lifecycle_rule.value.conditions), "num_newer_versions") ? lifecycle_rule.value.conditions.num_newer_versions : ""
+        created_before        = contains(keys(lifecycle_rule.value.conditions), "created_before") ? lifecycle_rule.value.conditions.created_before : ""
+      }
     }
   }
 

@@ -77,10 +77,7 @@ resource "tls_cert_request" "vault-server" {
 
   dns_names = var.tls_dns_names
 
-  ip_addresses = [
-    google_compute_address.vault.address,
-    var.tls_ips,
-  ]
+  ip_addresses = concat([google_compute_address.vault.address], var.tls_ips)
 
   subject {
     common_name         = var.tls_cn

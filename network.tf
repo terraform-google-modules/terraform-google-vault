@@ -110,10 +110,7 @@ resource "google_compute_firewall" "allow-lb-healthcheck" {
     ports    = [var.vault_proxy_port]
   }
 
-  source_ranges = [
-    data.google_compute_lb_ip_ranges.ranges.network,
-    data.google_compute_lb_ip_ranges.ranges.http_ssl_tcp_internal,
-  ]
+  source_ranges = concat(data.google_compute_lb_ip_ranges.ranges.network, data.google_compute_lb_ip_ranges.ranges.http_ssl_tcp_internal)
 
   target_tags = ["allow-vault"]
 
