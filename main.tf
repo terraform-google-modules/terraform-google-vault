@@ -48,6 +48,7 @@ resource "google_project_service" "service" {
 resource "google_service_account" "vault-admin" {
   account_id   = "${var.service_account_name}"
   display_name = "Vault Admin"
+  project = "${var.project_id}"
 
   depends_on = ["google_project_service.service"]
 }
