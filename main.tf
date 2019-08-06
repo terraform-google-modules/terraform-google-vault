@@ -16,6 +16,7 @@
 
 locals {
   vault_tls_bucket = var.vault_tls_bucket != "" ? var.vault_tls_bucket : local.storage_bucket_name
+  lb_ip            = local.use_external_lb ? google_compute_forwarding_rule.external[0].ip_address : var.internal_lb_ip
 }
 
 # Configure the Google provider, locking to the 2.0 series.
@@ -115,6 +116,7 @@ data "template_file" "vault-startup-script" {
 
   vars = {
     config                  = data.template_file.vault-config.rendered
+    custom_http_proxy       = var.http_proxy
     service_account_email   = google_service_account.vault-admin.email
     vault_args              = var.vault_args
     vault_port              = var.vault_port
@@ -140,7 +142,7 @@ data "template_file" "vault-config" {
     kms_location                             = google_kms_key_ring.vault.location
     kms_keyring                              = google_kms_key_ring.vault.name
     kms_crypto_key                           = google_kms_crypto_key.vault-init.name
-    lb_ip                                    = google_compute_address.vault.address
+    lb_ip                                    = local.lb_ip
     storage_bucket                           = google_storage_bucket.vault.name
     vault_log_level                          = var.vault_log_level
     vault_port                               = var.vault_port

@@ -44,7 +44,7 @@ EOF
 }
 
 output "vault_addr" {
-  value = "https://${google_compute_address.vault.address}:${var.vault_port}"
+  value = "https://${local.lb_ip}:${var.vault_port}"
 
   description = <<EOF
 Full protocol, address, and port (FQDN) pointing to the Vault load balancer.
@@ -58,7 +58,7 @@ EOF
 }
 
 output "vault_lb_addr" {
-  value = google_compute_address.vault.address
+  value = local.lb_ip
 
   description = <<EOF
 Address of the load balancer without port or protocol information. You probably
@@ -86,16 +86,16 @@ EOF
 }
 
 output "vault_network" {
-  value = local.network
+  value       = local.network
   description = "The network in which the Vault cluster resides"
 }
 
 output "vault_subnet" {
-  value = local.subnet
+  value       = local.subnet
   description = "The subnetwork in which the Vault cluster resides"
 }
 
 output "vault_nat_ips" {
-  value = google_compute_address.vault-nat.*.address
+  value       = google_compute_address.vault-nat.*.address
   description = "The NAT-ips that the vault nodes will use to communicate with external services."
 }

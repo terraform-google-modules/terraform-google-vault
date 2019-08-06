@@ -172,6 +172,9 @@ variable "service_account_project_iam_roles" {
     "roles/logging.logWriter",
     "roles/monitoring.metricWriter",
     "roles/monitoring.viewer",
+
+    # Used to get internal load balancer IP in startup script
+    "roles/compute.networkViewer",
   ]
 
   description = <<EOF
@@ -250,15 +253,25 @@ EOF
 # --------------------
 
 variable "network" {
-  type = string
-  default = ""
+  type        = string
+  default     = ""
   description = "The self link of the VPC network for Vault. By default, one will be created for you."
 }
 
 variable "subnet" {
-  type = string
-  default = ""
+  type        = string
+  default     = ""
   description = "The self link of the VPC subnetwork for Vault. By default, one will be created for you."
+}
+
+variable "allow_public_egress" {
+  type    = bool
+  default = true
+
+  description = <<EOF
+Whether to create a NAT for external egress. If false, you must also specify an http_proxy to download required
+executables including Vault, Fluentd and Stackdriver
+EOF
 }
 
 variable "network_subnet_cidr_range" {
@@ -269,6 +282,37 @@ variable "network_subnet_cidr_range" {
 CIDR block range for the subnet.
 EOF
 
+}
+
+variable "internal_lb_ip" {
+  type    = string
+  default = "10.127.13.37"
+
+  description = <<EOF
+If load_balancing_scheme is set to INTERNAL, this IP will be used as the forwarding rule IP
+EOF
+}
+
+variable "http_proxy" {
+  type    = string
+  default = ""
+
+  description = <<EOF
+HTTP proxy for downloading agents and vault executable on startup. Only necessary if allow_public_egress is false.
+This is only used on the first startup of the Vault cluster and will NOT set the global HTTP_PROXY environment variable.
+i.e. If you configure Vault to manage credentials for other services, default HTTP routes will be taken.
+EOF
+}
+
+variable "load_balancing_scheme" {
+  type    = string
+  default = "EXTERNAL"
+
+  description = <<EOF
+Options are INTERNAL or EXTERNAL.
+If "EXTERNAL", the forwarding rule will be of type EXTERNAL and a public IP will be created.
+If "INTERNAL", the type will be INTERNAL and a random RFC 1918 private IP will be assigned
+EOF
 }
 
 #

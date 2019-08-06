@@ -19,12 +19,12 @@
 #
 locals {
   network = var.network == "" ? google_compute_network.vault-network[0].self_link : var.network
-  subnet = var.subnet == "" ? google_compute_subnetwork.vault-subnet[0].self_link : var.subnet
+  subnet  = var.subnet == "" ? google_compute_subnetwork.vault-subnet[0].self_link : var.subnet
 }
 
 # Address for NATing
 resource "google_compute_address" "vault-nat" {
-  count   = 2
+  count   = var.allow_public_egress ? 2 : 0
   project = var.project_id
   name    = "vault-nat-external-${count.index}"
   region  = var.region
@@ -34,6 +34,7 @@ resource "google_compute_address" "vault-nat" {
 
 # Create a NAT router so the nodes can reach the public Internet
 resource "google_compute_router" "vault-router" {
+  count   = var.allow_public_egress ? 1 : 0
   name    = "vault-router"
   project = var.project_id
   region  = var.region
@@ -48,9 +49,10 @@ resource "google_compute_router" "vault-router" {
 
 # NAT on the main subnetwork
 resource "google_compute_router_nat" "vault-nat" {
+  count   = var.allow_public_egress ? 1 : 0
   name    = "vault-nat-1"
   project = var.project_id
-  router  = google_compute_router.vault-router.name
+  router  = google_compute_router.vault-router[0].name
   region  = var.region
 
   nat_ip_allocate_option = "MANUAL_ONLY"
@@ -67,7 +69,7 @@ resource "google_compute_router_nat" "vault-nat" {
 }
 
 resource "google_compute_network" "vault-network" {
-  count = var.network == "" ? 1 : 0
+  count   = var.network == "" ? 1 : 0
   project = var.project_id
 
   name                    = "vault-network"
@@ -77,7 +79,7 @@ resource "google_compute_network" "vault-network" {
 }
 
 resource "google_compute_subnetwork" "vault-subnet" {
-  count = var.subnet == "" ? 1 : 0
+  count   = var.subnet == "" ? 1 : 0
   project = var.project_id
 
   name                     = "vault-subnet"
@@ -90,6 +92,7 @@ resource "google_compute_subnetwork" "vault-subnet" {
 }
 
 resource "google_compute_address" "vault" {
+  count   = local.use_external_lb ? 1 : 0
   project = var.project_id
 
   name   = "vault-lb"
