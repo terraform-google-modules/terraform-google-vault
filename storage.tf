@@ -17,22 +17,21 @@ resource "google_storage_bucket" "vault" {
   }
 
   dynamic "lifecycle_rule" {
-    for_each = [for g in var.storage_bucket_lifecycle_rules : {
-      type       = g.type
-      conditions = g.conditions
-    }]
+    for_each = var.storage_bucket_lifecycle_rules
 
     content {
       action {
-        type = lifecycle_rule.value.type
+        type          = contains(keys(lifecycle_rule.value.action), "type") ? lifecycle_rule.value.action.type : null
+        storage_class = contains(keys(lifecycle_rule.value.action), "storage_class") ? lifecycle_rule.value.action.storage_class : null
       }
 
       condition {
-        age                   = contains(keys(lifecycle_rule.value.conditions), "age") ? lifecycle_rule.value.conditions.age : ""
-        is_live               = contains(keys(lifecycle_rule.value.conditions), "is_live") ? lifecycle_rule.value.conditions.is_live : ""
-        matches_storage_class = contains(keys(lifecycle_rule.value.conditions), "matches_storage_class") ? lifecycle_rule.value.conditions.matches_storage_class : []
-        num_newer_versions    = contains(keys(lifecycle_rule.value.conditions), "num_newer_versions") ? lifecycle_rule.value.conditions.num_newer_versions : ""
-        created_before        = contains(keys(lifecycle_rule.value.conditions), "created_before") ? lifecycle_rule.value.conditions.created_before : ""
+        age                   = contains(keys(lifecycle_rule.value.condition), "age") ? lifecycle_rule.value.condition.age : null
+        created_before        = contains(keys(lifecycle_rule.value.condition), "created_before") ? lifecycle_rule.value.condition.created_before : null
+        with_state            = contains(keys(lifecycle_rule.value.condition), "with_state") ? lifecycle_rule.value.condition.with_state : null
+        is_live               = contains(keys(lifecycle_rule.value.condition), "is_live") ? lifecycle_rule.value.condition.is_live : null
+        matches_storage_class = contains(keys(lifecycle_rule.value.condition), "matches_storage_class") ? lifecycle_rule.value.condition.matches_storage_class : null
+        num_newer_versions    = contains(keys(lifecycle_rule.value.condition), "num_newer_versions") ? lifecycle_rule.value.condition.num_newer_versions : null
       }
     }
   }
@@ -41,4 +40,3 @@ resource "google_storage_bucket" "vault" {
 
   depends_on = [google_project_service.service]
 }
-

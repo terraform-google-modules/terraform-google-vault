@@ -151,4 +151,3 @@ data "template_file" "vault-config" {
     vault_ui_enabled               = var.vault_ui_enabled
   }
 }
-
