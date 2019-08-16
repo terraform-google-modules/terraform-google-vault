@@ -474,6 +474,28 @@ EOF
 
 }
 
+variable "vault_preemptible_instances" {
+  type    = bool
+  default = false
+
+  description = <<EOF
+Preemptible instances are recommended only for fault-tolerant applications
+that can withstand instance preemptions.
+EOF
+
+}
+
+variable "vault_automatic_restart_instance" {
+  type    = bool
+  default = true
+
+  description = <<EOF
+Specifies whether the instance should be automatically restarted if it is
+terminated by Compute Engine.
+EOF
+
+}
+
 variable "vault_max_num_servers" {
   type    = string
   default = "7"

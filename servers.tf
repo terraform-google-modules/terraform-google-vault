@@ -60,6 +60,11 @@ resource "google_compute_instance_template" "vault" {
     create_before_destroy = true
   }
 
+  scheduling {
+    automatic_restart = var.vault_automatic_restart_instance
+    preemptible       = var.vault_preemptible_instances
+  }
+
   depends_on = [google_project_service.service]
 }
 
