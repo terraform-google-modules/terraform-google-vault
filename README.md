@@ -6,7 +6,7 @@ This module is versioned and released on the Terraform module registry. Look for
 the tag that corresponds to your version for the correct documentation.
 
 - **Vault HA** - Vault is configured to run in high availability mode with
-  Google Cloud Storage. Choose a `min_num_vault_servers` greater than 0 to
+  Google Cloud Storage. Choose a `vault_min_num_servers` greater than 0 to
   enable HA mode.
 
 - **Production hardened** - Vault is deployed according to applicable parts of
