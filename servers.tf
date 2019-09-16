@@ -36,7 +36,7 @@ resource "google_compute_instance_template" "vault" {
   }
 
   disk {
-    source_image = "debian-cloud/debian-9"
+    source_image = var.vault_instance_base_image
     type         = "PERSISTENT"
     disk_type    = "pd-ssd"
     mode         = "READ_WRITE"
@@ -150,4 +150,3 @@ resource "google_compute_region_autoscaler" "vault" {
 
   depends_on = [google_project_service.service]
 }
-
