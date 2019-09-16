@@ -12,6 +12,7 @@ fi
 LOCAL_IP="$(curl -sf -H "Metadata-Flavor: Google" http://metadata/computeMetadata/v1/instance/network-interfaces/0/ip)"
 
 # Deps
+export DEBIAN_FRONTEND=noninteractive
 apt-get update -yqq
 apt-get upgrade -yqq
 apt-get install -yqq jq libcap2-bin logrotate netcat nginx unzip
