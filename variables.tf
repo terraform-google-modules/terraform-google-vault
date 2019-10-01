@@ -280,8 +280,8 @@ EOF
 # --------------------
 
 variable "manage_tls" {
-  type    = string
-  default = "true"
+  type    = bool
+  default = true
 
   description = <<EOF
 Set to "false" if you'd like to manage and upload your own TLS files, if you do not want this module
@@ -336,50 +336,21 @@ variable "tls_ips" {
   default     = ["127.0.0.1"]
 }
 
+variable "tls_save_ca_to_disk" {
+  type    = bool
+  default = true
+
+  description = <<EOF
+Save the CA public certificate on the local filesystem. The CA is always stored
+in GCS, but this option also saves it to the filesystem.
+EOF
+}
+
 variable "tls_ou" {
   description = "The TLS Organizational Unit for the TLS certificate"
   default     = "IT Security Operations"
 }
 
-variable "vault_ca_cert_filename" {
-  type    = string
-  default = "ca.crt"
-
-  description = <<EOF
-GCS object path within the vault_tls_bucket. This is the root CA certificate.
-EOF
-
-}
-
-variable "vault_tls_bucket" {
-  type    = string
-  default = ""
-
-  description = <<EOF
-GCS Bucket override where Vault will expect TLS certificates are stored.
-EOF
-
-}
-
-variable "vault_tls_cert_filename" {
-  type    = string
-  default = "vault.crt"
-
-  description = <<EOF
-GCS object path within the vault_tls_bucket. This is the vault server certificate.
-EOF
-
-}
-
-variable "vault_tls_key_filename" {
-  type    = string
-  default = "vault.key.enc"
-
-  description = <<EOF
-Encrypted and base64 encoded GCS object path within the vault_tls_bucket. This is the Vault TLS private key.
-EOF
-
-}
 
 #
 #
@@ -418,6 +389,16 @@ variable "vault_instance_labels" {
 
   description = <<EOF
 Labels to apply to the Vault instances.
+EOF
+
+}
+
+variable "vault_ca_cert_filename" {
+  type    = string
+  default = "ca.crt"
+
+  description = <<EOF
+GCS object path within the vault_tls_bucket. This is the root CA certificate.
 EOF
 
 }
@@ -528,6 +509,36 @@ variable "vault_tls_disable_client_certs" {
   description = <<EOF
 Use and expect client certificates. You may want to disable this if users will
 not be authenticating to Vault with client certificates.
+EOF
+
+}
+
+variable "vault_tls_bucket" {
+  type    = string
+  default = ""
+
+  description = <<EOF
+GCS Bucket override where Vault will expect TLS certificates are stored.
+EOF
+
+}
+
+variable "vault_tls_cert_filename" {
+  type    = string
+  default = "vault.crt"
+
+  description = <<EOF
+GCS object path within the vault_tls_bucket. This is the vault server certificate.
+EOF
+
+}
+
+variable "vault_tls_key_filename" {
+  type    = string
+  default = "vault.key.enc"
+
+  description = <<EOF
+Encrypted and base64 encoded GCS object path within the vault_tls_bucket. This is the Vault TLS private key.
 EOF
 
 }

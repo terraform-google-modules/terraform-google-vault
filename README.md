@@ -192,6 +192,17 @@ Instance" tagged as "vaultproject.io/audit".
   automatically ignored from source control).
 
 
+## Sandboxes & Terraform Cloud
+
+When running in a sandbox such as Terraform Cloud, you need to disable
+filesystem access. You can do this by setting the following variables:
+
+```terraform
+# terraform.tfvars
+tls_save_ca_to_disk = false
+```
+
+
 ## FAQ
 
 - **I see unhealthy Vault nodes in my load balancer pool!**

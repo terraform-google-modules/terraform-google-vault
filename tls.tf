@@ -19,9 +19,14 @@
 # Vault.
 #
 
+locals {
+  manage_tls_count          = var.manage_tls ? 1 : 0
+  tls_save_ca_to_disk_count = var.tls_save_ca_to_disk ? 1 : 0
+}
+
 # Generate a self-sign TLS certificate that will act as the root CA.
 resource "tls_private_key" "root" {
-  count = local.manage_tls
+  count = local.manage_tls_count
 
   algorithm = "RSA"
   rsa_bits  = "2048"
@@ -29,7 +34,7 @@ resource "tls_private_key" "root" {
 
 # Sign ourselves
 resource "tls_self_signed_cert" "root" {
-  count = local.manage_tls
+  count = local.manage_tls_count
 
   key_algorithm   = tls_private_key.root[0].algorithm
   private_key_pem = tls_private_key.root[0].private_key_pem
@@ -54,7 +59,7 @@ resource "tls_self_signed_cert" "root" {
 
 # Save the root CA locally for TLS verification
 resource "local_file" "root" {
-  count = local.manage_tls
+  count = min(local.manage_tls_count, local.tls_save_ca_to_disk_count)
 
   filename = "ca.crt"
   content  = tls_self_signed_cert.root[0].cert_pem
@@ -62,7 +67,7 @@ resource "local_file" "root" {
 
 # Vault server key
 resource "tls_private_key" "vault-server" {
-  count = local.manage_tls
+  count = local.manage_tls_count
 
   algorithm = "RSA"
   rsa_bits  = "2048"
@@ -70,7 +75,7 @@ resource "tls_private_key" "vault-server" {
 
 # Create the request to sign the cert with our CA
 resource "tls_cert_request" "vault-server" {
-  count = local.manage_tls
+  count = local.manage_tls_count
 
   key_algorithm   = tls_private_key.vault-server[0].algorithm
   private_key_pem = tls_private_key.vault-server[0].private_key_pem
@@ -88,7 +93,7 @@ resource "tls_cert_request" "vault-server" {
 
 # Sign the cert
 resource "tls_locally_signed_cert" "vault-server" {
-  count = local.manage_tls
+  count = local.manage_tls_count
 
   cert_request_pem   = tls_cert_request.vault-server[0].cert_request_pem
   ca_key_algorithm   = tls_private_key.root[0].algorithm
@@ -103,7 +108,7 @@ resource "tls_locally_signed_cert" "vault-server" {
 
 # Encrypt server key with GCP KMS
 data "external" "vault-tls-key-encrypted" {
-  count = local.manage_tls
+  count = local.manage_tls_count
 
   program = ["${path.module}/scripts/gcpkms-encrypt.sh"]
 
@@ -120,7 +125,7 @@ data "external" "vault-tls-key-encrypted" {
 }
 
 resource "google_storage_bucket_object" "vault-private-key" {
-  count = local.manage_tls
+  count = local.manage_tls_count
 
   name    = var.vault_tls_key_filename
   content = data.external.vault-tls-key-encrypted.0.result["ciphertext"]
@@ -130,7 +135,7 @@ resource "google_storage_bucket_object" "vault-private-key" {
 }
 
 resource "google_storage_bucket_object" "vault-server-cert" {
-  count = local.manage_tls
+  count = local.manage_tls_count
 
   name    = var.vault_tls_cert_filename
   content = tls_locally_signed_cert.vault-server[0].cert_pem
@@ -140,7 +145,7 @@ resource "google_storage_bucket_object" "vault-server-cert" {
 }
 
 resource "google_storage_bucket_object" "vault-ca-cert" {
-  count = local.manage_tls
+  count = local.manage_tls_count
 
   name    = var.vault_ca_cert_filename
   content = tls_self_signed_cert.root[0].cert_pem
@@ -148,4 +153,3 @@ resource "google_storage_bucket_object" "vault-ca-cert" {
 
   depends_on = [google_storage_bucket.vault]
 }
-

@@ -16,9 +16,6 @@
 
 locals {
   vault_tls_bucket = var.vault_tls_bucket != "" ? var.vault_tls_bucket : local.storage_bucket_name
-
-  # Inverts logic from user perspective to terraform perspective for use in count
-  manage_tls = var.manage_tls == "true" ? 1 : 0
 }
 
 # Configure the Google provider, locking to the 2.0 series.
@@ -44,7 +41,7 @@ resource "google_project_service" "service" {
 resource "google_service_account" "vault-admin" {
   account_id   = var.service_account_name
   display_name = "Vault Admin"
-  project = "${var.project_id}"
+  project      = "${var.project_id}"
 
   depends_on = [google_project_service.service]
 }
