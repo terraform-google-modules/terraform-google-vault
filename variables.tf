@@ -434,7 +434,7 @@ EOF
 
 variable "vault_instance_base_image" {
   type    = string
-  default = "debian-cloud/debian-10"
+  default = "debian-cloud/debian-9"
 
   description = <<EOF
 Base operating system image in which to install Vault. This must be a
