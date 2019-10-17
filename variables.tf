@@ -103,7 +103,8 @@ variable "storage_bucket_enable_versioning" {
   default = false
 
   description = <<EOF
-Set to true to enable object versioning in the GCS bucket.
+Set to true to enable object versioning in the GCS bucket.. You may want to
+define lifecycle rules if you want a finite number of old versions.
 EOF
 
 }
