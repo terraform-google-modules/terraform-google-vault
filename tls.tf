@@ -19,6 +19,10 @@
 # Vault.
 #
 
+provider "tls" {
+  version = "~> 2.1.1"
+}
+
 locals {
   manage_tls_count          = var.manage_tls ? 1 : 0
   tls_save_ca_to_disk_count = var.tls_save_ca_to_disk ? 1 : 0
