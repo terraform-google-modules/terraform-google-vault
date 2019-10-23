@@ -76,3 +76,11 @@ EOF
 
 }
 
+output "vault_storage_bucket" {
+  value = google_storage_bucket.vault.name
+
+  description = <<EOF
+GCS Bucket Vault is using as a backend/database
+EOF
+
+}
