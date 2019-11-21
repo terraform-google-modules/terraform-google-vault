@@ -25,7 +25,7 @@ EOF
 }
 
 output "ca_key_pem" {
-  value = tls_private_key.root.*.private_key_pem
+  value     = tls_private_key.root.*.private_key_pem
   sensitive = true
 
   description = <<EOF
@@ -35,18 +35,18 @@ EOF
 }
 
 output "service_account_email" {
-value = google_service_account.vault-admin.email
+  value = google_service_account.vault-admin.email
 
-description = <<EOF
+  description = <<EOF
 Email for the vault-admin service account.
 EOF
 
 }
 
 output "vault_addr" {
-value = "https://${google_compute_address.vault.address}:${var.vault_port}"
+  value = "https://${google_compute_address.vault.address}:${var.vault_port}"
 
-description = <<EOF
+  description = <<EOF
 Full protocol, address, and port (FQDN) pointing to the Vault load balancer.
 This is a drop-in to VAULT_ADDR:
 
