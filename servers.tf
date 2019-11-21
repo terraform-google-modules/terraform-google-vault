@@ -117,7 +117,9 @@ resource "google_compute_region_instance_group_manager" "vault" {
   region = var.region
 
   base_instance_name = "vault-${var.region}"
-  instance_template  = google_compute_instance_template.vault.self_link
+  version {
+    instance_template  = google_compute_instance_template.vault.self_link
+  }
   wait_for_instances = false
 
   target_pools = [google_compute_target_pool.vault.self_link]
