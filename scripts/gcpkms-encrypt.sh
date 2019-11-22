@@ -41,10 +41,10 @@ mkdir -p "${KMS_DIR}"
 # If the signature file does not exist, encrypt the ciphertext
 if [ ! -f "${KMS_DIR}/${SIG}" ]; then
   RESULT="$(echo "${DATA}" | gcloud kms encrypt \
-    --project=${PROJECT} \
-    --location=${LOCATION} \
-    --keyring=${KEYRING} \
-    --key=${KEY} \
+    --project="${PROJECT}" \
+    --location="${LOCATION}" \
+    --keyring="${KEYRING}" \
+    --key="${KEY}" \
     --plaintext-file=- \
     --ciphertext-file=- \
     | base64)"
