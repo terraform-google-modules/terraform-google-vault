@@ -137,15 +137,16 @@ data "template_file" "vault-config" {
   template = file(format("%s/scripts/config.hcl.tpl", path.module))
 
   vars = {
-    kms_project                    = var.project_id
-    kms_location                   = google_kms_key_ring.vault.location
-    kms_keyring                    = google_kms_key_ring.vault.name
-    kms_crypto_key                 = google_kms_crypto_key.vault-init.name
-    lb_ip                          = google_compute_address.vault.address
-    storage_bucket                 = google_storage_bucket.vault.name
-    vault_log_level                = var.vault_log_level
-    vault_port                     = var.vault_port
-    vault_tls_disable_client_certs = var.vault_tls_disable_client_certs
-    vault_ui_enabled               = var.vault_ui_enabled
+    kms_project                              = var.project_id
+    kms_location                             = google_kms_key_ring.vault.location
+    kms_keyring                              = google_kms_key_ring.vault.name
+    kms_crypto_key                           = google_kms_crypto_key.vault-init.name
+    lb_ip                                    = google_compute_address.vault.address
+    storage_bucket                           = google_storage_bucket.vault.name
+    vault_log_level                          = var.vault_log_level
+    vault_port                               = var.vault_port
+    vault_tls_disable_client_certs           = var.vault_tls_disable_client_certs
+    vault_tls_require_and_verify_client_cert = var.vault_tls_require_and_verify_client_cert
+    vault_ui_enabled                         = var.vault_ui_enabled
   }
 }

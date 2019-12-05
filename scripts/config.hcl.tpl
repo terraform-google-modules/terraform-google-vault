@@ -36,7 +36,8 @@ listener "tcp" {
   tls_key_file       = "/etc/vault.d/tls/vault.key"
   tls_client_ca_file = "/etc/vault.d/tls/ca.crt"
 
-  tls_disable_client_certs = "${vault_tls_disable_client_certs}"
+  tls_disable_client_certs           = "${vault_tls_disable_client_certs}"
+  tls_require_and_verify_client_cert = "${vault_tls_require_and_verify_client_cert}"
 }
 
 # Create an mTLS listener locally. Client's shouldn't talk to Vault directly,
@@ -48,7 +49,8 @@ listener "tcp" {
   tls_key_file       = "/etc/vault.d/tls/vault.key"
   tls_client_ca_file = "/etc/vault.d/tls/ca.crt"
 
-  tls_disable_client_certs = "${vault_tls_disable_client_certs}"
+  tls_disable_client_certs           = "${vault_tls_disable_client_certs}"
+  tls_require_and_verify_client_cert = "${vault_tls_require_and_verify_client_cert}"
 }
 
 # Send data to statsd (Stackdriver monitoring)
