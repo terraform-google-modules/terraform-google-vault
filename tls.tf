@@ -111,31 +111,26 @@ resource "tls_locally_signed_cert" "vault-server" {
 }
 
 # Encrypt server key with GCP KMS
-data "external" "vault-tls-key-encrypted" {
-  count = local.manage_tls_count
-
-  program = ["${path.module}/scripts/gcpkms-encrypt.sh"]
-
-  query = {
-    root     = path.module
-    data     = tls_private_key.vault-server[0].private_key_pem
-    project  = var.project_id
-    location = google_kms_key_ring.vault.location
-    keyring  = google_kms_key_ring.vault.name
-    key      = google_kms_crypto_key.vault-init.name
-  }
-
-  depends_on = [google_kms_crypto_key.vault-init]
+data "google_kms_secret_ciphertext" "vault-tls-key-encrypted" {
+  crypto_key = google_kms_crypto_key.vault-init.self_link
+  plaintext  = tls_private_key.vault-server[0].private_key_pem
 }
 
 resource "google_storage_bucket_object" "vault-private-key" {
   count = local.manage_tls_count
 
   name    = var.vault_tls_key_filename
-  content = data.external.vault-tls-key-encrypted.0.result["ciphertext"]
+  content = data.google_kms_secret_ciphertext.vault-tls-key-encrypted.ciphertext
   bucket  = local.vault_tls_bucket
 
   depends_on = [google_storage_bucket.vault]
+
+  # Ciphertext changes on each invocation, so ignore changes
+  lifecycle {
+    ignore_changes = [
+      content,
+    ]
+  }
 }
 
 resource "google_storage_bucket_object" "vault-server-cert" {
