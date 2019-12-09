@@ -81,7 +81,7 @@ the tag that corresponds to your version for the correct documentation.
 1. Configure your local Vault binary to communicate with the Vault server:
 
     ```
-    $ export VAULT_ADDR="$(terraform output vault-address)"
+    $ export VAULT_ADDR="$(terraform output vault_addr)"
     $ export VAULT_CACERT="$(pwd)/ca.crt"
     ```
 
