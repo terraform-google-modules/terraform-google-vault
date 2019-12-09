@@ -20,7 +20,6 @@ locals {
 
 # Configure the Google provider, locking to the 2.0 series.
 provider "google" {
-  version = "~> 2.0"
   project = var.project_id
   region  = var.region
 }

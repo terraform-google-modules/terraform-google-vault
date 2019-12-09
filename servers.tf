@@ -117,9 +117,6 @@ resource "google_compute_region_instance_group_manager" "vault" {
   region = var.region
 
   base_instance_name = "vault-${var.region}"
-  version {
-    instance_template  = google_compute_instance_template.vault.self_link
-  }
   wait_for_instances = false
 
   target_pools = [google_compute_target_pool.vault.self_link]
@@ -127,6 +124,10 @@ resource "google_compute_region_instance_group_manager" "vault" {
   named_port {
     name = "vault-http"
     port = var.vault_port
+  }
+
+  version {
+    instance_template = google_compute_instance_template.vault.self_link
   }
 
   depends_on = [google_project_service.service]
