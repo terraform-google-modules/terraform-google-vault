@@ -508,7 +508,18 @@ variable "vault_tls_disable_client_certs" {
   default = false
 
   description = <<EOF
-Use and expect client certificates. You may want to disable this if users will
+Use client certificates when provided. You may want to disable this if users will
+not be authenticating to Vault with client certificates.
+EOF
+
+}
+
+variable "vault_tls_require_and_verify_client_cert" {
+  type    = string
+  default = false
+
+  description = <<EOF
+Always use client certificates. You may want to disable this if users will
 not be authenticating to Vault with client certificates.
 EOF
 
