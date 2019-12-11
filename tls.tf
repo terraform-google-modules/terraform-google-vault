@@ -113,6 +113,7 @@ resource "tls_locally_signed_cert" "vault-server" {
 # Encrypt server key with GCP KMS
 data "google_kms_secret_ciphertext" "vault-tls-key-encrypted" {
   count      = local.manage_tls_count
+
   crypto_key = google_kms_crypto_key.vault-init.self_link
   plaintext  = tls_private_key.vault-server[0].private_key_pem
 }
@@ -121,7 +122,7 @@ resource "google_storage_bucket_object" "vault-private-key" {
   count = local.manage_tls_count
 
   name    = var.vault_tls_key_filename
-  content = data.google_kms_secret_ciphertext.vault-tls-key-encrypted.ciphertext
+  content = data.google_kms_secret_ciphertext.vault-tls-key-encrypted[0].ciphertext
   bucket  = local.vault_tls_bucket
 
   depends_on = [google_storage_bucket.vault]
