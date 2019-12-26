@@ -17,19 +17,19 @@ server locally or configure anything.
 
 1. Authenticate the local SDK:
 
-    ```
-    $ gcloud auth login
+    ```sh
+    $ gcloud auth application-default login
     ```
 
 1. Create a new project or use an existing project. Save the ID for use
 
-    ```
+    ```sh
     $ export GOOGLE_CLOUD_PROJECT="my-project-id"
     ```
 
 1. Enable the Compute Engine API (Terraform will enable other required ones):
 
-    ```
+    ```sh
     $ gcloud services enable --project "${GOOGLE_CLOUD_PROJECT}" \
         compute.googleapis.com
     ```
@@ -37,7 +37,7 @@ server locally or configure anything.
 1. Create a `terraform.tfvars` file in the current working directory with your
 configuration data:
 
-    ```
+    ```hcl
     project_id = "..."
     ```
 
@@ -45,19 +45,19 @@ configuration data:
 
 1. Download required providers:
 
-    ```
+    ```sh
     $ terraform init
     ```
 
 1. Plan the changes:
 
-    ```
+    ```sh
     $ terraform plan
     ```
 
 1. Assuming no errors, apply:
 
-    ```
+    ```sh
     $ terraform apply
     ```
 
@@ -70,8 +70,8 @@ Vault is installed and configured via a startup script.
 
 1. Configure your local Vault binary to communicate with the Vault server:
 
-    ```
-    $ export VAULT_ADDR="$(terraform output -module=vault vault_addr)"
+    ```sh
+    $ export VAULT_ADDR="$(terraform output vault_addr)"
     $ export VAULT_CACERT="$(pwd)/ca.crt"
     ```
 
