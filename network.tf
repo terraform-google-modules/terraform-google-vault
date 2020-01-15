@@ -17,6 +17,10 @@
 #
 # This file contains the networking bits.
 #
+locals {
+  network = var.network == "" ? google_compute_network.vault-network[0].self_link : var.network
+  subnet = var.subnet == "" ? google_compute_subnetwork.vault-subnet[0].self_link : var.subnet
+}
 
 # Address for NATing
 resource "google_compute_address" "vault-nat" {
@@ -33,7 +37,7 @@ resource "google_compute_router" "vault-router" {
   name    = "vault-router"
   project = var.project_id
   region  = var.region
-  network = google_compute_network.vault-network.self_link
+  network = local.network
 
   bgp {
     asn = 64514
@@ -55,7 +59,7 @@ resource "google_compute_router_nat" "vault-nat" {
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
 
   subnetwork {
-    name                    = google_compute_subnetwork.vault-subnet.self_link
+    name                    = local.subnet
     source_ip_ranges_to_nat = ["PRIMARY_IP_RANGE"]
   }
 
@@ -63,6 +67,7 @@ resource "google_compute_router_nat" "vault-nat" {
 }
 
 resource "google_compute_network" "vault-network" {
+  count = var.network == "" ? 1 : 0
   project = var.project_id
 
   name                    = "vault-network"
@@ -72,12 +77,13 @@ resource "google_compute_network" "vault-network" {
 }
 
 resource "google_compute_subnetwork" "vault-subnet" {
+  count = var.subnet == "" ? 1 : 0
   project = var.project_id
 
   name                     = "vault-subnet"
   region                   = var.region
   ip_cidr_range            = var.network_subnet_cidr_range
-  network                  = google_compute_network.vault-network.self_link
+  network                  = local.network
   private_ip_google_access = true
 
   depends_on = [google_project_service.service]
@@ -103,7 +109,7 @@ data "google_compute_lb_ip_ranges" "ranges" {
 resource "google_compute_firewall" "allow-lb-healthcheck" {
   project = var.project_id
   name    = "vault-allow-lb-healthcheck"
-  network = google_compute_network.vault-network.self_link
+  network = local.network
 
   allow {
     protocol = "tcp"
@@ -121,7 +127,7 @@ resource "google_compute_firewall" "allow-lb-healthcheck" {
 resource "google_compute_firewall" "allow-external" {
   project = var.project_id
   name    = "vault-allow-external"
-  network = google_compute_network.vault-network.self_link
+  network = local.network
 
   allow {
     protocol = "tcp"
@@ -139,14 +145,14 @@ resource "google_compute_firewall" "allow-external" {
 resource "google_compute_firewall" "allow-internal" {
   project = var.project_id
   name    = "vault-allow-internal"
-  network = google_compute_network.vault-network.self_link
+  network = local.network
 
   allow {
     protocol = "tcp"
     ports    = ["${var.vault_port}-${var.vault_port + 1}"]
   }
 
-  source_ranges = [google_compute_subnetwork.vault-subnet.ip_cidr_range]
+  source_ranges = [var.network_subnet_cidr_range]
 
   depends_on = [google_project_service.service]
 }
@@ -155,7 +161,7 @@ resource "google_compute_firewall" "allow-internal" {
 resource "google_compute_firewall" "allow-ssh" {
   project = var.project_id
   name    = "vault-allow-ssh"
-  network = google_compute_network.vault-network.self_link
+  network = local.network
 
   allow {
     protocol = "tcp"
