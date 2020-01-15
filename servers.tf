@@ -31,7 +31,7 @@ resource "google_compute_instance_template" "vault" {
   labels = var.vault_instance_labels
 
   network_interface {
-    subnetwork         = google_compute_subnetwork.vault-subnet.self_link
+    subnetwork         = local.subnet
     subnetwork_project = var.project_id
   }
 

@@ -84,3 +84,13 @@ GCS Bucket Vault is using as a backend/database
 EOF
 
 }
+
+output "vault_network" {
+  value = local.network
+  description = "The network in which the Vault cluster resides"
+}
+
+output "vault_subnet" {
+  value = local.subnet
+  description = "The subnetwork in which the Vault cluster resides"
+}

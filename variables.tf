@@ -249,6 +249,18 @@ EOF
 # Networking
 # --------------------
 
+variable "network" {
+  type = string
+  default = ""
+  description = "The self link of the VPC network for Vault. By default, one will be created for you."
+}
+
+variable "subnet" {
+  type = string
+  default = ""
+  description = "The self link of the VPC subnetwork for Vault. By default, one will be created for you."
+}
+
 variable "network_subnet_cidr_range" {
   type    = string
   default = "10.127.0.0/20"
