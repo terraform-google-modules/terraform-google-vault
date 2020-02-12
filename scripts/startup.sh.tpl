@@ -248,7 +248,7 @@ cat <<"EOF" > /etc/logrotate.d/vaultproject.io
   create 0640 vault adm
   sharedscripts
   postrotate
-    test -s run/rsyslogd.pid && kill -HUP $(cat /run/rsyslogd.pid)
+    kill -HUP $(pidof vault)
     true
   endscript
 }
