@@ -19,7 +19,7 @@
 #
 locals {
   network = var.network == "" ? google_compute_network.vault-network[0].self_link : var.network
-  subnet = var.subnet == "" ? google_compute_subnetwork.vault-subnet[0].self_link : var.subnet
+  subnet  = var.subnet == "" ? google_compute_subnetwork.vault-subnet[0].self_link : var.subnet
 }
 
 # Address for NATing
@@ -67,7 +67,7 @@ resource "google_compute_router_nat" "vault-nat" {
 }
 
 resource "google_compute_network" "vault-network" {
-  count = var.network == "" ? 1 : 0
+  count   = var.network == "" ? 1 : 0
   project = var.project_id
 
   name                    = "vault-network"
@@ -77,7 +77,7 @@ resource "google_compute_network" "vault-network" {
 }
 
 resource "google_compute_subnetwork" "vault-subnet" {
-  count = var.subnet == "" ? 1 : 0
+  count   = var.subnet == "" ? 1 : 0
   project = var.project_id
 
   name                     = "vault-subnet"
