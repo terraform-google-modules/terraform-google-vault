@@ -250,14 +250,14 @@ EOF
 # --------------------
 
 variable "network" {
-  type = string
-  default = ""
+  type        = string
+  default     = ""
   description = "The self link of the VPC network for Vault. By default, one will be created for you."
 }
 
 variable "subnet" {
-  type = string
-  default = ""
+  type        = string
+  default     = ""
   description = "The self link of the VPC subnetwork for Vault. By default, one will be created for you."
 }
 
