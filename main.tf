@@ -26,10 +26,10 @@ provider "google" {
 
 # Enable required services on the project
 resource "google_project_service" "service" {
-  count   = length(var.project_services)
-  project = var.project_id
+  for_each = toset(var.project_services)
+  project  = var.project_id
 
-  service = element(var.project_services, count.index)
+  service = each.key
 
   # Do not disable the service on destroy. This may be a shared project, and
   # we might not "own" the services we enable.
@@ -47,33 +47,30 @@ resource "google_service_account" "vault-admin" {
 
 # Give project-level IAM permissions to the service account.
 resource "google_project_iam_member" "project-iam" {
-  count   = length(var.service_account_project_iam_roles)
-  project = var.project_id
-  role    = element(var.service_account_project_iam_roles, count.index)
-  member  = "serviceAccount:${google_service_account.vault-admin.email}"
+  for_each = toset(var.service_account_project_iam_roles)
+  project  = var.project_id
+  role     = each.value
+  member   = "serviceAccount:${google_service_account.vault-admin.email}"
 
   depends_on = [google_project_service.service]
 }
 
 # Give additional project-level IAM permissions to the service account.
 resource "google_project_iam_member" "additional-project-iam" {
-  count   = length(var.service_account_project_additional_iam_roles)
-  project = var.project_id
-  role = element(
-    var.service_account_project_additional_iam_roles,
-    count.index,
-  )
-  member = "serviceAccount:${google_service_account.vault-admin.email}"
+  for_each = toset(var.service_account_project_additional_iam_roles)
+  project  = var.project_id
+  role     = each.key
+  member   = "serviceAccount:${google_service_account.vault-admin.email}"
 
   depends_on = [google_project_service.service]
 }
 
 # Give bucket-level permissions to the service account.
 resource "google_storage_bucket_iam_member" "vault" {
-  count  = length(var.service_account_storage_bucket_iam_roles)
-  bucket = google_storage_bucket.vault.name
-  role   = element(var.service_account_storage_bucket_iam_roles, count.index)
-  member = "serviceAccount:${google_service_account.vault-admin.email}"
+  for_each = toset(var.service_account_storage_bucket_iam_roles)
+  bucket   = google_storage_bucket.vault.name
+  role     = each.key
+  member   = "serviceAccount:${google_service_account.vault-admin.email}"
 
   depends_on = [google_project_service.service]
 }
