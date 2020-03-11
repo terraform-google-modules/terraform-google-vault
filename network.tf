@@ -159,6 +159,7 @@ resource "google_compute_firewall" "allow-internal" {
 
 # Allow SSHing into machines tagged "allow-ssh"
 resource "google_compute_firewall" "allow-ssh" {
+  count   = var.allow_ssh ? 1 : 0
   project = var.project_id
   name    = "vault-allow-ssh"
   network = local.network
