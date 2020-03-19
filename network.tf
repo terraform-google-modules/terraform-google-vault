@@ -92,8 +92,11 @@ resource "google_compute_subnetwork" "vault-subnet" {
 resource "google_compute_address" "vault" {
   project = var.project_id
 
-  name   = "vault-lb"
-  region = var.region
+  name         = "vault-lb-internal"
+  region       = var.region
+  address_type = "INTERNAL"
+  subnetwork   = local.subnet
+
 
   depends_on = [google_project_service.service]
 }
@@ -113,7 +116,7 @@ resource "google_compute_firewall" "allow-lb-healthcheck" {
 
   allow {
     protocol = "tcp"
-    ports    = [var.vault_proxy_port]
+    ports    = [var.vault_port]
   }
 
   source_ranges = concat(data.google_compute_lb_ip_ranges.ranges.network, data.google_compute_lb_ip_ranges.ranges.http_ssl_tcp_internal)

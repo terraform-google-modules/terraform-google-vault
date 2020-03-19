@@ -63,35 +63,6 @@ resource "google_compute_instance_template" "vault" {
   depends_on = [google_project_service.service]
 }
 
-# This legacy health check is required because the target pool requires an HTTP
-# health check.
-resource "google_compute_http_health_check" "vault" {
-  project = var.project_id
-
-  name         = "vault-health-legacy"
-  request_path = "/"
-  port         = var.vault_proxy_port
-
-  check_interval_sec  = 15
-  timeout_sec         = 5
-  healthy_threshold   = 2
-  unhealthy_threshold = 2
-
-  depends_on = [google_project_service.service]
-}
-
-# Target pool for vault nodes
-resource "google_compute_target_pool" "vault" {
-  project = var.project_id
-
-  name   = "vault-tp"
-  region = var.region
-
-  health_checks = [google_compute_http_health_check.vault.name]
-
-  depends_on = [google_project_service.service]
-}
-
 # Forward external traffic to the target pool
 resource "google_compute_forwarding_rule" "vault" {
   project = var.project_id
@@ -100,13 +71,40 @@ resource "google_compute_forwarding_rule" "vault" {
   region                = var.region
   ip_address            = google_compute_address.vault.address
   ip_protocol           = "TCP"
-  load_balancing_scheme = "EXTERNAL"
+  load_balancing_scheme = "INTERNAL"
   network_tier          = "PREMIUM"
 
-  target     = google_compute_target_pool.vault.self_link
-  port_range = var.vault_port
+  network    = local.network
+  subnetwork = local.subnet
+
+  backend_service = google_compute_region_backend_service.vault.self_link
+  all_ports       = true
 
   depends_on = [google_project_service.service]
+}
+
+
+resource "google_compute_region_backend_service" "vault" {
+  # do we need this?
+  # provider = google-beta
+
+  name          = "vault-backend-service"
+  region        = var.region
+  health_checks = [google_compute_health_check.health_check.self_link]
+
+  backend {
+    group = google_compute_region_instance_group_manager.vault.instance_group
+  }
+}
+
+resource "google_compute_health_check" "health_check" {
+  # provider = google-beta
+
+  name = "health-check"
+  https_health_check {
+    port         = var.vault_port
+    request_path = "/v1/sys/health?uninitcode=200"
+  }
 }
 
 # Vault instance group manager
@@ -118,8 +116,6 @@ resource "google_compute_region_instance_group_manager" "vault" {
 
   base_instance_name = "vault-${var.region}"
   wait_for_instances = false
-
-  target_pools = [google_compute_target_pool.vault.self_link]
 
   named_port {
     name = "vault-http"
