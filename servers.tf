@@ -83,8 +83,9 @@ resource "google_compute_health_check" "vault_internal" {
   healthy_threshold   = 2
   unhealthy_threshold = 2
 
-  http_health_check {
-    port = var.vault_proxy_port
+  https_health_check {
+    port         = var.vault_port
+    request_path = "/v1/sys/health?uninitcode=200"
   }
 
   depends_on = [google_project_service.service]
@@ -102,17 +103,16 @@ resource "google_compute_region_backend_service" "vault_internal" {
 
 # Forward internal traffic to the backend service
 resource "google_compute_forwarding_rule" "vault_internal" {
-  provider = google-beta
-  count    = local.use_internal_lb ? 1 : 0
-  project  = var.project_id
+  count   = local.use_internal_lb ? 1 : 0
+  project = var.project_id
 
   name                  = "vault-internal"
   region                = var.region
   ip_protocol           = "TCP"
-  ip_address            = var.internal_lb_ip
+  ip_address            = google_compute_address.vault_ilb[0].address
   load_balancing_scheme = var.load_balancing_scheme
   network_tier          = "PREMIUM"
-  allow_global_access   = true # BETA
+  allow_global_access   = true
   subnetwork            = local.subnet
 
   backend_service = google_compute_region_backend_service.vault_internal[0].self_link

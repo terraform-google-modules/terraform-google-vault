@@ -21,7 +21,7 @@ fi
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -yqq
 apt-get upgrade -yqq
-apt-get install -yqq jq libcap2-bin logrotate nginx unzip
+apt-get install -yqq jq libcap2-bin logrotate unzip
 
 # Install Stackdriver for logging and monitoring
 curl -sSfL https://dl.google.com/cloudagents/install-logging-agent.sh | bash
@@ -162,8 +162,11 @@ EOF
 chmod 644 /etc/profile.d/vault.sh
 source /etc/profile.d/vault.sh
 
-# Add health-check proxy because target pools don't support HTTPS
-cat <<EOF > /etc/nginx/sites-available/default
+if [ ${internal_lb} != true ]; then
+  # Add health-check proxy because target pools don't support HTTPS
+  apt-get install -yqq nginx
+
+  cat <<EOF > /etc/nginx/sites-available/default
 server {
   listen ${vault_proxy_port};
   location / {
@@ -171,9 +174,9 @@ server {
   }
 }
 EOF
-systemctl enable nginx
-systemctl restart nginx
-
+  systemctl enable nginx
+  systemctl restart nginx
+fi
 # Pull Vault data from syslog into a file for fluentd
 cat <<"EOF" > /etc/rsyslog.d/vault.conf
 #

@@ -284,15 +284,6 @@ EOF
 
 }
 
-variable "internal_lb_ip" {
-  type    = string
-  default = "10.127.13.37"
-
-  description = <<EOF
-If load_balancing_scheme is set to INTERNAL, this IP will be used as the forwarding rule IP
-EOF
-}
-
 variable "http_proxy" {
   type    = string
   default = ""

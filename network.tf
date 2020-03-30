@@ -32,6 +32,15 @@ resource "google_compute_address" "vault-nat" {
   depends_on = [google_project_service.service]
 }
 
+resource "google_compute_address" "vault_ilb" {
+  count        = local.use_internal_lb ? 1 : 0
+  subnetwork   = local.subnet
+  name         = "vault-ilb"
+  address_type = "INTERNAL"
+
+  depends_on = [google_project_service.service]
+}
+
 # Create a NAT router so the nodes can reach the public Internet
 resource "google_compute_router" "vault-router" {
   count   = var.allow_public_egress ? 1 : 0
