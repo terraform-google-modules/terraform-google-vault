@@ -172,9 +172,6 @@ variable "service_account_project_iam_roles" {
     "roles/logging.logWriter",
     "roles/monitoring.metricWriter",
     "roles/monitoring.viewer",
-
-    # Used to get internal load balancer IP in startup script
-    "roles/compute.networkViewer",
   ]
 
   description = <<EOF
@@ -295,6 +292,7 @@ i.e. If you configure Vault to manage credentials for other services, default HT
 EOF
 }
 
+#TODO: Evaluate https://www.terraform.io/docs/configuration/variables.html#custom-validation-rules when prod ready
 variable "load_balancing_scheme" {
   type    = string
   default = "EXTERNAL"
