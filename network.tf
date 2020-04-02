@@ -125,7 +125,7 @@ resource "google_compute_firewall" "allow-lb-healthcheck" {
 
   allow {
     protocol = "tcp"
-    ports    = [var.vault_proxy_port]
+    ports    = [local.use_internal_lb ? var.vault_port : var.vault_proxy_port]
   }
 
   source_ranges = concat(data.google_compute_lb_ip_ranges.ranges.network, data.google_compute_lb_ip_ranges.ranges.http_ssl_tcp_internal)
