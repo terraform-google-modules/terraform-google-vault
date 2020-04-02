@@ -11,11 +11,17 @@ fi
 # Data
 LOCAL_IP="$(curl -sf -H "Metadata-Flavor: Google" http://metadata/computeMetadata/v1/instance/network-interfaces/0/ip)"
 
+# Allow users to specify an HTTP proxy for egress instead of a NAT
+if [ ! -z '${custom_http_proxy}' ]; then
+  export http_proxy=${custom_http_proxy}
+  export https_proxy=$http_proxy
+fi
+
 # Deps
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -yqq
 apt-get upgrade -yqq
-apt-get install -yqq jq libcap2-bin logrotate netcat nginx unzip
+apt-get install -yqq jq libcap2-bin logrotate unzip
 
 # Install Stackdriver for logging and monitoring
 curl -sSfL https://dl.google.com/cloudagents/install-logging-agent.sh | bash
@@ -156,8 +162,11 @@ EOF
 chmod 644 /etc/profile.d/vault.sh
 source /etc/profile.d/vault.sh
 
-# Add health-check proxy because target pools don't support HTTPS
-cat <<EOF > /etc/nginx/sites-available/default
+if [ ${internal_lb} != true ]; then
+  # Add health-check proxy because target pools don't support HTTPS
+  apt-get install -yqq nginx
+
+  cat <<EOF > /etc/nginx/sites-available/default
 server {
   listen ${vault_proxy_port};
   location / {
@@ -165,9 +174,9 @@ server {
   }
 }
 EOF
-systemctl enable nginx
-systemctl restart nginx
-
+  systemctl enable nginx
+  systemctl restart nginx
+fi
 # Pull Vault data from syslog into a file for fluentd
 cat <<"EOF" > /etc/rsyslog.d/vault.conf
 #

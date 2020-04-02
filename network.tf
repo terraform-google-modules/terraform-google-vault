@@ -24,7 +24,7 @@ locals {
 
 # Address for NATing
 resource "google_compute_address" "vault-nat" {
-  count   = 2
+  count   = var.allow_public_egress ? 2 : 0
   project = var.project_id
   name    = "vault-nat-external-${count.index}"
   region  = var.region
@@ -32,8 +32,18 @@ resource "google_compute_address" "vault-nat" {
   depends_on = [google_project_service.service]
 }
 
+resource "google_compute_address" "vault_ilb" {
+  count        = local.use_internal_lb ? 1 : 0
+  subnetwork   = local.subnet
+  name         = "vault-ilb"
+  address_type = "INTERNAL"
+
+  depends_on = [google_project_service.service]
+}
+
 # Create a NAT router so the nodes can reach the public Internet
 resource "google_compute_router" "vault-router" {
+  count   = var.allow_public_egress ? 1 : 0
   name    = "vault-router"
   project = var.project_id
   region  = var.region
@@ -48,9 +58,10 @@ resource "google_compute_router" "vault-router" {
 
 # NAT on the main subnetwork
 resource "google_compute_router_nat" "vault-nat" {
+  count   = var.allow_public_egress ? 1 : 0
   name    = "vault-nat-1"
   project = var.project_id
-  router  = google_compute_router.vault-router.name
+  router  = google_compute_router.vault-router[0].name
   region  = var.region
 
   nat_ip_allocate_option = "MANUAL_ONLY"
@@ -90,6 +101,7 @@ resource "google_compute_subnetwork" "vault-subnet" {
 }
 
 resource "google_compute_address" "vault" {
+  count   = local.use_external_lb ? 1 : 0
   project = var.project_id
 
   name   = "vault-lb"
@@ -113,7 +125,7 @@ resource "google_compute_firewall" "allow-lb-healthcheck" {
 
   allow {
     protocol = "tcp"
-    ports    = [var.vault_proxy_port]
+    ports    = [local.use_internal_lb ? var.vault_port : var.vault_proxy_port]
   }
 
   source_ranges = concat(data.google_compute_lb_ip_ranges.ranges.network, data.google_compute_lb_ip_ranges.ranges.http_ssl_tcp_internal)

@@ -1,5 +1,5 @@
 #
-# Copyright 2018 Google Inc.
+# Copyright 2020 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,35 +14,6 @@
 # limitations under the License.
 #
 
-variable "project_id" {
-  type        = string
-  description = "Project ID in which to deploy"
-}
-
-variable "region" {
-  type        = string
-  default     = "us-east4"
-  description = "Region in which to deploy"
-}
-
-variable "kms_location" {
-  type        = string
-  default     = "us-east4"
-  description = "Location for the KMS keyring"
-}
-
-variable "kms_keyring" {
-  type        = string
-  default     = "vault"
-  description = "Name of the GCP KMS keyring"
-}
-
-variable "kms_crypto_key" {
-  type        = string
-  default     = "vault-init"
-  description = "Name of the GCP KMS crypto key"
-}
-
 module "vault" {
   // source = "terraform-google-modules/vault/google"
 
@@ -54,6 +25,8 @@ module "vault" {
   kms_crypto_key = var.kms_crypto_key
 
   storage_bucket_force_destroy = true
+  load_balancing_scheme        = var.load_balancing_scheme
+  allow_public_egress          = var.allow_public_egress
 }
 
 output "vault_addr" {
