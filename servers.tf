@@ -20,7 +20,7 @@
 
 # Template for creating Vault nodes
 locals {
-  lb_scheme = upper(var.load_balancing_scheme)
+  lb_scheme       = upper(var.load_balancing_scheme)
   use_internal_lb = local.lb_scheme == "INTERNAL"
   use_external_lb = local.lb_scheme == "EXTERNAL"
 }
@@ -96,6 +96,7 @@ resource "google_compute_region_backend_service" "vault_internal" {
   name          = "vault-backend-service"
   region        = var.region
   health_checks = ["${google_compute_health_check.vault_internal[0].self_link}"]
+
   backend {
     group = google_compute_region_instance_group_manager.vault.instance_group
   }
