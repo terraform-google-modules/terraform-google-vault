@@ -15,8 +15,10 @@
 #
 
 locals {
-  vault_tls_bucket = var.vault_tls_bucket != "" ? var.vault_tls_bucket : local.storage_bucket_name
-  lb_ip            = local.use_external_lb ? google_compute_forwarding_rule.external[0].ip_address : google_compute_address.vault_ilb[0].address
+  vault_tls_bucket  = var.vault_tls_bucket != "" ? var.vault_tls_bucket : local.storage_bucket_name
+  default_kms_key   = "projects/${var.project_id}/locations/${var.region}/keyRings/${var.kms_keyring}/cryptoKeys/${var.kms_crypto_key}"
+  vault_tls_kms_key = var.vault_tls_kms_key != "" ? var.vault_tls_kms_key : local.default_kms_key
+  lb_ip             = local.use_external_lb ? google_compute_forwarding_rule.external[0].ip_address : google_compute_address.vault_ilb[0].address
 }
 
 # Configure the Google provider, locking to the 2.0 series.
@@ -85,6 +87,22 @@ resource "google_kms_crypto_key_iam_member" "ck-iam" {
   depends_on = [google_project_service.service]
 }
 
+resource "google_kms_crypto_key_iam_member" "tls-ck-iam" {
+  count = var.manage_tls == false ? 1 : 0
+
+  crypto_key_id = var.vault_tls_kms_key
+  role          = "roles/cloudkms.cryptoKeyDecrypter"
+  member        = "serviceAccount:${google_service_account.vault-admin.email}"
+}
+
+resource "google_storage_bucket_iam_member" "tls-bucket-iam" {
+  count = var.manage_tls == false ? 1 : 0
+
+  bucket = var.vault_tls_bucket
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.vault-admin.email}"
+}
+
 # Create the KMS key ring
 resource "google_kms_key_ring" "vault" {
   name     = var.kms_keyring
@@ -124,10 +142,8 @@ data "template_file" "vault-startup-script" {
     vault_ca_cert_filename  = var.vault_ca_cert_filename
     vault_tls_key_filename  = var.vault_tls_key_filename
     vault_tls_cert_filename = var.vault_tls_cert_filename
-    kms_project             = var.project_id
-    kms_location            = google_kms_key_ring.vault.location
-    kms_keyring             = google_kms_key_ring.vault.name
-    kms_crypto_key          = google_kms_crypto_key.vault-init.name
+    kms_project             = var.vault_tls_kms_key_project == "" ? var.project_id : var.vault_tls_kms_key_project
+    kms_crypto_key          = local.vault_tls_kms_key
     user_startup_script     = var.user_startup_script
   }
 }

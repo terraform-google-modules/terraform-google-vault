@@ -588,6 +588,29 @@ EOF
 
 }
 
+variable "vault_tls_kms_key" {
+  type    = string
+  default = ""
+
+  description = <<EOF
+Fully qualified name of the KMS key, for example,
+vault_tls_kms_key = "projects/PROJECT_ID/locations/LOCATION/keyRings/KEYRING/cryptoKeys/KEY_NAME"
+This key should have been used to encrypt the TLS private key if Terraform is
+not managing TLS. The Vault service account will be granted access to the KMS Decrypter
+role once it is created so it can pull from this the `vault_tls_bucket` at boot time. This
+option is required when `manage_tls` is set to false.
+EOF
+}
+
+variable "vault_tls_kms_key_project" {
+  type    = string
+  default = ""
+
+  description = <<EOF
+Project ID where the KMS key is stored. By default, same as `project_id`
+EOF
+}
+
 variable "vault_tls_cert_filename" {
   type    = string
   default = "vault.crt"
