@@ -66,8 +66,6 @@ gsutil cp "gs://${vault_tls_bucket}/${vault_tls_key_filename}" /etc/vault.d/tls/
 # Decrypt the Vault private key
 base64 --decode < /etc/vault.d/tls/vault.key.enc | gcloud kms decrypt \
   --project="${kms_project}" \
-  --location="${kms_location}" \
-  --keyring="${kms_keyring}" \
   --key="${kms_crypto_key}" \
   --plaintext-file=/etc/vault.d/tls/vault.key \
   --ciphertext-file=-
