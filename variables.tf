@@ -628,3 +628,12 @@ the HashiCorp releases service.
 EOF
 
 }
+
+variable "user_startup_script" {
+  type = string
+  default = ""
+
+  description = <<EOF
+Additional user-provided code injected after Vault is setup
+EOF
+}

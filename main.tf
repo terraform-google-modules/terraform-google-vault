@@ -128,6 +128,7 @@ data "template_file" "vault-startup-script" {
     kms_location            = google_kms_key_ring.vault.location
     kms_keyring             = google_kms_key_ring.vault.name
     kms_crypto_key          = google_kms_crypto_key.vault-init.name
+    user_startup_script     = var.user_startup_script
   }
 }
 
