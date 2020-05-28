@@ -268,6 +268,12 @@ curl -sSfLo /opt/stackdriver/collectd/etc/collectd.d/statsd.conf https://raw.git
 systemctl enable stackdriver-agent
 systemctl restart stackdriver-agent
 
+#########################################
+##          user_startup_script        ##
+#########################################
+${user_startup_script}
+
+
 # Signal this script has run
 touch ~/.startup-script-complete
 
