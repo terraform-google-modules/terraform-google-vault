@@ -19,6 +19,7 @@ locals {
   default_kms_key   = "projects/${var.project_id}/locations/${var.region}/keyRings/${var.kms_keyring}/cryptoKeys/${var.kms_crypto_key}"
   vault_tls_kms_key = var.vault_tls_kms_key != "" ? var.vault_tls_kms_key : local.default_kms_key
   lb_ip             = local.use_external_lb ? google_compute_forwarding_rule.external[0].ip_address : google_compute_address.vault_ilb[0].address
+  api_addr          = var.domain != "" ? "https://${var.domain}:${var.vault_port}" : "https://${local.lb_ip}:${var.vault_port}"
 }
 
 # Configure the Google provider, locking to the 2.0 series.
@@ -158,6 +159,7 @@ data "template_file" "vault-config" {
     kms_keyring                              = google_kms_key_ring.vault.name
     kms_crypto_key                           = google_kms_crypto_key.vault-init.name
     lb_ip                                    = local.lb_ip
+    api_addr                                 = local.api_addr
     storage_bucket                           = google_storage_bucket.vault.name
     vault_log_level                          = var.vault_log_level
     vault_port                               = var.vault_port

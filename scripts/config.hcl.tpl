@@ -1,6 +1,6 @@
 # Run Vault in HA mode. Even if there's only one Vault node, it doesn't hurt to
 # have this set.
-api_addr = "https://${lb_ip}:${vault_port}"
+api_addr = "${api_addr}"
 cluster_addr = "https://LOCAL_IP:8201"
 
 # Set debugging level
@@ -8,6 +8,9 @@ log_level = "${vault_log_level}"
 
 # Enable the UI
 ui = ${vault_ui_enabled == "true" ? true : false}
+
+# Enable plugin directory
+plugin_directory = "/etc/vault.d/plugins"
 
 # Enable auto-unsealing with Google Cloud KMS
 seal "gcpckms" {
