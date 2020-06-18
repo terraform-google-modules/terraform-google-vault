@@ -378,6 +378,11 @@ variable "tls_cn" {
   default     = "vault.example.net"
 }
 
+variable "domain" {
+  description = "The domain name that will be set in the api_addr. Load Balancer IP used by default"
+  type        = string
+  default     = ""
+}
 variable "tls_dns_names" {
   description = "List of DNS names added to the Vault server self-signed certificate"
   type        = list(string)

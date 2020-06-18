@@ -42,6 +42,7 @@ useradd -d /etc/vault.d -s /bin/false vault
 
 # Vault config
 mkdir -p /etc/vault.d
+mkdir /etc/vault.d/plugins
 cat <<"EOF" > /etc/vault.d/config.hcl
 ${config}
 EOF
@@ -81,6 +82,10 @@ mkdir -p /var/log/vault
 touch /var/log/vault/{audit,server}.log
 chmod 0640 /var/log/vault/{audit,server}.log
 chown -R vault:adm /var/log/vault
+
+# Add the TLS ca.crt to the trusted store so plugins dont error with TLS handshakes
+cp /etc/vault.d/tls/ca.crt /usr/local/share/ca-certificates/
+update-ca-certificates
 
 # Systemd service
 cat <<"EOF" > /etc/systemd/system/vault.service
