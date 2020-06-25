@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-terraform {
-  required_version = ">= 0.12.6"
+resource "random_uuid" "keyring" {}
 
-  required_providers {
-    google = "~> 3.15"
-  }
+module "vault" {
+  source      = "../../../examples/vault-on-gce"
+  project_id  = var.project_id
+  kms_keyring = random_uuid.keyring.result
 }
+
