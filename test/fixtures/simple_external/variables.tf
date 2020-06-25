@@ -14,10 +14,22 @@
  * limitations under the License.
  */
 
-terraform {
-  required_version = ">= 0.12.6"
+variable "project_id" {}
 
-  required_providers {
-    google = "~> 3.15"
-  }
+variable "region" {
+  default = "us-west1"
 }
+
+variable "zone" {
+  default = "us-west1-a"
+}
+
+variable "service_account" {
+  default = null
+  type = object({
+    email  = string
+    scopes = list(string)
+  })
+  description = "Service account to attach to the instance. See https://www.terraform.io/docs/providers/google/r/compute_instance_template.html#service_account."
+}
+

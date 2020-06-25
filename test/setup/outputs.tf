@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
-terraform {
-  required_version = ">= 0.12.6"
+output "project_id" {
+  value = module.project_ci.project_id
+}
 
-  required_providers {
-    google = "~> 3.15"
-  }
+output "sa_email" {
+  value = google_service_account.ci_account.email
+}
+
+output "sa_key" {
+  sensitive = true
+  value     = google_service_account_key.ci_account.private_key
 }
