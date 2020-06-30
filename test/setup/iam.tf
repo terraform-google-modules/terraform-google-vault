@@ -14,10 +14,27 @@
  * limitations under the License.
  */
 
-terraform {
-  required_version = ">= 0.12.6"
+locals {
+  required_roles = [
+    "roles/owner",
+    "roles/iam.serviceAccountUser"
+  ]
+}
 
-  required_providers {
-    google = "~> 3.15"
-  }
+resource "google_service_account" "ci_account" {
+  project      = module.project_ci.project_id
+  account_id   = "ci-account"
+  display_name = "ci-account"
+}
+
+resource "google_project_iam_member" "ci_account" {
+  for_each = toset(local.required_roles)
+
+  project = module.project_ci.project_id
+  role    = each.key
+  member  = "serviceAccount:${google_service_account.ci_account.email}"
+}
+
+resource "google_service_account_key" "ci_account" {
+  service_account_id = google_service_account.ci_account.id
 }

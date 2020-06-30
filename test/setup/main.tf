@@ -14,10 +14,20 @@
  * limitations under the License.
  */
 
-terraform {
-  required_version = ">= 0.12.6"
+module "project_ci" {
+  source  = "terraform-google-modules/project-factory/google"
+  version = "~> 8.0"
 
-  required_providers {
-    google = "~> 3.15"
-  }
+  name              = "ci-vault-module"
+  random_project_id = true
+  org_id            = var.org_id
+  folder_id         = var.folder_id
+  billing_account   = var.billing_account
+
+  activate_apis = [
+    "cloudresourcemanager.googleapis.com",
+    "serviceusage.googleapis.com",
+    "compute.googleapis.com",
+    "iam.googleapis.com",
+  ]
 }
