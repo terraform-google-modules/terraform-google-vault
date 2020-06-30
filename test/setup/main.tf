@@ -16,7 +16,7 @@
 
 module "project_ci" {
   source  = "terraform-google-modules/project-factory/google"
-  version = "~> 3.0"
+  version = "~> 8.0"
 
   name              = "ci-vault-module"
   random_project_id = true
