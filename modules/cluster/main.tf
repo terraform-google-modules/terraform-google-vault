@@ -19,9 +19,15 @@
 
 # Template for creating Vault nodes
 locals {
-  lb_scheme       = upper(var.load_balancing_scheme)
-  use_internal_lb = local.lb_scheme == "INTERNAL"
-  use_external_lb = local.lb_scheme == "EXTERNAL"
+  lb_scheme         = upper(var.load_balancing_scheme)
+  use_internal_lb   = local.lb_scheme == "INTERNAL"
+  use_external_lb   = local.lb_scheme == "EXTERNAL"
+  vault_tls_bucket  = var.vault_tls_bucket != "" ? var.vault_tls_bucket : var.vault_storage_bucket
+  default_kms_key   = "projects/${var.project_id}/locations/${var.region}/keyRings/${var.kms_keyring}/cryptoKeys/${var.kms_crypto_key}"
+  vault_tls_kms_key = var.vault_tls_kms_key != "" ? var.vault_tls_kms_key : local.default_kms_key
+  api_addr          = var.domain != "" ? "https://${var.domain}:${var.vault_port}" : "https://${local.lb_ip}:${var.vault_port}"
+  host_project      = var.host_project_id != "" ? var.host_project_id : var.project_id
+  lb_ip             = local.use_external_lb ? google_compute_forwarding_rule.external[0].ip_address : var.ip_address
 }
 
 resource "google_compute_instance_template" "vault" {
@@ -36,8 +42,8 @@ resource "google_compute_instance_template" "vault" {
   labels = var.vault_instance_labels
 
   network_interface {
-    subnetwork         = local.subnet
-    subnetwork_project = var.project_id
+    subnetwork         = var.subnet
+    subnetwork_project = local.host_project
   }
 
   disk {
@@ -49,7 +55,7 @@ resource "google_compute_instance_template" "vault" {
   }
 
   service_account {
-    email  = google_service_account.vault-admin.email
+    email  = var.vault_service_account_email
     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
   }
 
@@ -65,7 +71,6 @@ resource "google_compute_instance_template" "vault" {
     create_before_destroy = true
   }
 
-  depends_on = [google_project_service.service]
 }
 
 ############################
@@ -86,8 +91,6 @@ resource "google_compute_health_check" "vault_internal" {
     port         = var.vault_port
     request_path = "/v1/sys/health?uninitcode=200"
   }
-
-  depends_on = [google_project_service.service]
 }
 
 resource "google_compute_region_backend_service" "vault_internal" {
@@ -104,21 +107,19 @@ resource "google_compute_region_backend_service" "vault_internal" {
 # Forward internal traffic to the backend service
 resource "google_compute_forwarding_rule" "vault_internal" {
   count   = local.use_internal_lb ? 1 : 0
-  project = var.project_id
+  project = local.host_project
 
   name                  = "vault-internal"
   region                = var.region
   ip_protocol           = "TCP"
-  ip_address            = google_compute_address.vault_ilb[0].address
+  ip_address            = var.ip_address
   load_balancing_scheme = local.lb_scheme
   network_tier          = "PREMIUM"
   allow_global_access   = true
-  subnetwork            = local.subnet
+  subnetwork            = var.subnet
 
   backend_service = google_compute_region_backend_service.vault_internal[0].self_link
   ports           = [var.vault_port]
-
-  depends_on = [google_project_service.service]
 }
 
 ############################
@@ -137,8 +138,6 @@ resource "google_compute_http_health_check" "vault" {
   healthy_threshold   = 2
   unhealthy_threshold = 2
   port                = var.vault_proxy_port
-
-  depends_on = [google_project_service.service]
 }
 
 
@@ -150,26 +149,22 @@ resource "google_compute_target_pool" "vault" {
   region = var.region
 
   health_checks = [google_compute_http_health_check.vault[0].name]
-
-  depends_on = [google_project_service.service]
 }
 
 # Forward external traffic to the target pool
 resource "google_compute_forwarding_rule" "external" {
   count   = local.use_external_lb ? 1 : 0
-  project = var.project_id
+  project = local.host_project
 
   name                  = "vault-external"
   region                = var.region
-  ip_address            = google_compute_address.vault[0].address
+  ip_address            = var.ip_address
   ip_protocol           = "TCP"
   load_balancing_scheme = local.lb_scheme
   network_tier          = "PREMIUM"
 
   target     = google_compute_target_pool.vault[0].self_link
   port_range = var.vault_port
-
-  depends_on = [google_project_service.service]
 }
 
 
@@ -194,8 +189,6 @@ resource "google_compute_region_instance_group_manager" "vault" {
   version {
     instance_template = google_compute_instance_template.vault.self_link
   }
-
-  depends_on = [google_project_service.service]
 }
 
 # Autoscaling policies for vault
@@ -216,5 +209,4 @@ resource "google_compute_region_autoscaler" "vault" {
     }
   }
 
-  depends_on = [google_project_service.service]
 }

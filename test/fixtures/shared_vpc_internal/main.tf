@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-module "project_ci" {
-  source  = "terraform-google-modules/project-factory/google"
-  version = "~> 8.0"
+resource "random_uuid" "keyring" {}
 
-  name              = "ci-vault-module"
-  random_project_id = true
-  org_id            = var.org_id
-  folder_id         = var.folder_id
-  billing_account   = var.billing_account
-
-  activate_apis = [
-    "cloudresourcemanager.googleapis.com",
-    "serviceusage.googleapis.com",
-    "compute.googleapis.com",
-    "iam.googleapis.com",
-    "cloudbilling.googleapis.com",
-  ]
+module "svpc_test" {
+  source      = "../../../examples/shared_vpc_internal"
+  organization_id = var.org_id
+  folder_id = var.folder_id
+  region = var.region
+  billing_account = var.billing_account
+  kms_keyring = random_uuid.keyring.result 
 }
+

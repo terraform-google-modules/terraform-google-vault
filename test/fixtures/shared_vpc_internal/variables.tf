@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-module "project_ci" {
-  source  = "terraform-google-modules/project-factory/google"
-  version = "~> 8.0"
+variable "org_id" {}
 
-  name              = "ci-vault-module"
-  random_project_id = true
-  org_id            = var.org_id
-  folder_id         = var.folder_id
-  billing_account   = var.billing_account
+variable "billing_account" {}
 
-  activate_apis = [
-    "cloudresourcemanager.googleapis.com",
-    "serviceusage.googleapis.com",
-    "compute.googleapis.com",
-    "iam.googleapis.com",
-    "cloudbilling.googleapis.com",
-  ]
+variable "folder_id" {}
+
+variable "region" {
+  default = "us-west1"
 }

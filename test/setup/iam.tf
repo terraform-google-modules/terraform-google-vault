@@ -17,7 +17,22 @@
 locals {
   required_roles = [
     "roles/owner",
-    "roles/iam.serviceAccountUser"
+    "roles/iam.serviceAccountUser",
+    "roles/compute.admin",
+    "roles/iam.serviceAccountAdmin",
+    "roles/resourcemanager.projectIamAdmin",
+    "roles/storage.admin",
+    "roles/iam.serviceAccountUser",
+    "roles/billing.projectManager",
+  ]
+
+  required_folder_roles = [
+    "roles/owner",
+    "roles/resourcemanager.projectCreator",
+    "roles/resourcemanager.folderAdmin",
+    "roles/resourcemanager.folderIamAdmin",
+    "roles/billing.projectManager",
+    "roles/compute.xpnAdmin"
   ]
 }
 
@@ -37,4 +52,19 @@ resource "google_project_iam_member" "ci_account" {
 
 resource "google_service_account_key" "ci_account" {
   service_account_id = google_service_account.ci_account.id
+}
+
+resource "google_folder_iam_member" "int_test_folder" {
+  for_each = toset(local.required_folder_roles)
+
+  folder = var.folder_id
+  role   = each.value
+  member = "serviceAccount:${google_service_account.ci_account.email}"
+}
+
+
+resource "google_billing_account_iam_member" "billing_admin" {
+  billing_account_id = var.billing_account
+  role               = "roles/billing.admin"
+  member             = "serviceAccount:${google_service_account.ci_account.email}"
 }

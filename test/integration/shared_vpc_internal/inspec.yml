@@ -13,30 +13,11 @@
 # limitations under the License.
 
 ---
-driver:
-  name: terraform
-
-provisioner:
-  name: terraform
-
-platforms:
-- name: local
-
-verifier:
-  name: terraform
-  systems:
-    - name: system
-      backend: local
-
-suites:
-  - name: simple_external
-    driver:
-      name: terraform
-      command_timeout: 1800
-      root_module_directory: test/fixtures/simple_external
-  - name: shared_vpc_internal
-    driver:
-      name: terraform
-      command_timeout: 1800
-      root_module_directory: test/fixtures/shared_vpc_internal
-
+name: shared_vpc_internal 
+attributes:
+  - name: host_project_id
+    required: true
+    type: string
+  - name: service_project_id
+    required: true
+    type: string
