@@ -20,12 +20,10 @@ variable "billing_account" {}
 
 variable "folder_id" {}
 
+variable "host_project_id" {}
+
 variable "kms_keyring" {
   default = "vault-keyring"
-}
-
-variable "host_project_name" {
-  default = "vault-svpc-host"
 }
 
 variable "service_project_name" {

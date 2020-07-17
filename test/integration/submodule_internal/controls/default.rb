@@ -19,7 +19,7 @@ REGION = 'us-west1'
 project_id = attribute('project_id')
 
 control "Vault" do
-  title "Shared VPC Configuration"
+  title "Submodule Configuration"
   describe "ILB configuration" do
     subject { command("gcloud --project=#{project_id} compute forwarding-rules describe #{LB_NAME} --region #{REGION} --format=json") }
     its(:exit_status) { should eq 0 }
@@ -30,7 +30,7 @@ control "Vault" do
       expect(data['loadBalancingScheme']).to eq("INTERNAL")
     end
   end
-  
+
   describe "Instance configuration" do
     subject { command("gcloud --project=#{project_id} compute instances list --format=json") }
     its(:exit_status) { should eq 0 }

@@ -95,6 +95,7 @@ resource "google_compute_health_check" "vault_internal" {
 
 resource "google_compute_region_backend_service" "vault_internal" {
   count         = local.use_internal_lb ? 1 : 0
+  project       = var.project_id
   name          = "vault-backend-service"
   region        = var.region
   health_checks = ["${google_compute_health_check.vault_internal[0].self_link}"]
@@ -107,8 +108,8 @@ resource "google_compute_region_backend_service" "vault_internal" {
 # Forward internal traffic to the backend service
 resource "google_compute_forwarding_rule" "vault_internal" {
   count   = local.use_internal_lb ? 1 : 0
-  project = local.host_project
 
+  project               = var.project_id
   name                  = "vault-internal"
   region                = var.region
   ip_protocol           = "TCP"
@@ -154,7 +155,7 @@ resource "google_compute_target_pool" "vault" {
 # Forward external traffic to the target pool
 resource "google_compute_forwarding_rule" "external" {
   count   = local.use_external_lb ? 1 : 0
-  project = local.host_project
+  project = var.project_id
 
   name                  = "vault-external"
   region                = var.region

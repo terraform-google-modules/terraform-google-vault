@@ -13,8 +13,9 @@
 # limitations under the License.
 
 ---
-name: shared_vpc_internal 
+name: submodule_internal
 attributes:
   - name: project_id
     required: true
     type: string
+
