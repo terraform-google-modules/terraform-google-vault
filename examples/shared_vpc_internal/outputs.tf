@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-output "host_project_id" {
-  value = module.host_project.project_id
-}
-
 output "service_project_id" {
   value = module.service_project.project_id
 }

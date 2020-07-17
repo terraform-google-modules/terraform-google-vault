@@ -107,7 +107,7 @@ resource "google_compute_region_backend_service" "vault_internal" {
 
 # Forward internal traffic to the backend service
 resource "google_compute_forwarding_rule" "vault_internal" {
-  count   = local.use_internal_lb ? 1 : 0
+  count = local.use_internal_lb ? 1 : 0
 
   project               = var.project_id
   name                  = "vault-internal"

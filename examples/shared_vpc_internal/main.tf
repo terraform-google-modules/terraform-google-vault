@@ -52,9 +52,9 @@ module "service_project" {
     "monitoring.googleapis.com",
   ]
 
-  skip_gcloud_download    = true
+  skip_gcloud_download        = true
   disable_services_on_destroy = "false"
-  default_service_account = "keep"
+  default_service_account     = "keep"
 }
 
 resource "google_compute_address" "vault_ilb" {
@@ -72,9 +72,9 @@ resource "google_service_account" "vault-admin" {
 }
 
 resource "google_storage_bucket" "vault" {
-  project = module.service_project.project_id
-  name = "${module.service_project.project_id}-vault-storage"
-  location = "US"
+  project       = module.service_project.project_id
+  name          = "${module.service_project.project_id}-vault-storage"
+  location      = "US"
   force_destroy = true
 }
 

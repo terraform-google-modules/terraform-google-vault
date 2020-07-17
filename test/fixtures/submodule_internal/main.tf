@@ -17,9 +17,9 @@
 resource "random_uuid" "keyring" {}
 
 module "submodule_test" {
-  source          = "../../../examples/submodule_internal"
-  project_id      = var.project_id
-  region          = var.region
-  kms_keyring     = random_uuid.keyring.result
+  source      = "../../../examples/submodule_internal"
+  project_id  = var.project_id
+  region      = var.region
+  kms_keyring = random_uuid.keyring.result
 }
 

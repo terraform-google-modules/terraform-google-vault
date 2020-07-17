@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 module "vpc" {
-  source       = "terraform-google-modules/network/google"
-  version      = "~> 2.4"
+  source  = "terraform-google-modules/network/google"
+  version = "~> 2.4"
 
   project_id   = var.project_id
   network_name = var.network_name

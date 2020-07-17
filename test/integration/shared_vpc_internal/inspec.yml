@@ -13,7 +13,7 @@
 # limitations under the License.
 
 ---
-name: shared_vpc_internal 
+name: shared_vpc_internal
 attributes:
   - name: project_id
     required: true

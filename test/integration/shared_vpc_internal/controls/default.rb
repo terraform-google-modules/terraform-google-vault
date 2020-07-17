@@ -30,7 +30,7 @@ control "Vault" do
       expect(data['loadBalancingScheme']).to eq("INTERNAL")
     end
   end
-  
+
   describe "Instance configuration" do
     subject { command("gcloud --project=#{project_id} compute instances list --format=json") }
     its(:exit_status) { should eq 0 }
