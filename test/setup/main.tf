@@ -25,12 +25,17 @@ module "project_ci" {
   billing_account   = var.billing_account
 
   activate_apis = [
+    "cloudkms.googleapis.com",
+    "admin.googleapis.com",
+    "appengine.googleapis.com",
+    "cloudbilling.googleapis.com",
     "cloudresourcemanager.googleapis.com",
-    "serviceusage.googleapis.com",
     "compute.googleapis.com",
     "iam.googleapis.com",
-    "cloudbilling.googleapis.com",
-    "admin.googleapis.com",
-    "cloudkms.googleapis.com",
+    "iamcredentials.googleapis.com",
+    "oslogin.googleapis.com",
+    "serviceusage.googleapis.com",
+    "billingbudgets.googleapis.com",
+    "pubsub.googleapis.com",
   ]
 }
