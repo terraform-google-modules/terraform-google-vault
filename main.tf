@@ -21,11 +21,14 @@ locals {
   ip_address      = local.use_internal_lb ? google_compute_address.vault_ilb[0].address : google_compute_address.vault[0].address
 }
 
-# Configure the Google provider, locking to the 2.0 series.
+# Configure the Google provider.
 provider "google" {
   project = var.project_id
   region  = var.region
 }
+
+# This needs to stay here to allow migration from 4.2 to 5.0
+provider "tls" {}
 
 # Enable required services on the project
 resource "google_project_service" "service" {

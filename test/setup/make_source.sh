@@ -19,6 +19,15 @@ echo "#!/usr/bin/env bash" > ../source.sh
 project_id=$(terraform output project_id)
 echo "export TF_VAR_project_id='$project_id'" >> ../source.sh
 
+org_id=$(terraform output org_id)
+echo "export TF_VAR_org_id='$org_id'" >> ../source.sh
+
+folder_id=$(terraform output folder_id)
+echo "export TF_VAR_folder_id='$folder_id'" >> ../source.sh
+
+billing_account=$(terraform output billing_account)
+echo "export TF_VAR_billing_account='$billing_account'" >> ../source.sh
+
 sa_email=$(terraform output sa_email)
 echo "export TF_VAR_service_account='{email=\"$sa_email\", scopes = [\"cloud-platform\"]}'"  >> ../source.sh
 

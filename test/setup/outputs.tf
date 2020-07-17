@@ -26,3 +26,15 @@ output "sa_key" {
   sensitive = true
   value     = google_service_account_key.ci_account.private_key
 }
+
+output "org_id" {
+  value = var.org_id
+}
+
+output "folder_id" {
+  value = var.folder_id
+}
+
+output "billing_account" {
+  value = var.billing_account
+}
