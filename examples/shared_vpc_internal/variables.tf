@@ -31,7 +31,7 @@ variable "service_project_name" {
 }
 
 variable "network_name" {
-  default = "vault-test-network"
+  default = "vault-svpc-network"
 }
 
 variable "service_account_name" {

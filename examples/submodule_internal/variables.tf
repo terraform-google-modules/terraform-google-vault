@@ -21,11 +21,11 @@ variable "kms_keyring" {
 }
 
 variable "network_name" {
-  default = "vault-test-network"
+  default = "vault-submodule-network"
 }
 
 variable "service_account_name" {
-  default = "vault-svpc-admin"
+  default = "vault-sub-admin"
 }
 variable "region" {
   default = "us-west1"
