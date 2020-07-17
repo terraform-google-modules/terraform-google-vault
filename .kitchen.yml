@@ -34,11 +34,6 @@ suites:
       name: terraform
       command_timeout: 1800
       root_module_directory: test/fixtures/simple_external
-  - name: submodule_internal
-    driver:
-      name: terraform
-      command_timeout: 1800
-      root_module_directory: test/fixtures/submodule_internal
   - name: shared_vpc_internal
     driver:
       name: terraform
