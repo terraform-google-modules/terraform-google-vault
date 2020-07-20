@@ -17,12 +17,10 @@
 resource "random_uuid" "keyring" {}
 
 module "svpc_test" {
-  source          = "../../../examples/shared_vpc_internal"
-  organization_id = var.org_id
-  folder_id       = var.folder_id
-  host_project_id = var.project_id
-  region          = var.region
-  billing_account = var.billing_account
-  kms_keyring     = random_uuid.keyring.result
+  source             = "../../../examples/shared_vpc_internal"
+  host_project_id    = var.project_id
+  service_project_id = var.service_project_id
+  region             = var.region
+  kms_keyring        = random_uuid.keyring.result
 }
 

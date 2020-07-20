@@ -16,7 +16,6 @@
 
 locals {
   required_roles = [
-    "roles/owner",
     "roles/iam.serviceAccountUser",
     "roles/compute.admin",
     "roles/iam.serviceAccountAdmin",

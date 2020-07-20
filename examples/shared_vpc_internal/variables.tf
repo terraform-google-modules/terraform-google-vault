@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-variable "organization_id" {}
-
-variable "billing_account" {}
-
-variable "folder_id" {}
-
 variable "host_project_id" {}
+
+variable "service_project_id" {}
 
 variable "kms_keyring" {
   default = "vault-keyring"
@@ -31,7 +27,11 @@ variable "service_project_name" {
 }
 
 variable "network_name" {
-  default = "vault-svpc-network"
+  default = "vault-svpc"
+}
+
+variable "subnet_name" {
+  default = "vault"
 }
 
 variable "service_account_name" {

@@ -14,66 +14,34 @@
  * limitations under the License.
  */
 
-module "svpc" {
-  source          = "terraform-google-modules/network/google"
-  project_id      = var.host_project_id
-  network_name    = var.network_name
-  shared_vpc_host = true
-
-  subnets = [
-    {
-      subnet_name   = "vault"
-      subnet_ip     = "10.10.10.0/24"
-      subnet_region = var.region
-    },
-  ]
+data "google_compute_network" "vault" {
+  name    = var.network_name
+  project = var.host_project_id
 }
 
-module "service_project" {
-  source = "terraform-google-modules/project-factory/google//modules/shared_vpc"
-
-  name              = var.service_project_name
-  random_project_id = true
-
-  org_id             = var.organization_id
-  folder_id          = var.folder_id
-  billing_account    = var.billing_account
-  shared_vpc_enabled = true
-
-  shared_vpc         = module.svpc.project_id
-  shared_vpc_subnets = module.svpc.subnets_self_links
-
-  activate_apis = [
-    "cloudkms.googleapis.com",
-    "cloudresourcemanager.googleapis.com",
-    "compute.googleapis.com",
-    "iam.googleapis.com",
-    "logging.googleapis.com",
-    "monitoring.googleapis.com",
-  ]
-
-  skip_gcloud_download        = true
-  disable_services_on_destroy = "false"
-  default_service_account     = "keep"
+data "google_compute_subnetwork" "vault" {
+  name    = var.subnet_name
+  project = var.host_project_id
+  region  = var.region
 }
 
 resource "google_compute_address" "vault_ilb" {
-  project      = module.service_project.project_id
+  project      = var.service_project_id
   region       = var.region
-  subnetwork   = module.svpc.subnets_self_links[0]
+  subnetwork   = data.google_compute_subnetwork.vault.self_link
   name         = "vault-internal"
   address_type = "INTERNAL"
 }
 
 resource "google_service_account" "vault-admin" {
+  project      = var.service_project_id
   account_id   = var.service_account_name
   display_name = "Vault Admin"
-  project      = module.service_project.project_id
 }
 
 resource "google_storage_bucket" "vault" {
-  project       = module.service_project.project_id
-  name          = "${module.service_project.project_id}-vault-storage"
+  project       = var.service_project_id
+  name          = "${var.service_project_id}-vault-storage"
   location      = "US"
   force_destroy = true
 }
@@ -81,9 +49,9 @@ resource "google_storage_bucket" "vault" {
 module "vault_cluster" {
   source = "../../modules/cluster"
 
-  project_id                  = module.service_project.project_id
+  project_id                  = var.service_project_id
   host_project_id             = var.host_project_id
-  subnet                      = module.svpc.subnets_self_links[0]
+  subnet                      = data.google_compute_subnetwork.vault.self_link
   ip_address                  = google_compute_address.vault_ilb.address
   vault_storage_bucket        = google_storage_bucket.vault.name
   vault_service_account_email = google_service_account.vault-admin.email

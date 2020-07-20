@@ -15,6 +15,6 @@
  */
 
 output "project_id" {
-  value = module.svpc_test.service_project_id
+  value = var.service_project_id
 }
 

@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-variable "org_id" {}
-
-variable "billing_account" {}
-
-variable "folder_id" {}
-
 variable "project_id" {}
+
+variable "service_project_id" {}
 
 variable "region" {
   default = "us-west1"

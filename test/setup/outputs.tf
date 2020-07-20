@@ -18,6 +18,10 @@ output "project_id" {
   value = module.project_ci.project_id
 }
 
+output "service_project_id" {
+  value = module.service_project_ci.project_id
+}
+
 output "sa_email" {
   value = google_service_account.ci_account.email
 }
@@ -25,16 +29,4 @@ output "sa_email" {
 output "sa_key" {
   sensitive = true
   value     = google_service_account_key.ci_account.private_key
-}
-
-output "org_id" {
-  value = var.org_id
-}
-
-output "folder_id" {
-  value = var.folder_id
-}
-
-output "billing_account" {
-  value = var.billing_account
 }
