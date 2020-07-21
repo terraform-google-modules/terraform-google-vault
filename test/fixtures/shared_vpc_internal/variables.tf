@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-terraform {
-  required_version = ">= 0.12.6"
+variable "project_id" {}
 
-  required_providers {
-    google = "~> 3.30"
-  }
+variable "service_project_id" {}
+
+variable "region" {
+  default = "us-west1"
 }

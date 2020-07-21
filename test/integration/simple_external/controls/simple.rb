@@ -18,7 +18,7 @@ LB_NAME = 'vault-external'
 REGION = 'us-east4'
 
 project_id = attribute('project_id')
-control "Bastion Instance" do
+control "Vault cluster is running" do
   title "Simple Configuration"
   describe "Instance configuration" do
     subject { command("gcloud --project=#{project_id} compute forwarding-rules describe #{LB_NAME} --region #{REGION} --format=json") }

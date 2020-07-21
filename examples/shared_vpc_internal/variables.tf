@@ -14,10 +14,29 @@
  * limitations under the License.
  */
 
-terraform {
-  required_version = ">= 0.12.6"
+variable "host_project_id" {}
 
-  required_providers {
-    google = "~> 3.30"
-  }
+variable "service_project_id" {}
+
+variable "kms_keyring" {
+  default = "vault-keyring"
+}
+
+variable "service_project_name" {
+  default = "vault-svpc-service"
+}
+
+variable "network_name" {
+  default = "vault-svpc"
+}
+
+variable "subnet_name" {
+  default = "vault"
+}
+
+variable "service_account_name" {
+  default = "vault-svpc-admin"
+}
+variable "region" {
+  default = "us-west1"
 }

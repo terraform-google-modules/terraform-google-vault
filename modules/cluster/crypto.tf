@@ -14,10 +14,27 @@
  * limitations under the License.
  */
 
+# Create the KMS key ring
+resource "google_kms_key_ring" "vault" {
+  name     = var.kms_keyring
+  location = var.region
+  project  = var.project_id
+}
+
+# Create the crypto key for encrypting init keys
+resource "google_kms_crypto_key" "vault-init" {
+  name            = var.kms_crypto_key
+  key_ring        = google_kms_key_ring.vault.id
+  rotation_period = "604800s"
+
+  version_template {
+    algorithm        = "GOOGLE_SYMMETRIC_ENCRYPTION"
+    protection_level = upper(var.kms_protection_level)
+  }
+}
 
 #
-# This file contains the steps to create and sign TLS self-signed certs for
-# Vault.
+# TLS self-signed certs for Vault.
 #
 
 provider "tls" {
@@ -126,8 +143,6 @@ resource "google_storage_bucket_object" "vault-private-key" {
   content = google_kms_secret_ciphertext.vault-tls-key-encrypted[0].ciphertext
   bucket  = local.vault_tls_bucket
 
-  depends_on = [google_storage_bucket.vault]
-
   # Ciphertext changes on each invocation, so ignore changes
   lifecycle {
     ignore_changes = [
@@ -142,8 +157,6 @@ resource "google_storage_bucket_object" "vault-server-cert" {
   name    = var.vault_tls_cert_filename
   content = tls_locally_signed_cert.vault-server[0].cert_pem
   bucket  = local.vault_tls_bucket
-
-  depends_on = [google_storage_bucket.vault]
 }
 
 resource "google_storage_bucket_object" "vault-ca-cert" {
@@ -152,6 +165,4 @@ resource "google_storage_bucket_object" "vault-ca-cert" {
   name    = var.vault_ca_cert_filename
   content = tls_self_signed_cert.root[0].cert_pem
   bucket  = local.vault_tls_bucket
-
-  depends_on = [google_storage_bucket.vault]
 }

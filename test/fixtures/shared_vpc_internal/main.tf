@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-terraform {
-  required_version = ">= 0.12.6"
+resource "random_uuid" "keyring" {}
 
-  required_providers {
-    google = "~> 3.30"
-  }
+module "svpc_test" {
+  source             = "../../../examples/shared_vpc_internal"
+  host_project_id    = var.project_id
+  service_project_id = var.service_project_id
+  region             = var.region
+  kms_keyring        = random_uuid.keyring.result
 }
+
