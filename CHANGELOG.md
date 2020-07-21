@@ -6,6 +6,17 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [5.0.0](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/4.2.0...v5.0.0) (2020-07-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* Pulled Vault core into a separate submodule (#99)
+
+### Features
+
+* Pulled Vault core into a separate submodule ([#99](https://www.github.com/terraform-google-modules/terraform-google-vault/issues/99)) ([b4b39ab](https://www.github.com/terraform-google-modules/terraform-google-vault/commit/b4b39ab4ebf69dfdb3479c3da321808d767981ce))
+
 ## [v4.2.0](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/4.1.0...4.2.0) (2020-06-18)
 
 ## [v4.1.0](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/4.0.0...4.1.0) (2020-05-28)
@@ -35,4 +46,3 @@ and this project adheres to
 ## [v2.0.1](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/2.0.0...2.0.1) (2019-03-07)
 
 ## [v2.0.0](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/1.0.0...2.0.0) (2019-03-04)
-
