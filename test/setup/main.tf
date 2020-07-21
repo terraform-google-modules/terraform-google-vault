@@ -49,6 +49,7 @@ module "project_ci" {
 
 module "svpc" {
   source          = "terraform-google-modules/network/google"
+  version         = "~> 2.4"
   project_id      = module.project_ci.project_id
   network_name    = var.network_name
   shared_vpc_host = true
@@ -63,7 +64,8 @@ module "svpc" {
 }
 
 module "service_project_ci" {
-  source = "terraform-google-modules/project-factory/google//modules/shared_vpc"
+  source  = "terraform-google-modules/project-factory/google//modules/shared_vpc"
+  version = "~> 8.0"
 
   name              = "ci-vault-svpc-service"
   random_project_id = true
