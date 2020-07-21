@@ -24,3 +24,13 @@ variable "folder_id" {
 variable "billing_account" {
   description = "The billing account id associated with the project, e.g. XXXXXX-YYYYYY-ZZZZZZ"
 }
+
+variable "network_name" {
+  description = "Vault shared VPC network name."
+  default     = "vault-spvc"
+}
+
+variable "subnet_region" {
+  description = "Region for subnet in SVPC host network"
+  default     = "us-west1"
+}
