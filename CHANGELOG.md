@@ -6,6 +6,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+### [5.0.1](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/v5.0.0...v5.0.1) (2020-07-29)
+
+
+### Bug Fixes
+
+* fixed outputs wrong vault_lb_addr ([#102](https://www.github.com/terraform-google-modules/terraform-google-vault/issues/102)) ([5afdbc7](https://www.github.com/terraform-google-modules/terraform-google-vault/commit/5afdbc785b54c567f4180c75fce0874ff6700004))
+
 ## [5.0.0](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/4.2.0...v5.0.0) (2020-07-21)
 
 
