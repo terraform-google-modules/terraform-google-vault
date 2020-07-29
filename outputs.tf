@@ -41,7 +41,7 @@ output "vault_addr" {
 }
 
 output "vault_lb_addr" {
-  value       = module.cluster.vault_addr
+  value       = module.cluster.vault_lb_addr
   description = "Address of the load balancer without port or protocol information. You probably want to use `vault_addr`."
 }
 
