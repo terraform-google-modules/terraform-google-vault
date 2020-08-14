@@ -18,7 +18,7 @@ locals {
   lb_scheme       = upper(var.load_balancing_scheme)
   use_internal_lb = local.lb_scheme == "INTERNAL"
   use_external_lb = local.lb_scheme == "EXTERNAL"
-  ip_address      = local.use_internal_lb ? google_compute_address.vault_ilb[0].address : google_compute_address.vault[0].address
+  ip_address      = local.use_internal_lb ? try(google_compute_address.vault_ilb[0].address, "") : try(google_compute_address.vault[0].address, "")
 }
 
 # Configure the Google provider.

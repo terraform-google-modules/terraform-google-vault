@@ -106,7 +106,7 @@ variable "storage_bucket_lifecycle_rules" {
 }
 
 variable "storage_bucket_force_destroy" {
-  type    = string
+  type    = bool
   default = false
 
   description = "Set to true to force deletion of backend bucket on `terraform destroy`"
