@@ -190,6 +190,7 @@ done
 | service\_account\_project\_additional\_iam\_roles | List of custom IAM roles to add to the project. | list(string) | `<list>` | no |
 | service\_account\_project\_iam\_roles | List of IAM roles for the Vault admin service account to function. If you need to add additional roles, update `service_account_project_additional_iam_roles` instead. | list(string) | `<list>` | no |
 | service\_account\_storage\_bucket\_iam\_roles | List of IAM roles for the Vault admin service account to have on the storage bucket. | list(string) | `<list>` | no |
+| service\_label | The service label to set on the internal load balancer. If not empty, this enables internal DNS for internal load balancers. By default, the service label is disabled. This has no effect on external load balancers. | string | `"null"` | no |
 | ssh\_allowed\_cidrs | List of CIDR blocks to allow access to SSH into nodes. | list(string) | `<list>` | no |
 | storage\_bucket\_class | Type of data storage to use. If you change this value, you will also need to choose a storage_bucket_location which matches this parameter type | string | `"MULTI_REGIONAL"` | no |
 | storage\_bucket\_enable\_versioning | Set to true to enable object versioning in the GCS bucket.. You may want to define lifecycle rules if you want a finite number of old versions. | string | `"false"` | no |

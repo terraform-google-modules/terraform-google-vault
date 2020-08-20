@@ -44,6 +44,12 @@ variable "ip_address" {
   description = "The IP address to assign the forwarding rules to."
 }
 
+variable "service_label" {
+  type        = string
+  description = "The service label to set on the internal load balancer. If not empty, this enables internal DNS for internal load balancers. By default, the service label is disabled. This has no effect on external load balancers."
+  default     = null
+}
+
 variable "vault_storage_bucket" {
   type        = string
   description = "Storage bucket name where the backend is configured. This bucket will not be created in this module"

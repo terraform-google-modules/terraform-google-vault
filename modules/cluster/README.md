@@ -45,6 +45,7 @@ module "vault_cluster" {
 | service\_account\_project\_additional\_iam\_roles | List of custom IAM roles to add to the project. | list(string) | `<list>` | no |
 | service\_account\_project\_iam\_roles | List of IAM roles for the Vault admin service account to function. If you need to add additional roles, update `service_account_project_additional_iam_roles` instead. | list(string) | `<list>` | no |
 | service\_account\_storage\_bucket\_iam\_roles | List of IAM roles for the Vault admin service account to have on the storage bucket. | list(string) | `<list>` | no |
+| service\_label | The service label to set on the internal load balancer. If not empty, this enables internal DNS for internal load balancers. By default, the service label is disabled. This has no effect on external load balancers. | string | `"null"` | no |
 | subnet | The self link of the VPC subnetwork for Vault. By default, one will be created for you. | string | n/a | yes |
 | tls\_ca\_subject | The `subject` block for the root CA certificate. | object | `<map>` | no |
 | tls\_cn | The TLS Common Name for the TLS certificates | string | `"vault.example.net"` | no |
