@@ -55,6 +55,7 @@ module "cluster" {
   source                                       = "./modules/cluster"
   ip_address                                   = local.ip_address
   subnet                                       = local.subnet
+  service_label                                = var.service_label
   project_id                                   = var.project_id
   region                                       = var.region
   vault_storage_bucket                         = google_storage_bucket.vault.name

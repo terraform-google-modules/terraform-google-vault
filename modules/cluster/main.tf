@@ -118,6 +118,7 @@ resource "google_compute_forwarding_rule" "vault_internal" {
   network_tier          = "PREMIUM"
   allow_global_access   = true
   subnetwork            = var.subnet
+  service_label         = var.service_label
 
   backend_service = google_compute_region_backend_service.vault_internal[0].self_link
   ports           = [var.vault_port]

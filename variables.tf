@@ -201,6 +201,12 @@ variable "subnet" {
   description = "The self link of the VPC subnetwork for Vault. By default, one will be created for you."
 }
 
+variable "service_label" {
+  type        = string
+  description = "The service label to set on the internal load balancer. If not empty, this enables internal DNS for internal load balancers. By default, the service label is disabled. This has no effect on external load balancers."
+  default     = null
+}
+
 variable "allow_public_egress" {
   type    = bool
   default = true
