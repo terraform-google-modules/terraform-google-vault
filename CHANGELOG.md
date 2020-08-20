@@ -6,6 +6,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [5.1.0](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/v5.0.1...v5.1.0) (2020-08-20)
+
+
+### Features
+
+* Support service_label for internal load balancer ([#106](https://www.github.com/terraform-google-modules/terraform-google-vault/issues/106)) ([07c0e89](https://www.github.com/terraform-google-modules/terraform-google-vault/commit/07c0e896181ddf68fa22d646447932bd938569af))
+
 ### [5.0.1](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/v5.0.0...v5.0.1) (2020-07-29)
 
 
