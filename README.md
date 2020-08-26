@@ -307,7 +307,7 @@ tls_save_ca_to_disk = false
 - **Can I connect to the Vault nodes directly?**
 
     Connecting to the vault nodes directly is not recommended, even if on the
-    same network. Always connect through the load balance. You can alter the
+    same network. Always connect through the load balancer. You can alter the
     load balancer to be an internal-only load balancer if needed.
 
 [vault-redirect-loop]: https://www.vaultproject.io/docs/concepts/ha.html#behind-load-balancers
