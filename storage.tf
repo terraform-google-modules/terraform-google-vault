@@ -45,7 +45,6 @@ resource "google_storage_bucket" "vault" {
         age                   = contains(keys(lifecycle_rule.value.condition), "age") ? lifecycle_rule.value.condition.age : null
         created_before        = contains(keys(lifecycle_rule.value.condition), "created_before") ? lifecycle_rule.value.condition.created_before : null
         with_state            = contains(keys(lifecycle_rule.value.condition), "with_state") ? lifecycle_rule.value.condition.with_state : null
-        is_live               = contains(keys(lifecycle_rule.value.condition), "is_live") ? lifecycle_rule.value.condition.is_live : null
         matches_storage_class = contains(keys(lifecycle_rule.value.condition), "matches_storage_class") ? lifecycle_rule.value.condition.matches_storage_class : null
         num_newer_versions    = contains(keys(lifecycle_rule.value.condition), "num_newer_versions") ? lifecycle_rule.value.condition.num_newer_versions : null
       }
