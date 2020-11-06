@@ -13,9 +13,12 @@
 # limitations under the License.
 require 'net/http'
 require 'json'
+require_relative '../../helpers/shared_tests/shared_instance_group_tests'
 
 LB_NAME = 'vault-external'
 REGION = 'us-east4'
+DEADLINE = 180
+IG_NAME = 'vault-igm'
 
 project_id = attribute('project_id')
 control "Vault cluster is running" do
@@ -33,8 +36,8 @@ control "Vault cluster is running" do
 
     it "should be healthy" do
       def vault_health_check(lb_ip)
-        uri = URI("https://#{lb_ip}:8200/v1/sys/health")
-        req = Net::HTTP::Get.new(uri.path)
+        uri = URI("https://#{lb_ip}:8200/v1/sys/health?uninitcode=200")
+        req = Net::HTTP::Get.new(uri)
         cert = nil
         res = nil
         # NOTE: Since Ruby cannot trivially make a request with a specified certificate,
@@ -49,7 +52,8 @@ control "Vault cluster is running" do
               ex['oid'] == 'subjectAltName'
             end.first['value']
             return res, san
-          rescue
+          rescue => err
+            puts "Waiting on health check: #{err}"
             sleep 60
             next
           end
@@ -57,9 +61,13 @@ control "Vault cluster is running" do
       end
 
       res, san = vault_health_check(lb_ip)
-      expect(res.code).to eq("501")
+      expect(res.code).to eq("200")
       expect(JSON.parse(res.body)['initialized']).to eq(false)
       expect(san).to include(lb_ip)
     end
+  end
+
+  describe "Managed instances" do
+    include_examples "instance_group_behavior", project_id: project_id, region: REGION, ig_name: IG_NAME
   end
 end

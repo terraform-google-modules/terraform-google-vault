@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+resource "random_id" "name" {
+  byte_length = 2
+}
+
 locals {
   apis = [
     "cloudkms.googleapis.com",
@@ -29,7 +33,6 @@ locals {
     "billingbudgets.googleapis.com",
     "pubsub.googleapis.com",
   ]
-
 }
 
 module "project_ci" {
@@ -82,4 +85,39 @@ module "service_project_ci" {
   skip_gcloud_download        = true
   disable_services_on_destroy = false
   default_service_account     = "keep"
+}
+
+resource "google_compute_firewall" "allow-health-check" {
+  name    = "allow-health-check-${random_id.name.hex}"
+  network = module.svpc.network_name
+  project = module.svpc.project_id
+
+  description = "Allow health check probes for instance groups"
+
+  source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
+
+  allow {
+    protocol = "icmp"
+  }
+
+  allow {
+    protocol = "tcp"
+  }
+
+  allow {
+    protocol = "udp"
+  }
+}
+
+// Cloud Nat
+module "cloud-nat" {
+  source     = "terraform-google-modules/cloud-nat/google"
+  version    = "~> 1.2"
+  project_id = module.svpc.project_id
+  network    = module.svpc.network_name
+  region     = var.subnet_region
+  name       = "cloud-nat-${var.subnet_region}-${random_id.name.hex}"
+  router     = "cloud-nat-${var.subnet_region}-${random_id.name.hex}"
+
+  create_router = true
 }

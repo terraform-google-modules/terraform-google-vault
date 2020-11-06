@@ -156,7 +156,7 @@ variable "vault_instance_metadata" {
 
 variable "vault_instance_base_image" {
   type    = string
-  default = "debian-cloud/debian-9"
+  default = "debian-cloud/debian-10"
 
   description = "Base operating system image in which to install Vault. This must be a Debian-based system at the moment due to how the metadata startup script runs."
 }
@@ -184,10 +184,9 @@ variable "vault_min_num_servers" {
 
 variable "vault_machine_type" {
   type    = string
-  default = "n1-standard-1"
+  default = "e2-standard-2"
 
   description = "Machine type to use for Vault instances."
-
 }
 
 variable "vault_max_num_servers" {
@@ -270,7 +269,7 @@ variable "vault_ui_enabled" {
 
 variable "vault_version" {
   type    = string
-  default = "1.1.3"
+  default = "1.6.0"
 
   description = "Version of vault to install. This version must be 1.0+ and must be published on the HashiCorp releases service."
 
@@ -288,6 +287,24 @@ variable "user_startup_script" {
   default = ""
 
   description = "Additional user-provided code injected after Vault is setup"
+}
+
+variable "min_ready_sec" {
+  description = "Minimum number of seconds to wait before considering a new or restarted instance as updated. This value must be from range. [0,3600]"
+  type        = number
+  default     = 0
+}
+
+variable "hc_initial_delay_secs" {
+  description = "The number of seconds that the managed instance group waits before it applies autohealing policies to new instances or recently recreated instances."
+  type        = number
+  default     = 60
+}
+
+variable "zones" {
+  description = "The zones to distribute instances across.  If empty, all zones in the region are used.  ['us-west1-a', 'us-west1-b', 'us-west1-c']"
+  type        = list(string)
+  default     = []
 }
 
 #

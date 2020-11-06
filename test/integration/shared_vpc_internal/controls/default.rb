@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 require 'json'
+require_relative '../../helpers/shared_tests/shared_instance_group_tests'
 
 LB_NAME = 'vault-internal'
+IG_NAME = 'vault-igm'
 REGION = 'us-west1'
 
 project_id = attribute('project_id')
@@ -31,17 +33,8 @@ control "Vault" do
     end
   end
 
-  describe "Instance configuration" do
-    subject { command("gcloud --project=#{project_id} compute instances list --format=json") }
-    its(:exit_status) { should eq 0 }
-    its(:stderr) { should eq '' }
-    let!(:data) { JSON.parse(subject.stdout) if subject.exit_status == 0 }
-
-    it 'should be running' do
-      data.each do |inst|
-        expect(inst['name']).to start_with("vault")
-        expect(inst['status']).to eq("RUNNING")
-      end
-    end
+  describe "Managed instances" do
+    include_examples "instance_group_behavior", project_id: project_id, region: REGION, ig_name: IG_NAME
   end
 end
+

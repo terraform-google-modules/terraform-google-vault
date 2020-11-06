@@ -32,6 +32,7 @@ module "vault_cluster" {
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | domain | The domain name that will be set in the api_addr. Load Balancer IP used by default | string | `""` | no |
+| hc\_initial\_delay\_secs | The number of seconds that the managed instance group waits before it applies autohealing policies to new instances or recently recreated instances. | number | `"60"` | no |
 | host\_project\_id | ID of the host project if using Shared VPC | string | `""` | no |
 | http\_proxy | HTTP proxy for downloading agents and vault executable on startup. Only necessary if allow_public_egress is false. This is only used on the first startup of the Vault cluster and will NOT set the global HTTP_PROXY environment variable. i.e. If you configure Vault to manage credentials for other services, default HTTP routes will be taken. | string | `""` | no |
 | ip\_address | The IP address to assign the forwarding rules to. | string | n/a | yes |
@@ -40,6 +41,7 @@ module "vault_cluster" {
 | kms\_protection\_level | The protection level to use for the KMS crypto key. | string | `"software"` | no |
 | load\_balancing\_scheme | Options are INTERNAL or EXTERNAL. If `EXTERNAL`, the forwarding rule will be of type EXTERNAL and a public IP will be created. If `INTERNAL` the type will be INTERNAL and a random RFC 1918 private IP will be assigned | string | `"EXTERNAL"` | no |
 | manage\_tls | Set to `false` if you'd like to manage and upload your own TLS files. See `Managing TLS` for more details | bool | `"true"` | no |
+| min\_ready\_sec | Minimum number of seconds to wait before considering a new or restarted instance as updated. This value must be from range. [0,3600] | number | `"0"` | no |
 | project\_id | ID of the project in which to create resources and add IAM bindings. | string | n/a | yes |
 | region | Region in which to create resources. | string | `"us-east4"` | no |
 | service\_account\_project\_additional\_iam\_roles | List of custom IAM roles to add to the project. | list(string) | `<list>` | no |
@@ -56,12 +58,12 @@ module "vault_cluster" {
 | user\_startup\_script | Additional user-provided code injected after Vault is setup | string | `""` | no |
 | vault\_args | Additional command line arguments passed to Vault server | string | `""` | no |
 | vault\_ca\_cert\_filename | GCS object path within the vault_tls_bucket. This is the root CA certificate. | string | `"ca.crt"` | no |
-| vault\_instance\_base\_image | Base operating system image in which to install Vault. This must be a Debian-based system at the moment due to how the metadata startup script runs. | string | `"debian-cloud/debian-9"` | no |
+| vault\_instance\_base\_image | Base operating system image in which to install Vault. This must be a Debian-based system at the moment due to how the metadata startup script runs. | string | `"debian-cloud/debian-10"` | no |
 | vault\_instance\_labels | Labels to apply to the Vault instances. | map(string) | `<map>` | no |
 | vault\_instance\_metadata | Additional metadata to add to the Vault instances. | map(string) | `<map>` | no |
 | vault\_instance\_tags | Additional tags to apply to the instances. Note 'allow-ssh' and 'allow-vault' will be present on all instances. | list(string) | `<list>` | no |
 | vault\_log\_level | Log level to run Vault in. See the Vault documentation for valid values. | string | `"warn"` | no |
-| vault\_machine\_type | Machine type to use for Vault instances. | string | `"n1-standard-1"` | no |
+| vault\_machine\_type | Machine type to use for Vault instances. | string | `"e2-standard-2"` | no |
 | vault\_max\_num\_servers | Maximum number of Vault server nodes to run at one time. The group will not autoscale beyond this number. | string | `"7"` | no |
 | vault\_min\_num\_servers | Minimum number of Vault server nodes in the autoscaling group. The group will not have less than this number of nodes. | string | `"1"` | no |
 | vault\_port | Numeric port on which to run and expose Vault. | string | `"8200"` | no |
@@ -76,7 +78,8 @@ module "vault_cluster" {
 | vault\_tls\_kms\_key\_project | Project ID where the KMS key is stored. By default, same as `project_id` | string | `""` | no |
 | vault\_tls\_require\_and\_verify\_client\_cert | Always use client certificates. You may want to disable this if users will not be authenticating to Vault with client certificates. | string | `"false"` | no |
 | vault\_ui\_enabled | Controls whether the Vault UI is enabled and accessible. | string | `"true"` | no |
-| vault\_version | Version of vault to install. This version must be 1.0+ and must be published on the HashiCorp releases service. | string | `"1.1.3"` | no |
+| vault\_version | Version of vault to install. This version must be 1.0+ and must be published on the HashiCorp releases service. | string | `"1.6.0"` | no |
+| zones | The zones to distribute instances across.  If empty, all zones in the region are used.  ['us-west1-a', 'us-west1-b', 'us-west1-c'] | list(string) | `<list>` | no |
 
 ## Outputs
 

@@ -370,7 +370,7 @@ variable "vault_instance_metadata" {
 
 variable "vault_instance_base_image" {
   type    = string
-  default = "debian-cloud/debian-9"
+  default = "debian-cloud/debian-10"
 
   description = "Base operating system image in which to install Vault. This must be a Debian-based system at the moment due to how the metadata startup script runs."
 }
@@ -398,7 +398,7 @@ variable "vault_min_num_servers" {
 
 variable "vault_machine_type" {
   type    = string
-  default = "n1-standard-1"
+  default = "e2-standard-2"
 
   description = "Machine type to use for Vault instances."
 
@@ -484,7 +484,7 @@ variable "vault_ui_enabled" {
 
 variable "vault_version" {
   type    = string
-  default = "1.1.3"
+  default = "1.6.0"
 
   description = "Version of vault to install. This version must be 1.0+ and must be published on the HashiCorp releases service."
 

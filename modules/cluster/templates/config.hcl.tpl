@@ -1,6 +1,7 @@
 # Run Vault in HA mode. Even if there's only one Vault node, it doesn't hurt to
 # have this set.
-api_addr = "${api_addr}"
+api_addr     = "${api_addr}"
+# LOCAL_IP is replaced with the eth0 IP address by the startup script.
 cluster_addr = "https://LOCAL_IP:8201"
 
 # Set debugging level
@@ -32,7 +33,14 @@ listener "tcp" {
   tls_disable = 1
 }
 
-# Create an mTLS listener on the load balancer
+# Create non-TLS listener for the HTTP legacy health checks.  Make sure the VPC
+# firewall doesn't allow traffic to this port except from the probe IP range.
+listener "tcp" {
+  address     = "${lb_ip}:${vault_proxy_port}"
+  tls_disable = 1
+}
+
+# Create an mTLS listener on the load balancer address
 listener "tcp" {
   address            = "${lb_ip}:${vault_port}"
   tls_cert_file      = "/etc/vault.d/tls/vault.crt"
@@ -44,8 +52,8 @@ listener "tcp" {
 }
 
 # Create an mTLS listener locally. Client's shouldn't talk to Vault directly,
-# but not all clients are well-behaved. This is also needed so the nodes can
-# communicate with eachother.
+# but not all clients are well-behaved. This is also needed so the cluster
+# nodes can communicate with each other.
 listener "tcp" {
   address            = "LOCAL_IP:${vault_port}"
   tls_cert_file      = "/etc/vault.d/tls/vault.crt"
