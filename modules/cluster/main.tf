@@ -28,6 +28,19 @@ locals {
   api_addr          = var.domain != "" ? "https://${var.domain}:${var.vault_port}" : "https://${local.lb_ip}:${var.vault_port}"
   host_project      = var.host_project_id != "" ? var.host_project_id : var.project_id
   lb_ip             = local.use_external_lb ? google_compute_forwarding_rule.external[0].ip_address : var.ip_address
+  # LB and Autohealing health checks have different behavior.  The load
+  # balancer shouldn't route traffic to a secondary vault instance, but it
+  # should consider the instance healthy for autohealing purposes.
+  # See: https://www.vaultproject.io/api-docs/system/health
+  hc_workload_request_path = "/v1/sys/health?uninitcode=200"
+  hc_autoheal_request_path = "/v1/sys/health?uninitcode=200&standbyok=true"
+  # Default to all zones in the region unless zones were provided.
+  zones = length(var.zones) > 0 ? var.zones : data.google_compute_zones.available.names
+}
+
+data "google_compute_zones" "available" {
+  project = var.project_id
+  region  = var.region
 }
 
 resource "google_compute_instance_template" "vault" {
@@ -89,7 +102,7 @@ resource "google_compute_health_check" "vault_internal" {
 
   https_health_check {
     port         = var.vault_port
-    request_path = "/v1/sys/health?uninitcode=200"
+    request_path = local.hc_workload_request_path
   }
 }
 
@@ -140,6 +153,7 @@ resource "google_compute_http_health_check" "vault" {
   healthy_threshold   = 2
   unhealthy_threshold = 2
   port                = var.vault_proxy_port
+  request_path        = local.hc_workload_request_path
 }
 
 
@@ -181,6 +195,18 @@ resource "google_compute_region_instance_group_manager" "vault" {
   base_instance_name = "vault-${var.region}"
   wait_for_instances = false
 
+  auto_healing_policies {
+    health_check      = google_compute_health_check.autoheal.id
+    initial_delay_sec = var.hc_initial_delay_secs
+  }
+
+  update_policy {
+    type                  = "OPPORTUNISTIC"
+    minimal_action        = "REPLACE"
+    max_unavailable_fixed = length(local.zones)
+    min_ready_sec         = var.min_ready_sec
+  }
+
   target_pools = local.use_external_lb ? [google_compute_target_pool.vault[0].self_link] : []
 
   named_port {
@@ -211,4 +237,20 @@ resource "google_compute_region_autoscaler" "vault" {
     }
   }
 
+}
+
+# Auto-healing
+resource "google_compute_health_check" "autoheal" {
+  project = var.project_id
+  name    = "vault-health-autoheal"
+
+  check_interval_sec  = 10
+  timeout_sec         = 5
+  healthy_threshold   = 1
+  unhealthy_threshold = 2
+
+  https_health_check {
+    port         = var.vault_port
+    request_path = local.hc_autoheal_request_path
+  }
 }

@@ -52,6 +52,7 @@ data "template_file" "vault-config" {
     storage_bucket                           = var.vault_storage_bucket
     vault_log_level                          = var.vault_log_level
     vault_port                               = var.vault_port
+    vault_proxy_port                         = var.vault_proxy_port
     vault_tls_disable_client_certs           = var.vault_tls_disable_client_certs
     vault_tls_require_and_verify_client_cert = var.vault_tls_require_and_verify_client_cert
     vault_ui_enabled                         = var.vault_ui_enabled

@@ -17,24 +17,23 @@ if [ ! -z '${custom_http_proxy}' ]; then
   export https_proxy=$http_proxy
 fi
 
+# Get Vault up and running as quickly as possible to get the auto-heal health
+# check passing.  This results in faster recovery and faster rolling upgrades.
+
 # Deps
 export DEBIAN_FRONTEND=noninteractive
-apt-get update -yqq
-apt-get upgrade -yqq
-apt-get install -yqq jq libcap2-bin logrotate unzip
-
-# Install Stackdriver for logging and monitoring
-curl -sSfL https://dl.google.com/cloudagents/install-logging-agent.sh | bash
-curl -sSfL https://dl.google.com/cloudagents/install-monitoring-agent.sh | bash
 
 # Download and install Vault
-cd /tmp && \
-  curl -sLfO "https://releases.hashicorp.com/vault/${vault_version}/vault_${vault_version}_linux_amd64.zip" && \
-  unzip "vault_${vault_version}_linux_amd64.zip" && \
-  mv vault /usr/local/bin/vault && \
-  rm "vault_${vault_version}_linux_amd64.zip"
+curl -sLfo /tmp/vault.zip "https://releases.hashicorp.com/vault/${vault_version}/vault_${vault_version}_linux_amd64.zip"
+# Unzip without having to apt install unzip
+(echo "import sys"; echo "import zipfile"; echo "with zipfile.ZipFile(sys.argv[1]) as z:"; echo '  z.extractall("/tmp")') | python3 - /tmp/vault.zip
+install -o0 -g0 -m0755 -D /tmp/vault /usr/local/bin/vault
+rm /tmp/vault.zip /tmp/vault
 
 # Give Vault the ability to run mlock as non-root
+if ! [[ -x /sbin/setcap ]]; then
+  apt install -qq -y libcap2-bin
+fi
 /sbin/setcap cap_ipc_lock=+ep /usr/local/bin/vault
 
 # Add Vault user
@@ -83,7 +82,8 @@ touch /var/log/vault/{audit,server}.log
 chmod 0640 /var/log/vault/{audit,server}.log
 chown -R vault:adm /var/log/vault
 
-# Add the TLS ca.crt to the trusted store so plugins dont error with TLS handshakes
+# Add the TLS ca.crt to the trusted store so plugins dont error with TLS
+# handshakes
 cp /etc/vault.d/tls/ca.crt /usr/local/share/ca-certificates/
 update-ca-certificates
 
@@ -94,6 +94,8 @@ Description="HashiCorp Vault"
 Documentation=https://www.vaultproject.io/docs/
 Requires=network-online.target
 After=network-online.target
+# Stop after the shutdown script stops.
+Before=google-shutdown-scripts.service
 ConditionFileNotEmpty=/etc/vault.d/config.hcl
 
 [Service]
@@ -125,6 +127,9 @@ EOF
 chmod 0644 /etc/systemd/system/vault.service
 systemctl daemon-reload
 systemctl enable vault
+systemctl start vault
+
+## AT THIS POINT VAULT HEALTH CHECKS SHOULD START PASSING
 
 # Prevent core dumps - from all attack vectors
 cat <<"EOF" > /etc/sysctl.d/50-coredump.conf
@@ -165,21 +170,6 @@ EOF
 chmod 644 /etc/profile.d/vault.sh
 source /etc/profile.d/vault.sh
 
-if [ ${internal_lb} != true ]; then
-  # Add health-check proxy because target pools don't support HTTPS
-  apt-get install -yqq nginx
-
-  cat <<EOF > /etc/nginx/sites-available/default
-server {
-  listen ${vault_proxy_port};
-  location / {
-    proxy_pass $VAULT_ADDR/v1/sys/health?uninitcode=200;
-  }
-}
-EOF
-  systemctl enable nginx
-  systemctl restart nginx
-fi
 # Pull Vault data from syslog into a file for fluentd
 cat <<"EOF" > /etc/rsyslog.d/vault.conf
 #
@@ -196,8 +186,18 @@ if ( $programname == "vault" ) then {
 EOF
 systemctl restart rsyslog
 
+# Install Stackdriver for logging and monitoring
+# Logging Agent: https://cloud.google.com/logging/docs/agent/installation
+curl -sSfL https://dl.google.com/cloudagents/add-logging-agent-repo.sh | bash
+# Monitoring Agent: https://cloud.google.com/monitoring/agent/installation
+curl -sSfL https://dl.google.com/cloudagents/add-monitoring-agent-repo.sh | bash
+apt-get update -yqq
+# Install structured logs
+apt-get install -yqq 'stackdriver-agent=6.*' 'google-fluentd=1.*' google-fluentd-catch-all-config-structured
+
 # Start Stackdriver logging agent and setup the filesystem to be ready to
 # receive audit logs
+mkdir -p /etc/google-fluentd/config.d
 cat <<"EOF" > /etc/google-fluentd/config.d/vaultproject.io.conf
 <source>
   @type tail
@@ -249,7 +249,11 @@ EOF
 systemctl enable google-fluentd
 systemctl restart google-fluentd
 
+# Install logrotate
+apt-get install -yqq logrotate
+
 # Configure logrotate for Vault audit logs
+mkdir -p /etc/logrotate.d
 cat <<"EOF" > /etc/logrotate.d/vaultproject.io
 /var/log/vault/*.log {
   daily
@@ -260,25 +264,35 @@ cat <<"EOF" > /etc/logrotate.d/vaultproject.io
   create 0640 vault adm
   sharedscripts
   postrotate
-    kill -HUP $(pidof vault)
+    /bin/systemctl reload vault 2> /dev/null
     true
   endscript
 }
 EOF
 
 # Start Stackdriver monitoring
-curl -sSfLo /opt/stackdriver/collectd/etc/collectd.d/statsd.conf https://raw.githubusercontent.com/Stackdriver/stackdriver-agent-service-configs/master/etc/collectd.d/statsd.conf
+mkdir -p /opt/stackdriver/collectd/etc/collectd.d /etc/stackdriver/collectd.d
+curl -sSfLo /etc/stackdriver/collectd.d/statsd.conf \
+  https://raw.githubusercontent.com/Stackdriver/stackdriver-agent-service-configs/master/etc/collectd.d/statsd.conf
+
+# On GCE instances, swap is not enabled.  The collectd swap plugin is enabled
+# by default and generates frequent error messages trying to divide by zero
+# when there is no swap.  This perl command is an in-place edit to disable the
+# swap plugin.  The intent is to prevent the spurious log messages and avoid
+# having to filter them in stackdriver.
+#
+# The error string related to this is:
+# `wg_typed_value_create_from_value_t_inline failed for swap/percent/value`
+# See https://issuetracker.google.com/issues/161054680#comment5
+perl -i -pe 'BEGIN{undef $/;} s,LoadPlugin swap.*?/Plugin>,# swap plugin disabled by startup-script,smg' /etc/stackdriver/collectd.conf
+
 systemctl enable stackdriver-agent
-systemctl restart stackdriver-agent
+service stackdriver-agent restart
 
 #########################################
 ##          user_startup_script        ##
 #########################################
 ${user_startup_script}
 
-
 # Signal this script has run
 touch ~/.startup-script-complete
-
-# Reboot to pick up system-level changes
-sudo reboot

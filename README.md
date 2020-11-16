@@ -209,12 +209,12 @@ done
 | vault\_allowed\_cidrs | List of CIDR blocks to allow access to the Vault nodes. Since the load balancer is a pass-through load balancer, this must also include all IPs from which you will access Vault. The default is unrestricted (any IP address can access Vault). It is recommended that you reduce this to a smaller list. | list(string) | `<list>` | no |
 | vault\_args | Additional command line arguments passed to Vault server | string | `""` | no |
 | vault\_ca\_cert\_filename | GCS object path within the vault_tls_bucket. This is the root CA certificate. | string | `"ca.crt"` | no |
-| vault\_instance\_base\_image | Base operating system image in which to install Vault. This must be a Debian-based system at the moment due to how the metadata startup script runs. | string | `"debian-cloud/debian-9"` | no |
+| vault\_instance\_base\_image | Base operating system image in which to install Vault. This must be a Debian-based system at the moment due to how the metadata startup script runs. | string | `"debian-cloud/debian-10"` | no |
 | vault\_instance\_labels | Labels to apply to the Vault instances. | map(string) | `<map>` | no |
 | vault\_instance\_metadata | Additional metadata to add to the Vault instances. | map(string) | `<map>` | no |
 | vault\_instance\_tags | Additional tags to apply to the instances. Note 'allow-ssh' and 'allow-vault' will be present on all instances. | list(string) | `<list>` | no |
 | vault\_log\_level | Log level to run Vault in. See the Vault documentation for valid values. | string | `"warn"` | no |
-| vault\_machine\_type | Machine type to use for Vault instances. | string | `"n1-standard-1"` | no |
+| vault\_machine\_type | Machine type to use for Vault instances. | string | `"e2-standard-2"` | no |
 | vault\_max\_num\_servers | Maximum number of Vault server nodes to run at one time. The group will not autoscale beyond this number. | string | `"7"` | no |
 | vault\_min\_num\_servers | Minimum number of Vault server nodes in the autoscaling group. The group will not have less than this number of nodes. | string | `"1"` | no |
 | vault\_port | Numeric port on which to run and expose Vault. | string | `"8200"` | no |
@@ -227,7 +227,7 @@ done
 | vault\_tls\_kms\_key\_project | Project ID where the KMS key is stored. By default, same as `project_id` | string | `""` | no |
 | vault\_tls\_require\_and\_verify\_client\_cert | Always use client certificates. You may want to disable this if users will not be authenticating to Vault with client certificates. | string | `"false"` | no |
 | vault\_ui\_enabled | Controls whether the Vault UI is enabled and accessible. | string | `"true"` | no |
-| vault\_version | Version of vault to install. This version must be 1.0+ and must be published on the HashiCorp releases service. | string | `"1.1.3"` | no |
+| vault\_version | Version of vault to install. This version must be 1.0+ and must be published on the HashiCorp releases service. | string | `"1.6.0"` | no |
 
 ## Outputs
 

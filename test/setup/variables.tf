@@ -27,7 +27,7 @@ variable "billing_account" {
 
 variable "network_name" {
   description = "Vault shared VPC network name."
-  default     = "vault-spvc"
+  default     = "vault-svpc"
 }
 
 variable "subnet_region" {
