@@ -6,6 +6,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [5.2.0](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/v5.1.0...v5.2.0) (2020-11-16)
+
+
+### Features
+
+* enable auto-healing, update to Debian 10 ([#119](https://www.github.com/terraform-google-modules/terraform-google-vault/issues/119)) ([1d0b5db](https://www.github.com/terraform-google-modules/terraform-google-vault/commit/1d0b5db7f310dc6a47af3130a97e5373d9cdaddf))
+
 ## [5.1.0](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/v5.0.1...v5.1.0) (2020-08-20)
 
 
