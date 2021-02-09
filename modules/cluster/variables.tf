@@ -289,6 +289,12 @@ variable "user_startup_script" {
   description = "Additional user-provided code injected after Vault is setup"
 }
 
+variable "vault_update_policy_type" {
+  type        = string
+  default     = "OPPORTUNISTIC"
+  description = "Options are OPPORTUNISTIC or PROACTIVE. If `PROACTIVE`, the instance group manager proactively executes actions in order to bring instances to their target versions"
+}
+
 variable "min_ready_sec" {
   description = "Minimum number of seconds to wait before considering a new or restarted instance as updated. This value must be from range. [0,3600]"
   type        = number
