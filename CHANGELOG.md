@@ -6,6 +6,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [5.3.0](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/v5.2.0...v5.3.0) (2021-02-15)
+
+
+### Features
+
+* add vault_update_policy_type parameter ([#125](https://www.github.com/terraform-google-modules/terraform-google-vault/issues/125)) ([d25ae6a](https://www.github.com/terraform-google-modules/terraform-google-vault/commit/d25ae6a1ab8f4f1c64acfe1af198663ea17b5a12))
+
 ## [5.2.0](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/v5.1.0...v5.2.0) (2020-11-16)
 
 
