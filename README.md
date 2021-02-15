@@ -227,6 +227,7 @@ done
 | vault\_tls\_kms\_key\_project | Project ID where the KMS key is stored. By default, same as `project_id` | string | `""` | no |
 | vault\_tls\_require\_and\_verify\_client\_cert | Always use client certificates. You may want to disable this if users will not be authenticating to Vault with client certificates. | string | `"false"` | no |
 | vault\_ui\_enabled | Controls whether the Vault UI is enabled and accessible. | string | `"true"` | no |
+| vault\_update\_policy\_type | Options are OPPORTUNISTIC or PROACTIVE. If `PROACTIVE`, the instance group manager proactively executes actions in order to bring instances to their target versions | string | `"OPPORTUNISTIC"` | no |
 | vault\_version | Version of vault to install. This version must be 1.0+ and must be published on the HashiCorp releases service. | string | `"1.6.0"` | no |
 
 ## Outputs

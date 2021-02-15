@@ -76,6 +76,7 @@ module "cluster" {
   vault_min_num_servers                        = var.vault_min_num_servers
   vault_machine_type                           = var.vault_machine_type
   vault_max_num_servers                        = var.vault_max_num_servers
+  vault_update_policy_type                     = var.vault_update_policy_type
   vault_port                                   = var.vault_port
   vault_proxy_port                             = var.vault_proxy_port
   vault_tls_disable_client_certs               = var.vault_tls_disable_client_certs
