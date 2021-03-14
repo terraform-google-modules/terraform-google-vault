@@ -37,14 +37,13 @@ locals {
 
 module "project_ci" {
   source  = "terraform-google-modules/project-factory/google"
-  version = "~> 8.0"
+  version = "~> 10.0"
 
   name                        = "ci-vault-module"
   random_project_id           = true
   org_id                      = var.org_id
   folder_id                   = var.folder_id
   billing_account             = var.billing_account
-  skip_gcloud_download        = true
   disable_services_on_destroy = false
   default_service_account     = "keep"
   activate_apis               = local.apis
@@ -52,7 +51,7 @@ module "project_ci" {
 
 module "svpc" {
   source          = "terraform-google-modules/network/google"
-  version         = "~> 2.4"
+  version         = "~> 3.0"
   project_id      = module.project_ci.project_id
   network_name    = var.network_name
   shared_vpc_host = true
@@ -67,8 +66,8 @@ module "svpc" {
 }
 
 module "service_project_ci" {
-  source  = "terraform-google-modules/project-factory/google//modules/shared_vpc"
-  version = "~> 8.0"
+  source  = "terraform-google-modules/project-factory/google"
+  version = "~> 10.0"
 
   name              = "ci-vault-svpc-service"
   random_project_id = true
@@ -76,13 +75,11 @@ module "service_project_ci" {
   org_id             = var.org_id
   folder_id          = var.folder_id
   billing_account    = var.billing_account
-  shared_vpc_enabled = true
 
-  shared_vpc         = module.svpc.project_id
-  shared_vpc_subnets = module.svpc.subnets_self_links
+  svpc_host_project_id = module.svpc.project_id
+  shared_vpc_subnets   = module.svpc.subnets_self_links
 
   activate_apis               = local.apis
-  skip_gcloud_download        = true
   disable_services_on_destroy = false
   default_service_account     = "keep"
 }
