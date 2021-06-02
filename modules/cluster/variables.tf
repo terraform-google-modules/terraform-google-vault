@@ -97,7 +97,7 @@ variable "service_account_storage_bucket_iam_roles" {
 
 variable "kms_keyring" {
   type    = string
-  default = "vault"
+  # default = "vault"
 
   description = "Name of the Cloud KMS KeyRing for asset encryption. Terraform will create this keyring."
 
@@ -105,9 +105,17 @@ variable "kms_keyring" {
 
 variable "kms_crypto_key" {
   type    = string
-  default = "vault-init"
+  # default = "vault-init"
 
   description = "The name of the Cloud KMS Key used for encrypting initial TLS certificates and for configuring Vault auto-unseal. Terraform will create this key."
+}
+
+variable "kms_location" {
+  type    = string
+  default = "global"
+
+  description = "Name of the Cloud KMS KeyRing for asset encryption. Terraform will create this keyring."
+
 }
 
 variable "kms_protection_level" {
@@ -184,7 +192,7 @@ variable "vault_min_num_servers" {
 
 variable "vault_machine_type" {
   type    = string
-  default = "e2-standard-2"
+  default = "n1-standard-1"
 
   description = "Machine type to use for Vault instances."
 }
@@ -236,6 +244,25 @@ variable "vault_tls_kms_key" {
   default = ""
 
   description = "Fully qualified name of the KMS key, for example, vault_tls_kms_key = \"projects/PROJECT_ID/locations/LOCATION/keyRings/KEYRING/cryptoKeys/KEY_NAME\". This key should have been used to encrypt the TLS private key if Terraform is not managing TLS. The Vault service account will be granted access to the KMS Decrypter role once it is created so it can pull from this the `vault_tls_bucket` at boot time. This option is required when `manage_tls` is set to false."
+}
+
+variable "vault_tls_kms_location" {
+  type    = string
+  default = ""
+  description = "Location for the Vault TLS Key"
+}
+
+variable "vault_tls_kms_keyring" {
+  type    = string
+  default = ""
+  description = "KeyRing ID"
+}
+
+variable "vault_tls_kms_key_name" {
+  type    = string
+  default = ""
+
+  description = ""
 }
 
 variable "vault_tls_kms_key_project" {

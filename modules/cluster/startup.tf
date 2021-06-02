@@ -29,12 +29,15 @@ data "template_file" "vault-startup-script" {
     vault_proxy_port        = var.vault_proxy_port
     vault_version           = var.vault_version
     vault_tls_bucket        = local.vault_tls_bucket
+    kms_keyring             = var.vault_tls_kms_keyring
+    location                = var.vault_tls_kms_location
     vault_ca_cert_filename  = var.vault_ca_cert_filename
     vault_tls_key_filename  = var.vault_tls_key_filename
     vault_tls_cert_filename = var.vault_tls_cert_filename
     kms_project             = var.vault_tls_kms_key_project == "" ? var.project_id : var.vault_tls_kms_key_project
     kms_crypto_key          = local.vault_tls_kms_key
     user_startup_script     = var.user_startup_script
+    vault_tls_kms_key_name  = var.vault_tls_kms_key_name
   }
 }
 

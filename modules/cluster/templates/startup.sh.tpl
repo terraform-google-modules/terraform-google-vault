@@ -2,6 +2,7 @@
 set -xe
 set -o pipefail
 
+exec > >(tee /var/log/startup.log|logger -t startup-script -s 2>/dev/console) 2>&1
 # Only run the script once
 if [ -f ~/.startup-script-complete ]; then
   echo "Startup script already ran, exiting"
@@ -63,10 +64,12 @@ gsutil cp "gs://${vault_tls_bucket}/${vault_ca_cert_filename}" /etc/vault.d/tls/
 gsutil cp "gs://${vault_tls_bucket}/${vault_tls_cert_filename}" /etc/vault.d/tls/vault.crt
 gsutil cp "gs://${vault_tls_bucket}/${vault_tls_key_filename}" /etc/vault.d/tls/vault.key.enc
 
-# Decrypt the Vault private key
+#Decrypt the Vault private key
 base64 --decode < /etc/vault.d/tls/vault.key.enc | gcloud kms decrypt \
   --project="${kms_project}" \
-  --key="${kms_crypto_key}" \
+  --key="${vault_tls_kms_key_name}" \
+  --location="${location}" \
+  --keyring="${kms_keyring}" \
   --plaintext-file=/etc/vault.d/tls/vault.key \
   --ciphertext-file=-
 
@@ -74,7 +77,7 @@ base64 --decode < /etc/vault.d/tls/vault.key.enc | gcloud kms decrypt \
 chmod 700 /etc/vault.d/tls
 chmod 600 /etc/vault.d/tls/vault.key
 chown -R vault:vault /etc/vault.d
-rm /etc/vault.d/tls/vault.key.enc
+#rm /etc/vault.d/tls/vault.key.enc
 
 # Make audit files
 mkdir -p /var/log/vault

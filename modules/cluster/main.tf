@@ -19,15 +19,18 @@
 
 # Template for creating Vault nodes
 locals {
-  lb_scheme         = upper(var.load_balancing_scheme)
-  use_internal_lb   = local.lb_scheme == "INTERNAL"
-  use_external_lb   = local.lb_scheme == "EXTERNAL"
-  vault_tls_bucket  = var.vault_tls_bucket != "" ? var.vault_tls_bucket : var.vault_storage_bucket
-  default_kms_key   = "projects/${var.project_id}/locations/${var.region}/keyRings/${var.kms_keyring}/cryptoKeys/${var.kms_crypto_key}"
-  vault_tls_kms_key = var.vault_tls_kms_key != "" ? var.vault_tls_kms_key : local.default_kms_key
-  api_addr          = var.domain != "" ? "https://${var.domain}:${var.vault_port}" : "https://${local.lb_ip}:${var.vault_port}"
-  host_project      = var.host_project_id != "" ? var.host_project_id : var.project_id
-  lb_ip             = local.use_external_lb ? google_compute_forwarding_rule.external[0].ip_address : var.ip_address
+  lb_scheme               = upper(var.load_balancing_scheme)
+  use_internal_lb         = local.lb_scheme == "INTERNAL"
+  use_external_lb         = local.lb_scheme == "EXTERNAL"
+  vault_tls_bucket        = var.vault_tls_bucket != "" ? var.vault_tls_bucket : var.vault_storage_bucket
+  default_kms_key         = "projects/${var.project_id}/locations/${var.region}/keyRings/${var.kms_keyring}/cryptoKeys/${var.kms_crypto_key}"
+  vault_tls_kms_key       = var.vault_tls_kms_key != "" ? var.vault_tls_kms_key : local.default_kms_key
+  vault_tls_kms_keyring   = var.vault_tls_kms_keyring
+  vault_tls_kms_location  = var.vault_tls_kms_location
+  vault_tls_kms_key_name  = var.vault_tls_kms_key_name
+  api_addr                = var.domain != "" ? "https://${var.domain}:${var.vault_port}" : "https://${local.lb_ip}:${var.vault_port}"
+  host_project            = var.host_project_id != "" ? var.host_project_id : var.project_id
+  lb_ip                   = local.use_external_lb ? google_compute_forwarding_rule.external[0].ip_address : var.ip_address
   # LB and Autohealing health checks have different behavior.  The load
   # balancer shouldn't route traffic to a secondary vault instance, but it
   # should consider the instance healthy for autohealing purposes.
@@ -161,7 +164,7 @@ resource "google_compute_target_pool" "vault" {
   count   = local.use_external_lb ? 1 : 0
   project = var.project_id
 
-  name   = "vault-tp"
+  name   = "vault-new-tp"
   region = var.region
 
   health_checks = [google_compute_http_health_check.vault[0].name]
