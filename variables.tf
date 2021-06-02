@@ -169,7 +169,13 @@ variable "kms_keyring" {
   description = "Name of the Cloud KMS KeyRing for asset encryption. Terraform will create this keyring."
 
 }
+variable "kms_location" {
+  type    = string
+  default = "global"
 
+  description = "Name of the Cloud KMS KeyRing for asset encryption. Terraform will create this keyring."
+
+}
 variable "kms_crypto_key" {
   type    = string
   default = "vault-init"
@@ -398,7 +404,7 @@ variable "vault_min_num_servers" {
 
 variable "vault_machine_type" {
   type    = string
-  default = "e2-standard-2"
+  default = "n1-standard-1"
 
   description = "Machine type to use for Vault instances."
 
@@ -502,4 +508,25 @@ variable "user_startup_script" {
   default = ""
 
   description = "Additional user-provided code injected after Vault is setup"
+}
+
+variable "vault_tls_kms_keyring" {
+  type    = string
+  default = ""
+
+  description = ""
+}
+
+variable "vault_tls_kms_location" {
+  type    = string
+  default = ""
+
+  description = ""
+}
+
+variable "vault_tls_kms_key_name" {
+  type    = string
+  default = ""
+
+  description = ""
 }

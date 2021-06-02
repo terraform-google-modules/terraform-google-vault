@@ -98,4 +98,7 @@ module "cluster" {
   tls_ips                                      = var.tls_ips
   tls_save_ca_to_disk                          = var.tls_save_ca_to_disk
   tls_ou                                       = var.tls_ou
+  vault_tls_kms_keyring                        = var.vault_tls_kms_keyring
+  vault_tls_kms_location                       = var.vault_tls_kms_location
+  vault_tls_kms_key_name                       = var.vault_tls_kms_key_name
 }
