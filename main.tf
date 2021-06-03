@@ -31,16 +31,16 @@ provider "google" {
 provider "tls" {}
 
 # Enable required services on the project
-# resource "google_project_service" "service" {
-#   for_each = toset(var.project_services)
-#   project  = var.project_id
+resource "google_project_service" "service" {
+  for_each = toset(var.project_services)
+  project  = var.project_id
 
-#   service = each.key
+  service = each.key
 
-#   # Do not disable the service on destroy. This may be a shared project, and
-#   # we might not "own" the services we enable.
-#   disable_on_destroy = false
-# }
+  # Do not disable the service on destroy. This may be a shared project, and
+  # we might not "own" the services we enable.
+  disable_on_destroy = false
+}
 
 # Create the vault-admin service account.
 resource "google_service_account" "vault-admin" {
