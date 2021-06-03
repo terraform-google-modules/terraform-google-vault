@@ -24,14 +24,14 @@ locals {
 }
 
 # Address for NATing
-resource "google_compute_address" "vault-nat" {
-  count   = var.allow_public_egress ? 2 : 0
-  project = var.project_id
-  name    = "vault-nat-external-${count.index}"
-  region  = var.region
+# resource "google_compute_address" "vault-nat" {
+#   count   = var.allow_public_egress ? 2 : 0
+#   project = var.project_id
+#   name    = "vault-nat-external-${count.index}"
+#   region  = var.region
 
-  depends_on = [google_project_service.service]
-}
+#   depends_on = [google_project_service.service]
+# }
 
 resource "google_compute_address" "vault_ilb" {
   count        = local.use_internal_lb ? 1 : 0
@@ -43,40 +43,40 @@ resource "google_compute_address" "vault_ilb" {
 }
 
 # Create a NAT router so the nodes can reach the public Internet
-resource "google_compute_router" "vault-router" {
-  count   = var.allow_public_egress ? 1 : 0
-  name    = "vault-router"
-  project = var.project_id
-  region  = var.region
-  network = local.network
+# resource "google_compute_router" "vault-router" {
+#   count   = var.allow_public_egress ? 1 : 0
+#   name    = "vault-router"
+#   project = var.project_id
+#   region  = var.region
+#   network = local.network
 
-  bgp {
-    asn = 64514
-  }
+#   bgp {
+#     asn = 64514
+#   }
 
-  depends_on = [google_project_service.service]
-}
+#   depends_on = [google_project_service.service]
+# }
 
 # NAT on the main subnetwork
-resource "google_compute_router_nat" "vault-nat" {
-  count   = var.allow_public_egress ? 1 : 0
-  name    = "vault-nat-1"
-  project = var.project_id
-  router  = google_compute_router.vault-router[0].name
-  region  = var.region
+# resource "google_compute_router_nat" "vault-nat" {
+#   count   = var.allow_public_egress ? 1 : 0
+#   name    = "vault-nat-1"
+#   project = var.project_id
+#   router  = google_compute_router.vault-router[0].name
+#   region  = var.region
 
-  nat_ip_allocate_option = "MANUAL_ONLY"
-  nat_ips                = google_compute_address.vault-nat.*.self_link
+#   nat_ip_allocate_option = "MANUAL_ONLY"
+#   nat_ips                = google_compute_address.vault-nat.*.self_link
 
-  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
+#   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
 
-  subnetwork {
-    name                    = local.subnet
-    source_ip_ranges_to_nat = ["PRIMARY_IP_RANGE"]
-  }
+#   subnetwork {
+#     name                    = local.subnet
+#     source_ip_ranges_to_nat = ["PRIMARY_IP_RANGE"]
+#   }
 
-  depends_on = [google_project_service.service]
-}
+#   depends_on = [google_project_service.service]
+# }
 
 resource "google_compute_network" "vault-network" {
   count   = var.network == "" ? 1 : 0
