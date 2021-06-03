@@ -66,8 +66,3 @@ output "vault_subnet" {
   value       = local.subnet
   description = "The subnetwork in which the Vault cluster resides"
 }
-
-output "vault_nat_ips" {
-  value       = google_compute_address.vault-nat.*.address
-  description = "The NAT-ips that the vault nodes will use to communicate with external services."
-}
