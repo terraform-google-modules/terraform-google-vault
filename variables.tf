@@ -38,7 +38,7 @@ variable "project_id" {
 #     "monitoring.googleapis.com",
 #   ]
 
-#   description = "List of services to enable on the project where Vault will run. These services are required in order for this Vault setup to function."
+#   description = "List of services to enable on the project where Vault will run. These services are required in order for this Vault setup to functions."
 # }
 
 variable "region" {
