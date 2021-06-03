@@ -26,20 +26,20 @@ variable "project_id" {
 
 }
 
-# variable "project_services" {
-#   type = list(string)
+variable "project_services" {
+  type = list(string)
 
-#   default = [
-#     "cloudkms.googleapis.com",
-#     "cloudresourcemanager.googleapis.com",
-#     "compute.googleapis.com",
-#     "iam.googleapis.com",
-#     "logging.googleapis.com",
-#     "monitoring.googleapis.com",
-#   ]
+  default = [
+    "cloudkms.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "compute.googleapis.com",
+    "iam.googleapis.com",
+    "logging.googleapis.com",
+    "monitoring.googleapis.com",
+  ]
 
-#   description = "List of services to enable on the project where Vault will run. These services are required in order for this Vault setup to functions."
-# }
+  description = "List of services to enable on the project where Vault will run. These services are required in order for this Vault setup to functions."
+}
 
 variable "region" {
   type    = string
