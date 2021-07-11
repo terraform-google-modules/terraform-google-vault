@@ -72,9 +72,9 @@ module "service_project_ci" {
   name              = "ci-vault-svpc-service"
   random_project_id = true
 
-  org_id             = var.org_id
-  folder_id          = var.folder_id
-  billing_account    = var.billing_account
+  org_id          = var.org_id
+  folder_id       = var.folder_id
+  billing_account = var.billing_account
 
   svpc_host_project_id = module.svpc.project_id
   shared_vpc_subnets   = module.svpc.subnets_self_links
