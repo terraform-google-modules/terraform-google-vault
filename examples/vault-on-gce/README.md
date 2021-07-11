@@ -187,20 +187,20 @@ keys:
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|:----:|:-----:|:-----:|
-| allow\_public\_egress | Whether to create a NAT for external egress. If false, you must also specify an http_proxy to download required executables including Vault, Fluentd and Stackdriver | bool | `"true"` | no |
-| kms\_crypto\_key | Name of the GCP KMS crypto key | string | `"vault-init"` | no |
-| kms\_keyring | Name of the GCP KMS keyring | string | `"vault"` | no |
-| kms\_location | Location for the KMS keyring | string | `"us-east4"` | no |
-| load\_balancing\_scheme | e.g. [INTERNAL|EXTERNAL]. Scheme of the load balancer | string | `"EXTERNAL"` | no |
-| project\_id | Project ID in which to deploy | string | n/a | yes |
-| region | Region in which to deploy | string | `"us-east4"` | no |
+|------|-------------|------|---------|:--------:|
+| allow\_public\_egress | Whether to create a NAT for external egress. If false, you must also specify an http\_proxy to download required executables including Vault, Fluentd and Stackdriver | `bool` | `true` | no |
+| kms\_crypto\_key | Name of the GCP KMS crypto key | `string` | `"vault-init"` | no |
+| kms\_keyring | Name of the GCP KMS keyring | `string` | `"vault"` | no |
+| kms\_location | Location for the KMS keyring | `string` | `"us-east4"` | no |
+| load\_balancing\_scheme | e.g. [INTERNAL\|EXTERNAL]. Scheme of the load balancer | `string` | `"EXTERNAL"` | no |
+| project\_id | Project ID in which to deploy | `string` | n/a | yes |
+| region | Region in which to deploy | `string` | `"us-east4"` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| vault\_addr |  |
+| vault\_addr | n/a |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 

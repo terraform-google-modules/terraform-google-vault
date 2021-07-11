@@ -27,9 +27,6 @@ provider "google" {
   region  = var.region
 }
 
-# This needs to stay here to allow migration from 4.2 to 5.0
-provider "tls" {}
-
 # Enable required services on the project
 resource "google_project_service" "service" {
   for_each = toset(var.project_services)
