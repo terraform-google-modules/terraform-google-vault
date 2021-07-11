@@ -76,7 +76,7 @@ module "service_project_ci" {
   folder_id       = var.folder_id
   billing_account = var.billing_account
 
-  svpc_host_project_id = module.svpc.project_id
+  shared_vpc           = module.svpc.project_id
   shared_vpc_subnets   = module.svpc.subnets_self_links
 
   activate_apis               = local.apis
