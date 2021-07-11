@@ -37,7 +37,7 @@ locals {
 
 module "project_ci" {
   source  = "terraform-google-modules/project-factory/google"
-  version = "~> 10.0"
+  version = "~> 11.1"
 
   name                        = "ci-vault-module"
   random_project_id           = true
@@ -66,8 +66,8 @@ module "svpc" {
 }
 
 module "service_project_ci" {
-  source  = "terraform-google-modules/project-factory/google"
-  version = "~> 10.0"
+  source  = "terraform-google-modules/project-factory/google//modules/svpc_service_project"
+  version = "~> 11.1"
 
   name              = "ci-vault-svpc-service"
   random_project_id = true
