@@ -76,8 +76,8 @@ module "service_project_ci" {
   folder_id       = var.folder_id
   billing_account = var.billing_account
 
-  shared_vpc           = module.svpc.project_id
-  shared_vpc_subnets   = module.svpc.subnets_self_links
+  shared_vpc         = module.svpc.project_id
+  shared_vpc_subnets = module.svpc.subnets_self_links
 
   activate_apis               = local.apis
   disable_services_on_destroy = false
