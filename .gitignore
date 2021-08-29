@@ -47,3 +47,6 @@ test/source.sh
 
 # If user specifies that ca cert should be saved to disk
 ca.crt
+
+# tf lock file
+.terraform.lock.hcl
