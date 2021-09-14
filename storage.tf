@@ -28,6 +28,10 @@ resource "google_storage_bucket" "vault" {
   location      = upper(var.storage_bucket_location)
   storage_class = upper(var.storage_bucket_class)
 
+  logging      {
+    log_bucket  = var.log_bucket_name
+  }
+
   versioning {
     enabled = var.storage_bucket_enable_versioning
   }
