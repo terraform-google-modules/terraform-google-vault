@@ -532,9 +532,5 @@ variable "vault_tls_kms_key_name" {
 
 variable "log_bucket_name" {
   type = string
-  description = "test"
-}
-variable "log_object_prefix" {
-  type = string
-  description = "test"
+  description = "The bucket that will receive log objects"
 }

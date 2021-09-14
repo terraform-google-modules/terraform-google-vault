@@ -29,8 +29,7 @@ resource "google_storage_bucket" "vault" {
   storage_class = upper(var.storage_bucket_class)
 
   logging      {
-    log_bucket        = var.log_bucket_name
-    log_object_prefix = var.log_object_prefix
+    log_bucket  = var.log_bucket_name
   }
 
   versioning {
