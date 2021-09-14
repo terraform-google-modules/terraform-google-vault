@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #
 #
 # Project
@@ -529,4 +528,13 @@ variable "vault_tls_kms_key_name" {
   default = ""
 
   description = ""
+}
+
+variable "log_bucket_name" {
+  type = string
+  description = "test"
+}
+variable "log_object_prefix" {
+  type = string
+  description = "test"
 }
