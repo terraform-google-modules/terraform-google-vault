@@ -187,7 +187,8 @@ resource "google_compute_forwarding_rule" "external" {
 
 # Vault instance group manager
 resource "google_compute_region_instance_group_manager" "vault" {
-  project = var.project_id
+  provider = google-beta
+  project  = var.project_id
 
   name   = "vault-igm"
   region = var.region
