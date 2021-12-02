@@ -127,7 +127,7 @@ resource "tls_locally_signed_cert" "vault-server" {
 resource "google_kms_secret_ciphertext" "vault-tls-key-encrypted" {
   count = local.manage_tls_count
 
-  crypto_key = google_kms_crypto_key.vault-init.self_link
+  crypto_key = google_kms_crypto_key.vault-init.id
   plaintext  = tls_private_key.vault-server[0].private_key_pem
 }
 

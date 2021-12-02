@@ -44,7 +44,7 @@ resource "google_storage_bucket_iam_member" "vault" {
 
 # Give kms cryptokey-level permissions to the service account.
 resource "google_kms_crypto_key_iam_member" "ck-iam" {
-  crypto_key_id = google_kms_crypto_key.vault-init.self_link
+  crypto_key_id = google_kms_crypto_key.vault-init.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = local.service_account_member
 }
