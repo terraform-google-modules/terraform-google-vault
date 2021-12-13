@@ -57,6 +57,7 @@ module "cluster" {
   region                                       = var.region
   vault_storage_bucket                         = google_storage_bucket.vault.name
   vault_service_account_email                  = google_service_account.vault-admin.email
+  service_account_project_iam_roles            = var.service_account_project_iam_roles
   service_account_project_additional_iam_roles = var.service_account_project_additional_iam_roles
   service_account_storage_bucket_iam_roles     = var.service_account_storage_bucket_iam_roles
   kms_keyring                                  = var.kms_keyring
