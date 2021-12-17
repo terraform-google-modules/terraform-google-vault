@@ -6,6 +6,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [6.1.0](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/v6.0.0...v6.1.0) (2021-12-02)
+
+
+### Features
+
+* update TPG version constraints to allow 4.0 ([#133](https://www.github.com/terraform-google-modules/terraform-google-vault/issues/133)) ([a1a53fb](https://www.github.com/terraform-google-modules/terraform-google-vault/commit/a1a53fbc1de2f0598c035b425751998169553e48))
+
 ## [6.0.0](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/v5.3.0...v6.0.0) (2021-07-11)
 
 
