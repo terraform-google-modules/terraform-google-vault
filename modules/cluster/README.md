@@ -4,7 +4,7 @@
 
 This submodule gives organizations that have tighter controls over separation of duties, the ability deploy only the Vault cluster and Load balancer, but pass the networking, service account and bucket configuration in without the top level module. This enables a few use cases:
 
-1. Shared VPC architechture where Vault lives in a service project that uses a host project's network
+1. Shared VPC architecture where Vault lives in a service project that uses a host project's network
 2. Strict permissions around which teams control firewall rules within a shared VPC
 3. Migration from an existing Vault cluster where the configuration already exists in a GCS bucket
 4. If you already have all the networking bits and you don't want Vault to be entirely isolated in its own network

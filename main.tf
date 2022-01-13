@@ -21,12 +21,6 @@ locals {
   ip_address      = local.use_internal_lb ? google_compute_address.vault_ilb[0].address : google_compute_address.vault[0].address
 }
 
-# Configure the Google provider.
-provider "google" {
-  project = var.project_id
-  region  = var.region
-}
-
 # Enable required services on the project
 resource "google_project_service" "service" {
   for_each = toset(var.project_services)

@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+provider "google" {
+  project = var.service_project_id
+  region  = var.region
+}
+
 data "google_compute_network" "vault" {
   name    = var.network_name
   project = var.host_project_id
