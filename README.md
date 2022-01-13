@@ -126,7 +126,7 @@ keys:
 
 ## Managing TLS
 
-If, like many orgs, you manage your own self-signed TLS certificates, you likely will not want them managed by Terraform. Additionally this poses a security risk since the private keys will be stored in plaintext in the `terraform.tfstate` file. To use your own certificates, set `manage_tls = false`. Then before you apply this module, you'll need to have your certificates prepared. An example instantiaion would look like this:
+If, like many orgs, you manage your own self-signed TLS certificates, you likely will not want them managed by Terraform. Additionally this poses a security risk since the private keys will be stored in plaintext in the `terraform.tfstate` file. To use your own certificates, set `manage_tls = false`. Then before you apply this module, you'll need to have your certificates prepared. An example instantiation would look like this:
 
 ```
 module "vault" {
