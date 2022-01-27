@@ -6,6 +6,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+### [6.1.1](https://github.com/terraform-google-modules/terraform-google-vault/compare/v6.1.0...v6.1.1) (2022-01-13)
+
+
+### Bug Fixes
+
+* move Google provider from the module definition and fixed a couple typos ([#141](https://github.com/terraform-google-modules/terraform-google-vault/issues/141)) ([b031761](https://github.com/terraform-google-modules/terraform-google-vault/commit/b031761253aaac5b2b21f55ff05b06615d73f06e))
+
 ## [6.1.0](https://www.github.com/terraform-google-modules/terraform-google-vault/compare/v6.0.0...v6.1.0) (2021-12-02)
 
 
