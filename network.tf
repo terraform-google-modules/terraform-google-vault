@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #
 # This file contains the networking bits.
 #
