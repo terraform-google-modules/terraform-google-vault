@@ -53,7 +53,6 @@ resource "tls_private_key" "root" {
 resource "tls_self_signed_cert" "root" {
   count = local.manage_tls_count
 
-  key_algorithm   = tls_private_key.root[0].algorithm
   private_key_pem = tls_private_key.root[0].private_key_pem
 
   subject {
@@ -94,7 +93,6 @@ resource "tls_private_key" "vault-server" {
 resource "tls_cert_request" "vault-server" {
   count = local.manage_tls_count
 
-  key_algorithm   = tls_private_key.vault-server[0].algorithm
   private_key_pem = tls_private_key.vault-server[0].private_key_pem
 
   dns_names = var.tls_dns_names
@@ -113,7 +111,6 @@ resource "tls_locally_signed_cert" "vault-server" {
   count = local.manage_tls_count
 
   cert_request_pem   = tls_cert_request.vault-server[0].cert_request_pem
-  ca_key_algorithm   = tls_private_key.root[0].algorithm
   ca_private_key_pem = tls_private_key.root[0].private_key_pem
   ca_cert_pem        = tls_self_signed_cert.root[0].cert_pem
 
