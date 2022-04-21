@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #
 # This file contains the networking bits.
 #
@@ -38,6 +37,8 @@ resource "google_compute_address" "vault_ilb" {
   subnetwork   = local.subnet
   name         = "vault-ilb"
   address_type = "INTERNAL"
+  project      = var.project_id
+  region       = var.region
 
   depends_on = [google_project_service.service]
 }
