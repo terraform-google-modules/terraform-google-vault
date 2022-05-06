@@ -6,6 +6,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+### [6.1.2](https://github.com/terraform-google-modules/terraform-google-vault/compare/v6.1.1...v6.1.2) (2022-04-21)
+
+
+### Bug Fixes
+
+* Update TLS to use v3.3 which includes support for linux_arm64 ([#147](https://github.com/terraform-google-modules/terraform-google-vault/issues/147)) ([9236c4a](https://github.com/terraform-google-modules/terraform-google-vault/commit/9236c4ae01a99617053a9e0bb8cc47df30ee1544))
+
 ### [6.1.1](https://github.com/terraform-google-modules/terraform-google-vault/compare/v6.1.0...v6.1.1) (2022-01-13)
 
 
