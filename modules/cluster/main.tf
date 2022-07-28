@@ -76,7 +76,42 @@ resource "google_compute_instance_template" "vault" {
     var.vault_instance_metadata,
     {
       "google-compute-enable-virtio-rng" = "true"
-      "startup-script"                   = data.template_file.vault-startup-script.rendered
+      # Render the startup script. This script installs and configures
+      # Vault and all dependencies.
+      "startup-script" = templatefile("${path.module}/templates/startup.sh.tpl",
+        {
+          custom_http_proxy       = var.http_proxy
+          service_account_email   = var.vault_service_account_email
+          internal_lb             = local.use_internal_lb
+          vault_args              = var.vault_args
+          vault_port              = var.vault_port
+          vault_proxy_port        = var.vault_proxy_port
+          vault_version           = var.vault_version
+          vault_tls_bucket        = local.vault_tls_bucket
+          vault_ca_cert_filename  = var.vault_ca_cert_filename
+          vault_tls_key_filename  = var.vault_tls_key_filename
+          vault_tls_cert_filename = var.vault_tls_cert_filename
+          kms_project             = var.vault_tls_kms_key_project == "" ? var.project_id : var.vault_tls_kms_key_project
+          kms_crypto_key          = local.vault_tls_kms_key
+          user_startup_script     = var.user_startup_script
+          # Render the Vault configuration.
+          config = templatefile("${path.module}/templates/config.hcl.tpl",
+            {
+              kms_project                              = var.project_id
+              kms_location                             = google_kms_key_ring.vault.location
+              kms_keyring                              = google_kms_key_ring.vault.name
+              kms_crypto_key                           = google_kms_crypto_key.vault-init.name
+              lb_ip                                    = local.lb_ip
+              api_addr                                 = local.api_addr
+              storage_bucket                           = var.vault_storage_bucket
+              vault_log_level                          = var.vault_log_level
+              vault_port                               = var.vault_port
+              vault_proxy_port                         = var.vault_proxy_port
+              vault_tls_disable_client_certs           = var.vault_tls_disable_client_certs
+              vault_tls_require_and_verify_client_cert = var.vault_tls_require_and_verify_client_cert
+              vault_ui_enabled                         = var.vault_ui_enabled
+          })
+      })
     },
   )
 
