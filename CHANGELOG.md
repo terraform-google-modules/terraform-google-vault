@@ -6,6 +6,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [6.1.3](https://github.com/terraform-google-modules/terraform-google-vault/compare/v6.1.2...v6.1.3) (2022-07-28)
+
+
+### Bug Fixes
+
+* Replace template_file with templatefile ([#153](https://github.com/terraform-google-modules/terraform-google-vault/issues/153)) ([0d02664](https://github.com/terraform-google-modules/terraform-google-vault/commit/0d02664d837b872fb5dd39dfa2f1144fb03fb7a3)), closes [#152](https://github.com/terraform-google-modules/terraform-google-vault/issues/152)
+
 ### [6.1.2](https://github.com/terraform-google-modules/terraform-google-vault/compare/v6.1.1...v6.1.2) (2022-04-21)
 
 
