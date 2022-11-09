@@ -37,7 +37,7 @@ locals {
 
 module "project_ci" {
   source  = "terraform-google-modules/project-factory/google"
-  version = "~> 11.1"
+  version = "~> 14.0"
 
   name                        = "ci-vault-module"
   random_project_id           = true
@@ -51,7 +51,7 @@ module "project_ci" {
 
 module "svpc" {
   source          = "terraform-google-modules/network/google"
-  version         = "~> 3.0"
+  version         = "~> 5.0"
   project_id      = module.project_ci.project_id
   network_name    = var.network_name
   shared_vpc_host = true
@@ -67,7 +67,7 @@ module "svpc" {
 
 module "service_project_ci" {
   source  = "terraform-google-modules/project-factory/google//modules/svpc_service_project"
-  version = "~> 11.1"
+  version = "~> 14.0"
 
   name              = "ci-vault-svpc-service"
   random_project_id = true
@@ -109,7 +109,7 @@ resource "google_compute_firewall" "allow-health-check" {
 // Cloud Nat
 module "cloud-nat" {
   source     = "terraform-google-modules/cloud-nat/google"
-  version    = "~> 1.2"
+  version    = "~> 2.0"
   project_id = module.svpc.project_id
   network    = module.svpc.network_name
   region     = var.subnet_region
