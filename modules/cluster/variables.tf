@@ -380,6 +380,13 @@ variable "tls_save_ca_to_disk" {
   description = "Save the CA public certificate on the local filesystem. The CA is always stored in GCS, but this option also saves it to the filesystem."
 }
 
+variable "tls_save_ca_to_disk_filename" {
+  type    = string
+  default = "ca.crt"
+
+  description = "The filename or full path to save the CA public certificate on the local filesystem. Ony applicable if `tls_save_ca_to_disk` is set to `true`."
+}
+
 variable "tls_ou" {
   description = "The TLS Organizational Unit for the TLS certificate"
   default     = "IT Security Operations"

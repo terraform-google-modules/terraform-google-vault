@@ -88,5 +88,6 @@ module "cluster" {
   tls_dns_names                                = var.tls_dns_names
   tls_ips                                      = var.tls_ips
   tls_save_ca_to_disk                          = var.tls_save_ca_to_disk
+  tls_save_ca_to_disk_filename                 = var.tls_save_ca_to_disk_filename
   tls_ou                                       = var.tls_ou
 }
