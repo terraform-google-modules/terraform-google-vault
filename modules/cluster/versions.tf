@@ -20,7 +20,7 @@ terraform {
 
     tls = {
       source  = "hashicorp/tls"
-      version = "~> 4.0"
+      version = ">= 3.3, < 5.0"
     }
 
     google = {
