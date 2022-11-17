@@ -77,7 +77,7 @@ resource "tls_self_signed_cert" "root" {
 resource "local_file" "root" {
   count = min(local.manage_tls_count, local.tls_save_ca_to_disk_count)
 
-  filename = "ca.crt"
+  filename = var.tls_save_ca_to_disk_filename
   content  = tls_self_signed_cert.root[0].cert_pem
 }
 
