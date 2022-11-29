@@ -6,6 +6,18 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [6.2.0](https://github.com/terraform-google-modules/terraform-google-vault/compare/v6.1.3...v6.2.0) (2022-11-29)
+
+
+### Features
+
+* allow tls_save_ca_to_disk to also chose the filename of the full path of the local CA public certificate copy ([#165](https://github.com/terraform-google-modules/terraform-google-vault/issues/165)) ([3f78888](https://github.com/terraform-google-modules/terraform-google-vault/commit/3f78888082b05e6aa0bd2326d03d40851b3c46fb))
+
+
+### Bug Fixes
+
+* widen minimum TLS version ([#166](https://github.com/terraform-google-modules/terraform-google-vault/issues/166)) ([9cb383b](https://github.com/terraform-google-modules/terraform-google-vault/commit/9cb383ba74cbfe8c5dcefe73270a73f7cffbea80))
+
 ## [6.1.3](https://github.com/terraform-google-modules/terraform-google-vault/compare/v6.1.2...v6.1.3) (2022-07-28)
 
 

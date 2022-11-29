@@ -14,7 +14,7 @@ This submodule gives organizations that have tighter controls over separation of
 ```
 module "vault_cluster" {
 	source = "terraform-google-modules/vault/google//modules/cluster"
-	version = "~> 5.0"
+	version = "~> 6.2"
 
 	project_id                  = var.project_id
 	host_project_id             = var.host_project_id
