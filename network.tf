@@ -53,7 +53,7 @@ resource "google_compute_router" "vault-router" {
 
   bgp {
     asn = 64514
-    bgp = 20
+    keepalive_interval = 20
   }
 
   depends_on = [google_project_service.service]
