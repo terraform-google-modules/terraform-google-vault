@@ -189,6 +189,12 @@ variable "kms_protection_level" {
 # Networking
 # --------------------
 
+variable "host_project_id" {
+  type        = string
+  default     = ""
+  description = "The project id of the shared VPC host project, when deploying into a shared VPC"
+}
+
 variable "network" {
   type        = string
   default     = ""
