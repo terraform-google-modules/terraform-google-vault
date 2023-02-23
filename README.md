@@ -184,6 +184,7 @@ done
 | network | The self link of the VPC network for Vault. By default, one will be created for you. | `string` | `""` | no |
 | network\_subnet\_cidr\_range | CIDR block range for the subnet. | `string` | `"10.127.0.0/20"` | no |
 | project\_id | ID of the project in which to create resources and add IAM bindings. | `string` | n/a | yes |
+| host\_project\_id | ID of the host project for shared VPC when deploying into a shard VPC. | `string` | `""` | no |
 | project\_services | List of services to enable on the project where Vault will run. These services are required in order for this Vault setup to function. | `list(string)` | <pre>[<br>  "cloudkms.googleapis.com",<br>  "cloudresourcemanager.googleapis.com",<br>  "compute.googleapis.com",<br>  "iam.googleapis.com",<br>  "logging.googleapis.com",<br>  "monitoring.googleapis.com"<br>]</pre> | no |
 | region | Region in which to create resources. | `string` | `"us-east4"` | no |
 | service\_account\_name | Name of the Vault service account. | `string` | `"vault-admin"` | no |

@@ -48,6 +48,7 @@ module "cluster" {
   subnet                                       = local.subnet
   service_label                                = var.service_label
   project_id                                   = var.project_id
+  host_project_id                              = var.host_project_id
   region                                       = var.region
   vault_storage_bucket                         = google_storage_bucket.vault.name
   vault_service_account_email                  = google_service_account.vault-admin.email
