@@ -175,6 +175,7 @@ done
 | allow\_public\_egress | Whether to create a NAT for external egress. If false, you must also specify an `http_proxy` to download required executables including Vault, Fluentd and Stackdriver | `bool` | `true` | no |
 | allow\_ssh | Allow external access to ssh port 22 on the Vault VMs. It is a best practice to set this to false, however it is true by default for the sake of backwards compatibility. | `bool` | `true` | no |
 | domain | The domain name that will be set in the api\_addr. Load Balancer IP used by default | `string` | `""` | no |
+| host\_project\_id | The project id of the shared VPC host project, when deploying into a shared VPC | `string` | `""` | no |
 | http\_proxy | HTTP proxy for downloading agents and vault executable on startup. Only necessary if allow\_public\_egress is false. This is only used on the first startup of the Vault cluster and will NOT set the global HTTP\_PROXY environment variable. i.e. If you configure Vault to manage credentials for other services, default HTTP routes will be taken. | `string` | `""` | no |
 | kms\_crypto\_key | The name of the Cloud KMS Key used for encrypting initial TLS certificates and for configuring Vault auto-unseal. Terraform will create this key. | `string` | `"vault-init"` | no |
 | kms\_keyring | Name of the Cloud KMS KeyRing for asset encryption. Terraform will create this keyring. | `string` | `"vault"` | no |
@@ -184,7 +185,6 @@ done
 | network | The self link of the VPC network for Vault. By default, one will be created for you. | `string` | `""` | no |
 | network\_subnet\_cidr\_range | CIDR block range for the subnet. | `string` | `"10.127.0.0/20"` | no |
 | project\_id | ID of the project in which to create resources and add IAM bindings. | `string` | n/a | yes |
-| host\_project\_id | ID of the host project for shared VPC when deploying into a shard VPC. | `string` | `""` | no |
 | project\_services | List of services to enable on the project where Vault will run. These services are required in order for this Vault setup to function. | `list(string)` | <pre>[<br>  "cloudkms.googleapis.com",<br>  "cloudresourcemanager.googleapis.com",<br>  "compute.googleapis.com",<br>  "iam.googleapis.com",<br>  "logging.googleapis.com",<br>  "monitoring.googleapis.com"<br>]</pre> | no |
 | region | Region in which to create resources. | `string` | `"us-east4"` | no |
 | service\_account\_name | Name of the Vault service account. | `string` | `"vault-admin"` | no |
