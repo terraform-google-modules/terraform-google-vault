@@ -18,8 +18,8 @@
 # This file contains the networking bits.
 #
 locals {
-  network = var.network == "" ? google_compute_network.vault-network[0].self_link : var.network
-  subnet  = var.subnet == "" ? google_compute_subnetwork.vault-subnet[0].self_link : var.subnet
+  network        = var.network == "" ? google_compute_network.vault-network[0].self_link : var.network
+  subnet         = var.subnet == "" ? google_compute_subnetwork.vault-subnet[0].self_link : var.subnet
   nat_project_id = var.host_project_id == "" ? var.project_id : var.host_project_id
 }
 
