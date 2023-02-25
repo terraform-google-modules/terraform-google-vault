@@ -18,15 +18,15 @@
 # This file contains the networking bits.
 #
 locals {
-  network        = var.network == "" ? google_compute_network.vault-network[0].self_link : var.network
-  subnet         = var.subnet == "" ? google_compute_subnetwork.vault-subnet[0].self_link : var.subnet
-  nat_project_id = var.host_project_id == "" ? var.project_id : var.host_project_id
+  network            = var.network == "" ? google_compute_network.vault-network[0].self_link : var.network
+  subnet             = var.subnet == "" ? google_compute_subnetwork.vault-subnet[0].self_link : var.subnet
+  network_project_id = var.host_project_id == "" ? var.project_id : var.host_project_id
 }
 
 # Address for NATing
 resource "google_compute_address" "vault-nat" {
   count   = var.allow_public_egress ? 2 : 0
-  project = local.nat_project_id
+  project = local.network_project_id
   name    = "vault-nat-external-${count.index}"
   region  = var.region
 
@@ -48,7 +48,7 @@ resource "google_compute_address" "vault_ilb" {
 resource "google_compute_router" "vault-router" {
   count   = var.allow_public_egress ? 1 : 0
   name    = "vault-router"
-  project = local.nat_project_id
+  project = local.network_project_id
   region  = var.region
   network = local.network
 
@@ -63,7 +63,7 @@ resource "google_compute_router" "vault-router" {
 resource "google_compute_router_nat" "vault-nat" {
   count   = var.allow_public_egress ? 1 : 0
   name    = "vault-nat-1"
-  project = local.nat_project_id
+  project = local.network_project_id
   router  = google_compute_router.vault-router[0].name
   region  = var.region
 
@@ -122,7 +122,7 @@ data "google_compute_lb_ip_ranges" "ranges" {
 # legacy proxied health port over HTTP because the health checks do not support
 # HTTPS.
 resource "google_compute_firewall" "allow-lb-healthcheck" {
-  project = var.project_id
+  project = local.network_project_id
   name    = "vault-allow-lb-healthcheck"
   network = local.network
 
@@ -140,7 +140,7 @@ resource "google_compute_firewall" "allow-lb-healthcheck" {
 
 # Allow any user-defined CIDRs to talk to the Vault instances.
 resource "google_compute_firewall" "allow-external" {
-  project = var.project_id
+  project = local.network_project_id
   name    = "vault-allow-external"
   network = local.network
 
@@ -158,7 +158,7 @@ resource "google_compute_firewall" "allow-external" {
 
 # Allow Vault nodes to talk internally on the Vault ports.
 resource "google_compute_firewall" "allow-internal" {
-  project = var.project_id
+  project = local.network_project_id
   name    = "vault-allow-internal"
   network = local.network
 
@@ -175,7 +175,7 @@ resource "google_compute_firewall" "allow-internal" {
 # Allow SSHing into machines tagged "allow-ssh"
 resource "google_compute_firewall" "allow-ssh" {
   count   = var.allow_ssh ? 1 : 0
-  project = var.project_id
+  project = local.network_project_id
   name    = "vault-allow-ssh"
   network = local.network
 
