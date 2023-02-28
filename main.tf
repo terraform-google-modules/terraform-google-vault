@@ -82,6 +82,7 @@ module "cluster" {
   vault_version                                = var.vault_version
   http_proxy                                   = var.http_proxy
   user_startup_script                          = var.user_startup_script
+  user_vault_config                            = var.user_vault_config
   manage_tls                                   = var.manage_tls
   tls_ca_subject                               = var.tls_ca_subject
   tls_cn                                       = var.tls_cn
