@@ -52,7 +52,7 @@ resource "google_compute_router" "vault-router" {
   network = local.network
 
   bgp {
-    asn = 64514
+    asn                = 64514
     keepalive_interval = 20
   }
 
