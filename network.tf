@@ -52,7 +52,8 @@ resource "google_compute_router" "vault-router" {
   network = local.network
 
   bgp {
-    asn = 64514
+    asn                = 64514
+    keepalive_interval = 20
   }
 
   depends_on = [google_project_service.service]
