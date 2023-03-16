@@ -64,6 +64,6 @@ resource "google_folder_iam_member" "int_test_folder" {
 
 resource "google_billing_account_iam_member" "billing_admin" {
   billing_account_id = var.billing_account
-  role               = "roles/billing.admin"
+  role               = "roles/billing.user"
   member             = "serviceAccount:${google_service_account.ci_account.email}"
 }
