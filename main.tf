@@ -90,4 +90,5 @@ module "cluster" {
   tls_save_ca_to_disk                          = var.tls_save_ca_to_disk
   tls_save_ca_to_disk_filename                 = var.tls_save_ca_to_disk_filename
   tls_ou                                       = var.tls_ou
+  service_account_project_iam_roles            = var.service_account_project_iam_roles
 }

@@ -22,14 +22,6 @@ variable "kms_keyring" {
   default = "vault-keyring"
 }
 
-variable "service_project_name" {
-  default = "vault-svpc-service"
-}
-
-variable "network_name" {
-  default = "vault-svpc"
-}
-
 variable "subnet_name" {
   default = "vault"
 }

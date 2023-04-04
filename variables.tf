@@ -295,6 +295,7 @@ variable "tls_ca_subject" {
 
 variable "tls_cn" {
   description = "The TLS Common Name for the TLS certificates"
+  type        = string
   default     = "vault.example.net"
 }
 
@@ -331,6 +332,7 @@ variable "tls_save_ca_to_disk_filename" {
 
 variable "tls_ou" {
   description = "The TLS Organizational Unit for the TLS certificate"
+  type        = string
   default     = "IT Security Operations"
 }
 
