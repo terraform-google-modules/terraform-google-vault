@@ -57,6 +57,7 @@ module "vault_cluster" {
 | tls\_save\_ca\_to\_disk | Save the CA public certificate on the local filesystem. The CA is always stored in GCS, but this option also saves it to the filesystem. | `bool` | `true` | no |
 | tls\_save\_ca\_to\_disk\_filename | The filename or full path to save the CA public certificate on the local filesystem. Ony applicable if `tls_save_ca_to_disk` is set to `true`. | `string` | `"ca.crt"` | no |
 | user\_startup\_script | Additional user-provided code injected after Vault is setup | `string` | `""` | no |
+| user\_vault\_config | Additional user-provided vault config added at the end of standard vault config | `string` | `""` | no |
 | vault\_args | Additional command line arguments passed to Vault server | `string` | `""` | no |
 | vault\_ca\_cert\_filename | GCS object path within the vault\_tls\_bucket. This is the root CA certificate. | `string` | `"ca.crt"` | no |
 | vault\_instance\_base\_image | Base operating system image in which to install Vault. This must be a Debian-based system at the moment due to how the metadata startup script runs. | `string` | `"debian-cloud/debian-10"` | no |

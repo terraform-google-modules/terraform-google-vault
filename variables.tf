@@ -189,6 +189,12 @@ variable "kms_protection_level" {
 # Networking
 # --------------------
 
+variable "host_project_id" {
+  type        = string
+  default     = ""
+  description = "The project id of the shared VPC host project, when deploying into a shared VPC"
+}
+
 variable "network" {
   type        = string
   default     = ""
@@ -509,4 +515,11 @@ variable "user_startup_script" {
   default = ""
 
   description = "Additional user-provided code injected after Vault is setup"
+}
+
+variable "user_vault_config" {
+  type    = string
+  default = ""
+
+  description = "Additional user-provided vault config added at the end of standard vault config"
 }
