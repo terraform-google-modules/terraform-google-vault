@@ -289,6 +289,13 @@ variable "user_startup_script" {
   description = "Additional user-provided code injected after Vault is setup"
 }
 
+variable "user_vault_config" {
+  type    = string
+  default = ""
+
+  description = "Additional user-provided vault config added at the end of standard vault config"
+}
+
 variable "vault_update_policy_type" {
   type        = string
   default     = "OPPORTUNISTIC"

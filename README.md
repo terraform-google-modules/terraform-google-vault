@@ -175,6 +175,7 @@ done
 | allow\_public\_egress | Whether to create a NAT for external egress. If false, you must also specify an `http_proxy` to download required executables including Vault, Fluentd and Stackdriver | `bool` | `true` | no |
 | allow\_ssh | Allow external access to ssh port 22 on the Vault VMs. It is a best practice to set this to false, however it is true by default for the sake of backwards compatibility. | `bool` | `true` | no |
 | domain | The domain name that will be set in the api\_addr. Load Balancer IP used by default | `string` | `""` | no |
+| host\_project\_id | The project id of the shared VPC host project, when deploying into a shared VPC | `string` | `""` | no |
 | http\_proxy | HTTP proxy for downloading agents and vault executable on startup. Only necessary if allow\_public\_egress is false. This is only used on the first startup of the Vault cluster and will NOT set the global HTTP\_PROXY environment variable. i.e. If you configure Vault to manage credentials for other services, default HTTP routes will be taken. | `string` | `""` | no |
 | kms\_crypto\_key | The name of the Cloud KMS Key used for encrypting initial TLS certificates and for configuring Vault auto-unseal. Terraform will create this key. | `string` | `"vault-init"` | no |
 | kms\_keyring | Name of the Cloud KMS KeyRing for asset encryption. Terraform will create this keyring. | `string` | `"vault"` | no |
@@ -207,6 +208,7 @@ done
 | tls\_save\_ca\_to\_disk | Save the CA public certificate on the local filesystem. The CA is always stored in GCS, but this option also saves it to the filesystem. | `bool` | `true` | no |
 | tls\_save\_ca\_to\_disk\_filename | The filename or full path to save the CA public certificate on the local filesystem. Ony applicable if `tls_save_ca_to_disk` is set to `true`. | `string` | `"ca.crt"` | no |
 | user\_startup\_script | Additional user-provided code injected after Vault is setup | `string` | `""` | no |
+| user\_vault\_config | Additional user-provided vault config added at the end of standard vault config | `string` | `""` | no |
 | vault\_allowed\_cidrs | List of CIDR blocks to allow access to the Vault nodes. Since the load balancer is a pass-through load balancer, this must also include all IPs from which you will access Vault. The default is unrestricted (any IP address can access Vault). It is recommended that you reduce this to a smaller list. | `list(string)` | <pre>[<br>  "0.0.0.0/0"<br>]</pre> | no |
 | vault\_args | Additional command line arguments passed to Vault server | `string` | `""` | no |
 | vault\_ca\_cert\_filename | GCS object path within the vault\_tls\_bucket. This is the root CA certificate. | `string` | `"ca.crt"` | no |

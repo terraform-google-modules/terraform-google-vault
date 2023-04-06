@@ -69,3 +69,8 @@ telemetry {
   statsd_address   = "127.0.0.1:8125"
   disable_hostname = true
 }
+
+#########################################
+##          user_vault_config          ##
+#########################################
+${user_vault_config}
