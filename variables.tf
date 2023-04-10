@@ -242,6 +242,12 @@ variable "load_balancing_scheme" {
   description = "Options are INTERNAL or EXTERNAL. If `EXTERNAL`, the forwarding rule will be of type EXTERNAL and a public IP will be created. If `INTERNAL` the type will be INTERNAL and a random RFC 1918 private IP will be assigned"
 }
 
+variable "hc_initial_delay_secs" {
+  description = "The number of seconds that the managed instance group waits before it applies autohealing policies to new instances or recently recreated instances."
+  type        = number
+  default     = 60
+}
+
 #
 #
 # SSH

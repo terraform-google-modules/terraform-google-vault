@@ -58,6 +58,7 @@ module "cluster" {
   kms_crypto_key                               = var.kms_crypto_key
   kms_protection_level                         = var.kms_protection_level
   load_balancing_scheme                        = var.load_balancing_scheme
+  hc_initial_delay_secs                        = var.hc_initial_delay_secs
   vault_args                                   = var.vault_args
   vault_instance_labels                        = var.vault_instance_labels
   vault_ca_cert_filename                       = var.vault_ca_cert_filename
