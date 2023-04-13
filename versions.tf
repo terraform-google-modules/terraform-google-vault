@@ -25,7 +25,7 @@ terraform {
   }
 
   provider_meta "google" {
-    module_name = "blueprints/terraform/terraform-google-vault/v6.2.0"
+    module_name = "blueprints/terraform/terraform-google-vault/v7.0.0"
   }
 
 }
