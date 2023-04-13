@@ -6,6 +6,23 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.0.0](https://github.com/terraform-google-modules/terraform-google-vault/compare/v6.2.0...v7.0.0) (2023-04-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* **TPG >= 4.53:** set bgp keepalive_interval to default 20 ([#169](https://github.com/terraform-google-modules/terraform-google-vault/issues/169))
+
+### Features
+
+* support shared VPC with allow_public_egress ([#174](https://github.com/terraform-google-modules/terraform-google-vault/issues/174)) ([defb7c6](https://github.com/terraform-google-modules/terraform-google-vault/commit/defb7c6f8df48150c2c999d4dda493a9371c56ae))
+
+
+### Bug Fixes
+
+* **TPG >= 4.53:** set bgp keepalive_interval to default 20 ([#169](https://github.com/terraform-google-modules/terraform-google-vault/issues/169)) ([aaf6bc6](https://github.com/terraform-google-modules/terraform-google-vault/commit/aaf6bc65a4b9e5ef9d2765157f08e2ed015d1e60))
+* updates for tflint and dev-tools 1.11 ([#180](https://github.com/terraform-google-modules/terraform-google-vault/issues/180)) ([a2fb9b8](https://github.com/terraform-google-modules/terraform-google-vault/commit/a2fb9b8ade379bbd57488dde263203c8ce623345))
+
 ## [6.2.0](https://github.com/terraform-google-modules/terraform-google-vault/compare/v6.1.3...v6.2.0) (2022-11-29)
 
 
