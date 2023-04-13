@@ -19,11 +19,6 @@ provider "google" {
   region  = var.region
 }
 
-data "google_compute_network" "vault" {
-  name    = var.network_name
-  project = var.host_project_id
-}
-
 data "google_compute_subnetwork" "vault" {
   name    = var.subnet_name
   project = var.host_project_id

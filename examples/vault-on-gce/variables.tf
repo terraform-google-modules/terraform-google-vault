@@ -26,12 +26,6 @@ variable "region" {
   description = "Region in which to deploy"
 }
 
-variable "kms_location" {
-  type        = string
-  default     = "us-east4"
-  description = "Location for the KMS keyring"
-}
-
 variable "kms_keyring" {
   type        = string
   default     = "vault"
