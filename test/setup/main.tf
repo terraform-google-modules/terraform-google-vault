@@ -51,7 +51,7 @@ module "project_ci" {
 
 module "svpc" {
   source          = "terraform-google-modules/network/google"
-  version         = "~> 6.0"
+  version         = "~> 7.0"
   project_id      = module.project_ci.project_id
   network_name    = var.network_name
   shared_vpc_host = true
