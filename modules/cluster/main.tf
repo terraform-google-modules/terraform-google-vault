@@ -287,7 +287,7 @@ resource "google_compute_health_check" "autoheal" {
   unhealthy_threshold = 2
 
   https_health_check {
-    port         = var.vault_port
+    port         = [local.use_internal_lb ? var.vault_port : var.vault_proxy_port]
     request_path = local.hc_autoheal_request_path
   }
 }
