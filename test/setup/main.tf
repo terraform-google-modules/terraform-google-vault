@@ -109,7 +109,7 @@ resource "google_compute_firewall" "allow-health-check" {
 // Cloud Nat
 module "cloud-nat" {
   source     = "terraform-google-modules/cloud-nat/google"
-  version    = "~> 2.0"
+  version    = "~> 4.0"
   project_id = module.svpc.project_id
   network    = module.svpc.network_name
   region     = var.subnet_region
