@@ -534,3 +534,8 @@ variable "log_bucket_name" {
   type = string
   description = "The bucket that will receive log objects"
 }
+
+variable "storage_bucket_labels" {
+  type = map(string)
+  description = "Labels to apply to the storage bucket"
+}

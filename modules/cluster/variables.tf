@@ -331,7 +331,7 @@ variable "min_ready_sec" {
 variable "hc_initial_delay_secs" {
   description = "The number of seconds that the managed instance group waits before it applies autohealing policies to new instances or recently recreated instances."
   type        = number
-  default     = 60
+  default     = 300
 }
 
 variable "zones" {

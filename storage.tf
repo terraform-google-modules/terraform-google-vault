@@ -54,6 +54,8 @@ resource "google_storage_bucket" "vault" {
       }
     }
   }
+  
+  labels = var.storage_bucket_labels
 
   force_destroy = var.storage_bucket_force_destroy
 
