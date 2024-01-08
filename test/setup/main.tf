@@ -51,7 +51,7 @@ module "project_ci" {
 
 module "svpc" {
   source          = "terraform-google-modules/network/google"
-  version         = "~> 7.0"
+  version         = "~> 8.0"
   project_id      = module.project_ci.project_id
   network_name    = var.network_name
   shared_vpc_host = true
@@ -109,7 +109,7 @@ resource "google_compute_firewall" "allow-health-check" {
 // Cloud Nat
 module "cloud-nat" {
   source     = "terraform-google-modules/cloud-nat/google"
-  version    = "~> 4.0"
+  version    = "~> 5.0"
   project_id = module.svpc.project_id
   network    = module.svpc.network_name
   region     = var.subnet_region

@@ -6,6 +6,13 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.0.1](https://github.com/terraform-google-modules/terraform-google-vault/compare/v7.0.0...v7.0.1) (2023-10-20)
+
+
+### Bug Fixes
+
+* upgraded versions.tf to include minor bumps from tpg v5 ([#193](https://github.com/terraform-google-modules/terraform-google-vault/issues/193)) ([16b77b0](https://github.com/terraform-google-modules/terraform-google-vault/commit/16b77b0f3c8dcb24d5877371d0aa37f7b7ffed61))
+
 ## [7.0.0](https://github.com/terraform-google-modules/terraform-google-vault/compare/v6.2.0...v7.0.0) (2023-04-13)
 
 
