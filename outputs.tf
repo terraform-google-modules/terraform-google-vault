@@ -68,6 +68,6 @@ output "vault_subnet" {
 }
 
 output "vault_nat_ips" {
-  value       = google_compute_address.vault-nat.*.address
+  value       = google_compute_address.vault-nat[*].address
   description = "The NAT-ips that the vault nodes will use to communicate with external services."
 }
