@@ -24,7 +24,7 @@ output "ca_cert_pem" {
 }
 
 output "ca_key_pem" {
-  value     = tls_private_key.root.*.private_key_pem
+  value     = tls_private_key.root[*].private_key_pem
   sensitive = true
 
   description = "Private key for the CA."
