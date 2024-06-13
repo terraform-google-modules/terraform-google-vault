@@ -16,7 +16,7 @@
 
 
 output "ca_cert_pem" {
-  value     = tls_self_signed_cert.root.*.cert_pem
+  value     = tls_self_signed_cert.root[*].cert_pem
   sensitive = true
 
   description = "CA certificate used to verify Vault TLS client connections."
