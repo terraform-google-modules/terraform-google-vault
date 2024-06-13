@@ -49,6 +49,12 @@ resource "google_kms_crypto_key_iam_member" "ck-iam" {
   member        = local.service_account_member
 }
 
+resource "google_kms_crypto_key_iam_member" "ck-iam-viewer" {
+  crypto_key_id = google_kms_crypto_key.vault-init.id
+  role          = "roles/cloudkms.viewer"
+  member        = local.service_account_member
+}
+
 resource "google_kms_crypto_key_iam_member" "tls-ck-iam" {
   count = var.manage_tls == false ? 1 : 0
 
