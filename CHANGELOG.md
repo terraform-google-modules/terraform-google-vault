@@ -6,6 +6,14 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.0.2](https://github.com/terraform-google-modules/terraform-google-vault/compare/v7.0.1...v7.0.2) (2024-06-13)
+
+
+### Bug Fixes
+
+* Add iam permission required for vault version greater than 1.11 … ([#198](https://github.com/terraform-google-modules/terraform-google-vault/issues/198)) ([0e127ba](https://github.com/terraform-google-modules/terraform-google-vault/commit/0e127baaac6ecf3ef84b46ef8669380f3292ff26))
+* **deps:** Update cft/developer-tools Docker tag to v1.21 ([#203](https://github.com/terraform-google-modules/terraform-google-vault/issues/203)) ([07f181b](https://github.com/terraform-google-modules/terraform-google-vault/commit/07f181bd7656a8fc34cd3a51086b3f807456148e))
+
 ## [7.0.1](https://github.com/terraform-google-modules/terraform-google-vault/compare/v7.0.0...v7.0.1) (2023-10-20)
 
 
