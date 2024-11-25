@@ -150,7 +150,8 @@ resource "google_compute_region_backend_service" "vault_internal" {
   health_checks = [google_compute_health_check.vault_internal[0].self_link]
 
   backend {
-    group = google_compute_region_instance_group_manager.vault.instance_group
+    group          = google_compute_region_instance_group_manager.vault.instance_group
+    balancing_mode = "CONNECTION"
   }
 }
 
