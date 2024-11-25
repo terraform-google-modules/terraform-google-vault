@@ -60,7 +60,7 @@ module "vault_cluster" {
 | user\_vault\_config | Additional user-provided vault config added at the end of standard vault config | `string` | `""` | no |
 | vault\_args | Additional command line arguments passed to Vault server | `string` | `""` | no |
 | vault\_ca\_cert\_filename | GCS object path within the vault\_tls\_bucket. This is the root CA certificate. | `string` | `"ca.crt"` | no |
-| vault\_instance\_base\_image | Base operating system image in which to install Vault. This must be a Debian-based system at the moment due to how the metadata startup script runs. | `string` | `"debian-cloud/debian-10"` | no |
+| vault\_instance\_base\_image | Base operating system image in which to install Vault. This must be a Debian-based system at the moment due to how the metadata startup script runs. | `string` | `"debian-cloud/debian-11"` | no |
 | vault\_instance\_labels | Labels to apply to the Vault instances. | `map(string)` | `{}` | no |
 | vault\_instance\_metadata | Additional metadata to add to the Vault instances. | `map(string)` | `{}` | no |
 | vault\_instance\_tags | Additional tags to apply to the instances. Note 'allow-ssh' and 'allow-vault' will be present on all instances. | `list(string)` | `[]` | no |
