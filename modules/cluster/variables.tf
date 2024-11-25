@@ -156,7 +156,7 @@ variable "vault_instance_metadata" {
 
 variable "vault_instance_base_image" {
   type    = string
-  default = "debian-cloud/debian-10"
+  default = "debian-cloud/debian-11"
 
   description = "Base operating system image in which to install Vault. This must be a Debian-based system at the moment due to how the metadata startup script runs."
 }
