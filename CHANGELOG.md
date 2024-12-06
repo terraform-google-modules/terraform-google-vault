@@ -6,6 +6,23 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [8.0.0](https://github.com/terraform-google-modules/terraform-google-vault/compare/v7.0.2...v8.0.0) (2024-11-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* update default image to Debian 11 ([#217](https://github.com/terraform-google-modules/terraform-google-vault/issues/217))
+
+### Features
+
+* **deps:** Update Terraform Google Provider to v6 (major) ([#214](https://github.com/terraform-google-modules/terraform-google-vault/issues/214)) ([1e51bb8](https://github.com/terraform-google-modules/terraform-google-vault/commit/1e51bb8eedce371d5840e126789e769df9efeefe))
+
+
+### Bug Fixes
+
+* add balancing_mode for TPGv6 ([#219](https://github.com/terraform-google-modules/terraform-google-vault/issues/219)) ([68988ea](https://github.com/terraform-google-modules/terraform-google-vault/commit/68988eac4d2a84309056faf53e8c316bed257bc1))
+* update default image to Debian 11 ([#217](https://github.com/terraform-google-modules/terraform-google-vault/issues/217)) ([b1f46dc](https://github.com/terraform-google-modules/terraform-google-vault/commit/b1f46dce74542d558d2805a726c059251b4ee235))
+
 ## [7.0.2](https://github.com/terraform-google-modules/terraform-google-vault/compare/v7.0.1...v7.0.2) (2024-06-13)
 
 
