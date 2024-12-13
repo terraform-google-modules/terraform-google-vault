@@ -48,7 +48,7 @@ resource "google_storage_bucket" "vault" {
 
 module "vault_cluster" {
   source  = "terraform-google-modules/vault/google//modules/cluster"
-  version = "~> 7.0"
+  version = "~> 8.0"
 
   project_id                  = var.service_project_id
   host_project_id             = var.host_project_id
