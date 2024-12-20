@@ -21,7 +21,7 @@ provider "google" {
 
 module "vault" {
   source  = "terraform-google-modules/vault/google"
-  version = "~> 7.0"
+  version = "~> 8.0"
 
   project_id = var.project_id
   region     = var.region
