@@ -41,7 +41,7 @@ id -u vault &>/dev/null || useradd -d /etc/vault.d -s /bin/false vault
 
 # Vault config
 mkdir -p /etc/vault.d
-mkdir /etc/vault.d/plugins
+mkdir -p /etc/vault.d/plugins
 cat <<"EOF" > /etc/vault.d/config.hcl
 ${config}
 EOF
