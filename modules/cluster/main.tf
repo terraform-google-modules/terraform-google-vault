@@ -282,8 +282,8 @@ resource "google_compute_health_check" "autoheal" {
   project = var.project_id
   name    = "vault-health-autoheal"
 
-  check_interval_sec  = 10
-  timeout_sec         = 5
+  check_interval_sec  = var.autoheal_interval_sec
+  timeout_sec         = var.autoheal_timeout_sec
   healthy_threshold   = 1
   unhealthy_threshold = 2
 
