@@ -400,3 +400,15 @@ variable "tls_ou" {
   type        = string
   default     = "IT Security Operations"
 }
+
+variable "autoheal_interval_sec" {
+  description = "How often (in seconds) to send a health check"
+  type        = number
+  default     = 10
+}
+
+variable "autoheal_timeout_sec" {
+  description = "How long (in seconds) to wait before claiming health check failure"
+  type        = number
+  default     = 5
+}
