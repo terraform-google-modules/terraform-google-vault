@@ -2,8 +2,8 @@
 set -xe
 set -o pipefail
 
-# Only run the script once
-if [ -f ~/.startup-script-complete ]; then
+# Only run the script once or in version upgrades 
+if [ -f ~/.startup-script-complete-${vault_version} ]; then
   echo "Startup script already ran, exiting"
   exit 0
 fi
@@ -37,11 +37,11 @@ fi
 /sbin/setcap cap_ipc_lock=+ep /usr/local/bin/vault
 
 # Add Vault user
-useradd -d /etc/vault.d -s /bin/false vault
+id -u vault &>/dev/null || useradd -d /etc/vault.d -s /bin/false vault
 
 # Vault config
 mkdir -p /etc/vault.d
-mkdir /etc/vault.d/plugins
+mkdir -p /etc/vault.d/plugins
 cat <<"EOF" > /etc/vault.d/config.hcl
 ${config}
 EOF
@@ -295,4 +295,4 @@ service stackdriver-agent restart
 ${user_startup_script}
 
 # Signal this script has run
-touch ~/.startup-script-complete
+touch ~/.startup-script-complete-${vault_version}
