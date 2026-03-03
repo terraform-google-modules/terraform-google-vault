@@ -164,7 +164,7 @@ gcloud kms encrypt \
   --ciphertext-file=- | base64 > "vault.key.enc"
 
 for file in vault.key.enc ca.crt vault.crt; do
-  gsutil cp $file gs://$TLS_BUCKET/$file
+  gcloud storage cp $file gs://$TLS_BUCKET/$file
 done
 ```
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

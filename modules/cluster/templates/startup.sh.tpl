@@ -59,9 +59,9 @@ chmod 0600 /etc/vault.d/vault.env
 
 # Download TLS files from GCS
 mkdir -p /etc/vault.d/tls
-gsutil cp "gs://${vault_tls_bucket}/${vault_ca_cert_filename}" /etc/vault.d/tls/ca.crt
-gsutil cp "gs://${vault_tls_bucket}/${vault_tls_cert_filename}" /etc/vault.d/tls/vault.crt
-gsutil cp "gs://${vault_tls_bucket}/${vault_tls_key_filename}" /etc/vault.d/tls/vault.key.enc
+gcloud storage cp "gs://${vault_tls_bucket}/${vault_ca_cert_filename}" /etc/vault.d/tls/ca.crt
+gcloud storage cp "gs://${vault_tls_bucket}/${vault_tls_cert_filename}" /etc/vault.d/tls/vault.crt
+gcloud storage cp "gs://${vault_tls_bucket}/${vault_tls_key_filename}" /etc/vault.d/tls/vault.key.enc
 
 # Decrypt the Vault private key
 base64 --decode < /etc/vault.d/tls/vault.key.enc | gcloud kms decrypt \
